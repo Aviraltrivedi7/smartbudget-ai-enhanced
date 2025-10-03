@@ -1,5 +1,8 @@
 
 import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTransactions } from '@/hooks/useTransactions';
+import AuthModal from '@/components/AuthModal';
 import Dashboard from '@/components/Dashboard';
 import AddExpense from '@/components/AddExpense';
 import AIFinanceCoach from '@/components/AIFinanceCoach';
@@ -16,6 +19,10 @@ import SmartSuggestions from '@/components/SmartSuggestions';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSelector from '@/components/LanguageSelector';
 import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { User, LogOut, Settings } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import SpendingCoach from '@/components/SpendingCoach';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import GeoFinanceMap from '@/components/GeoFinanceMap';
@@ -39,21 +46,41 @@ interface Transaction {
   type: 'income' | 'expense';
 }
 
+// Simple UserMenu component
+const UserMenu: React.FC<{ user: any; onSignOut: () => void }> = ({ user, onSignOut }) => {
+  const { currentLanguage } = useLanguage();
+  const isHindi = currentLanguage === 'hi';
+  
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex items-center gap-2">
+          <User className="h-4 w-4" />
+          <span className="hidden sm:inline">
+            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isHindi ? 'उपयोगकर्ता' : 'User')}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={onSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          {isHindi ? 'साइन आउट' : 'Sign Out'}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 const Index = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { transactions, addTransaction: addTransactionToDb } = useTransactions();
+  const { currentLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => {
     // Show guide if user hasn't seen it before
     return !localStorage.getItem('hasSeenWelcomeGuide');
   });
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: '1', title: 'Salary', amount: 50000, category: 'Income', date: '2024-11-01', type: 'income' },
-    { id: '2', title: 'McDonald\'s', amount: 850, category: 'Food', date: '2024-11-02', type: 'expense' },
-    { id: '3', title: 'Uber', amount: 320, category: 'Travel', date: '2024-11-03', type: 'expense' },
-    { id: '4', title: 'Rent', amount: 15000, category: 'Rent', date: '2024-11-04', type: 'expense' },
-    { id: '5', title: 'Grocery', amount: 2500, category: 'Food', date: '2024-11-05', type: 'expense' },
-    { id: '6', title: 'Movie Tickets', amount: 600, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
-    { id: '7', title: 'Freelance', amount: 8000, category: 'Income', date: '2024-11-07', type: 'income' },
-  ]);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleAddTransaction = (newTransaction: {
     title: string;
@@ -62,16 +89,13 @@ const Index = () => {
     date: Date;
     type: 'expense' | 'income';
   }) => {
-    const transaction: Transaction = {
-      id: Date.now().toString(),
+    addTransactionToDb({
       title: newTransaction.title,
       amount: newTransaction.amount,
       category: newTransaction.category,
       date: newTransaction.date.toISOString().split('T')[0],
       type: newTransaction.type,
-    };
-    
-    setTransactions(prev => [...prev, transaction]);
+    });
   };
 
   const handleWelcomeGuideClose = () => {
@@ -249,12 +273,28 @@ const Index = () => {
             transactions={transactions}
           />
         );
-      default:
+        default:
         return (
           <div>
             <div className="flex justify-end items-center gap-4 p-4">
               <LanguageSelector />
               <ThemeToggle />
+              {!user && (
+                <Button 
+                  onClick={() => setShowAuthModal(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <span>🔐</span>
+                  {currentLanguage === 'hi' ? 'लॉगिन' : 'Login'}
+                </Button>
+              )}
+              {user && (
+                <UserMenu 
+                  user={user}
+                  onSignOut={() => signOut()}
+                />
+              )}
             </div>
             <DashboardWithNavigation 
               transactions={transactions}
@@ -275,6 +315,10 @@ const Index = () => {
         isOpen={showWelcomeGuide}
         onClose={handleWelcomeGuideClose}
         onFeatureSelect={handleFeatureSelect}
+      />
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
       />
     </div>
   );

@@ -1,73 +1,231 @@
-# Welcome to your Lovable project
+# 💰 SmartBudget AI - Personal Finance Assistant
 
-## Project info
+> **Your intelligent financial companion with advanced AI features and bilingual support (English/Hindi)**
 
-**URL**: https://lovable.dev/projects/708dd7c6-859c-475f-92d8-110695466cb3
+A comprehensive, modern financial management application that helps users track expenses, plan budgets, and achieve financial goals through AI-powered insights and gamification.
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+### 🎯 Core Financial Management
+- **Smart Transaction Tracking** - Add expenses via voice, text, or bill scanning
+- **AI-Powered Categorization** - Automatic expense categorization with machine learning
+- **Budget Planning & Goals** - Set and track savings goals with progress visualization
+- **Bill Reminders** - Never miss a payment with smart notifications
+- **Multi-Currency Support** - Support for Indian Rupees (₹) and other currencies
 
-**Use Lovable**
+### 🤖 AI & Analytics
+- **AI Finance Coach** - Personalized financial advice and spending insights
+- **Expense Heatmaps** - Visual spending patterns with AI analysis
+- **Smart Suggestions** - Predictive budget recommendations
+- **Advanced Analytics** - Comprehensive financial reports and trends
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/708dd7c6-859c-475f-92d8-110695466cb3) and start prompting.
+### 🎮 Engagement Features
+- **Gamification System** - Earn points, badges, and achievements for good financial habits
+- **Money Monster** - Fun, interactive savings game
+- **Progress Tracking** - Visual progress bars and milestone celebrations
+- **Weekly Challenges** - Personalized financial challenges
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🌍 Accessibility & Experience
+- **Bilingual Support** - Complete Hindi (हिंदी) and English localization
+- **Voice Commands** - Add transactions using speech recognition
+- **Bill Scanner** - OCR-powered receipt scanning
+- **Offline Support** - Works offline with local data sync
+- **Interactive Onboarding** - Step-by-step welcome guide
+- **Dark/Light Theme** - Adaptive UI themes
 
-**Use your preferred IDE**
+### 📱 Technical Features
+- **Real-time Sync** - Cloud synchronization across devices
+- **PWA Support** - Install as a mobile app
+- **Responsive Design** - Works on all device sizes
+- **Data Export** - Export financial data in multiple formats
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🚀 Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Frontend
+- **React 18** - Modern React with hooks and context
+- **TypeScript** - Type-safe development
+- **Vite** - Lightning-fast build tool
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Beautiful, accessible UI components
+- **Recharts** - Interactive data visualizations
+- **React Query** - Server state management
+- **React Router** - Client-side routing
 
-Follow these steps:
+### Backend & Database
+- **Supabase** - PostgreSQL database with real-time features
+- **Row Level Security** - Secure data access
+- **Authentication** - Email/password and social login
+- **Real-time Subscriptions** - Live data updates
+- **File Storage** - Receipt and document storage
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Deployment & DevOps
+- **Vercel** - Frontend deployment
+- **Netlify** - Alternative deployment option
+- **GitHub Actions** - CI/CD pipeline
+- **ESLint & Prettier** - Code quality tools
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🛠️ Installation & Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Git
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Quick Start
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Aviraltrivedi7/pocket-pal-financial-ai.git
+   cd pocket-pal-financial-ai
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup:**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Update `.env` with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Database Setup:**
+   - Create a new Supabase project
+   - Run the migration files in `supabase/migrations/`
+   - Or use Supabase CLI: `supabase db reset`
+
+5. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+6. **Build for production:**
+   ```bash
+   npm run build
+   ```
+
+## 🗄️ Database Schema
+
+The app uses a comprehensive PostgreSQL schema with the following main tables:
+
+- **profiles** - User profile information
+- **transactions** - Financial transactions with categorization
+- **categories** - Expense/income categories
+- **budgets** - Budget plans and limits
+- **savings_goals** - User-defined savings targets
+- **bill_reminders** - Recurring bill notifications
+- **user_achievements** - Gamification data
+- **user_preferences** - User settings and preferences
+
+All tables include Row Level Security (RLS) policies for data protection.
+
+## 🌐 Deployment
+
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
+
+### Netlify
+1. Connect repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `dist`
+4. Add environment variables
+
+### Manual Deployment
+```bash
+npm run build
+# Deploy the 'dist' folder to your hosting provider
 ```
 
-**Edit a file directly in GitHub**
+## 📱 Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### For Users
+1. **First Time:** Complete the interactive welcome guide
+2. **Add Transactions:** Use voice, manual entry, or bill scanning
+3. **Set Goals:** Define savings targets and budget limits
+4. **Track Progress:** Monitor spending patterns and achievements
+5. **Get Insights:** Review AI-powered financial recommendations
 
-**Use GitHub Codespaces**
+### Offline Mode
+The app works completely offline with local data storage. Data syncs automatically when online.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Language Support
+Switch between English and Hindi using the language selector in the top-right corner.
 
-## What technologies are used for this project?
+## 🎮 Gamification System
 
-This project is built with:
+- **Points System:** Earn points for logging expenses, staying within budget
+- **Achievements:** Unlock badges for financial milestones
+- **Streaks:** Maintain daily transaction logging streaks
+- **Challenges:** Weekly financial challenges with rewards
+- **Leaderboard:** Compare progress with friends (optional)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🔧 Development
 
-## How can I deploy this project?
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
+```
 
-Simply open [Lovable](https://lovable.dev/projects/708dd7c6-859c-475f-92d8-110695466cb3) and click on Share -> Publish.
+### Project Structure
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   └── ...             # Feature components
+├── contexts/           # React contexts (Auth, Language)
+├── hooks/              # Custom React hooks
+├── integrations/       # Third-party integrations
+├── lib/                # Utility functions
+├── pages/              # Page components
+├── utils/              # Helper functions
+└── types/              # TypeScript type definitions
+```
 
-## Can I connect a custom domain to my Lovable project?
+## 🤝 Contributing
 
-Yes, you can!
+We welcome contributions! Please follow these steps:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Development Guidelines
+- Follow TypeScript best practices
+- Use conventional commit messages
+- Add tests for new features
+- Update documentation as needed
+- Ensure Hindi translations for new text
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **shadcn/ui** - Beautiful UI components
+- **Supabase** - Backend infrastructure
+- **Recharts** - Data visualization
+- **Lucide Icons** - Icon library
+- **Tailwind CSS** - Styling framework
+
+## 📞 Support
+
+For support, email [your-email@example.com] or open an issue on GitHub.
+
+---
+
+**Made with ❤️ for better financial management**
