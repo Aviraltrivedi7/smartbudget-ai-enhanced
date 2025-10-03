@@ -6,7 +6,7 @@ A comprehensive, modern financial management application that helps users track 
 
 ## 🎯 Live Demo
 
-🔗 **[Try SmartBudget AI Live](http://localhost:8080/)** - Experience the stunning animations and smooth interactions!
+🔗 **[Try SmartBudget AI Live](https://smartbudget-ai-enhanced.vercel.app/)** - Experience the stunning animations and smooth interactions!
 
 ## ✨ What's New in Latest Update
 
@@ -96,8 +96,8 @@ A comprehensive, modern financial management application that helps users track 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/Aviraltrivedi7/pocket-pal-financial-ai.git
-   cd pocket-pal-financial-ai
+   git clone https://github.com/Aviraltrivedi7/smartbudget-ai-enhanced.git
+   cd smartbudget-ai-enhanced
    ```
 
 2. **Install dependencies:**
