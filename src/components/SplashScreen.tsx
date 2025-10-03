@@ -45,13 +45,14 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-all duration-500 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-all duration-500 smooth-load ${
         fadeOut ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
       }`}
       style={{
         background: 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c)',
         backgroundSize: '400% 400%',
-        animation: 'gradientShift 8s ease infinite'
+        animation: 'gradientShift 8s ease infinite',
+        willChange: 'opacity, transform'
       }}
     >
       {/* Floating icons */}

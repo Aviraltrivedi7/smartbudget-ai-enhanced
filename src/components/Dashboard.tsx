@@ -32,6 +32,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   const { t, currentLanguage } = useLanguage();
   const [selectedMonth, setSelectedMonth] = useState('january-2025');
   const [chartView, setChartView] = useState<'pie' | 'bar' | 'trend'>('pie');
+  const [isLoaded, setIsLoaded] = useState(false);
+  
+  React.useEffect(() => {
+    // Simulate component loading completion
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Use prop transactions or fallback to default data
   const transactions: Transaction[] = propTransactions || [
@@ -178,9 +187,50 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
+  // Skeleton loader component
+  const SkeletonCard = ({ className = "", height = "h-32" }: { className?: string; height?: string }) => (
+    <div className={cn("bg-white/80 backdrop-blur-sm rounded-xl border shadow-sm animate-pulse", className)}>
+      <div className={cn("bg-gray-200 rounded-lg", height)} />
+    </div>
+  );
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
+        <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+          {/* Header skeleton */}
+          <div className="text-center space-y-4">
+            <div className="h-12 w-80 bg-gray-200 rounded-lg mx-auto animate-pulse" />
+            <div className="h-6 w-96 bg-gray-200 rounded-lg mx-auto animate-pulse" />
+          </div>
+          
+          {/* Stats skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} height="h-24" />
+            ))}
+          </div>
+          
+          {/* Chart skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SkeletonCard height="h-80" />
+            <SkeletonCard height="h-80" />
+          </div>
+          
+          {/* Action buttons skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} height="h-24" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
-      {/* Add floating particles */}
+      {/* Add floating particles - only after loaded */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
@@ -196,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         ))}
       </div>
       
-      <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+      <div className="max-w-6xl mx-auto space-y-6 relative z-10 animate-fadeInUp">
         {/* Enhanced Header */}
         <div className="text-center space-y-4 animate-slideInTop">
             <div className="flex items-center justify-center gap-4">

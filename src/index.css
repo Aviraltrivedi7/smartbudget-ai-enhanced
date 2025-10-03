@@ -256,6 +256,45 @@
     animation: rainbow 3s linear infinite;
   }
   
+  /* Smooth loading utilities to prevent CLS */
+  .smooth-load {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .prevent-layout-shift {
+    contain: layout style;
+  }
+  
+  .stable-height {
+    min-height: fit-content;
+    height: auto;
+  }
+  
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    .float-animation,
+    .animate-bounce,
+    .animate-pulse {
+      animation: none !important;
+    }
+  }
+  
   .glass-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);

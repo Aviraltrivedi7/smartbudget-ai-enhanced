@@ -81,11 +81,12 @@ const AnimatedBackground: React.FC = () => {
     <>
       {/* Enhanced animated gradient background */}
       <div 
-        className="fixed inset-0 -z-50"
+        className="fixed inset-0 -z-50 smooth-load"
         style={{
           background: 'linear-gradient(-45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1), rgba(240, 147, 251, 0.08), rgba(245, 87, 108, 0.1))',
           backgroundSize: '400% 400%',
-          animation: 'gradientShift 20s ease infinite'
+          animation: 'gradientShift 20s ease infinite',
+          willChange: 'background-position'
         }}
       />
       
