@@ -20,7 +20,7 @@ interface Transaction {
 
 interface DashboardProps {
   transactions?: Transaction[];
-  onNavigate?: (view: 'dashboard' | 'add-expense' | 'insights' | 'coach' | 'budget-planner' | 'savings-goals' | 'visualizer' | 'bill-reminder' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'ai-heatmap' | 'budget-progress' | 'money-monster' | 'calendar-tracker') => void;
+  onNavigate?: (view: 'dashboard' | 'add-expense' | 'insights' | 'coach' | 'budget-planner' | 'savings-goals' | 'visualizer' | 'bill-reminder' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker') => void;
   onShowWelcomeGuide?: () => void;
 }
 
@@ -381,13 +381,6 @@ const Dashboard: React.FC<DashboardProps> = ({
             📊 {t('advancedAnalytics')}
           </Button>
           
-          <Button 
-            onClick={() => onNavigate?.('ai-heatmap')}
-            className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <BarChart3 className="mr-2 h-5 w-5" />
-            🔥 {t('aiHeatmap')}
-          </Button>
           
           <Button 
             onClick={() => onNavigate?.('budget-progress')}

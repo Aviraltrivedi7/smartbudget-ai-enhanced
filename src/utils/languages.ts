@@ -46,7 +46,6 @@ export const translations = {
     // New Dashboard Features
     calendarTracker: "Calendar Tracker",
     advancedAnalytics: "Advanced Analytics",
-    aiHeatmap: "AI Heatmap",
     budgetProgress: "Budget Progress",
     moneyMonster: "Money Monster",
     aiSpendingCoach: "AI Spending Coach",
@@ -176,7 +175,6 @@ export const translations = {
     // New Dashboard Features
     calendarTracker: "कैलेंडर ट्रैकर",
     advancedAnalytics: "उन्नत विश्लेषण",
-    aiHeatmap: "AI हीटमैप",
     budgetProgress: "बजट प्रगति",
     moneyMonster: "मनी मॉन्स्टर",
     aiSpendingCoach: "AI खर्च कोच",

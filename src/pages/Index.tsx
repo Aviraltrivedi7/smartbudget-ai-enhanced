@@ -29,13 +29,12 @@ import GeoFinanceMap from '@/components/GeoFinanceMap';
 import BillScanner from '@/components/BillScanner';
 import VoiceTransactionEntry from '@/components/VoiceTransactionEntry';
 import AdvancedAnalytics from '@/components/AdvancedAnalytics';
-import AIHeatmap from '@/components/AIHeatmap';
 import BudgetProgress from '@/components/BudgetProgress';
 import MoneyMonster from '@/components/MoneyMonster';
 import CalendarExpenseTracker from '@/components/CalendarExpenseTracker';
 import WelcomeGuide from '@/components/WelcomeGuide';
 
-type ViewType = 'dashboard' | 'add-expense' | 'insights' | 'visualizer' | 'coach' | 'budget-planner' | 'savings-goals' | 'bill-reminder' | 'expense-chat' | 'spending-limits' | 'gamification' | 'monthly-report' | 'smart-suggestions' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'ai-heatmap' | 'budget-progress' | 'money-monster' | 'calendar-tracker';
+type ViewType = 'dashboard' | 'add-expense' | 'insights' | 'visualizer' | 'coach' | 'budget-planner' | 'savings-goals' | 'bill-reminder' | 'expense-chat' | 'spending-limits' | 'gamification' | 'monthly-report' | 'smart-suggestions' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker';
 
 interface Transaction {
   id: string;
@@ -248,13 +247,6 @@ const Index = () => {
       case 'advanced-analytics':
         return (
           <AdvancedAnalytics 
-            onBack={() => setCurrentView('dashboard')}
-            transactions={transactions}
-          />
-        );
-      case 'ai-heatmap':
-        return (
-          <AIHeatmap 
             onBack={() => setCurrentView('dashboard')}
             transactions={transactions}
           />
