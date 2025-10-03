@@ -47,7 +47,7 @@ const BillScanner: React.FC<BillScannerProps> = ({ onBack, onSave }) => {
     // Simulate OCR processing
     setTimeout(() => {
       const mockData = {
-        amount: 1250,
+        amount: 0,
         vendor: "McDonald's",
         date: new Date(),
         category: "Food",

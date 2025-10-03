@@ -15,37 +15,37 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
   const insights = {
     spendingIncrease: {
       category: 'Food',
-      percentage: 30,
-      amount: 2850,
-      previousMonth: 2200
+      percentage: 0,
+      amount: 0,
+      previousMonth: 0
     },
     prediction: {
-      nextMonth: 12000,
+      nextMonth: 0,
       confidence: 85
     },
     topCategories: [
-      { name: 'Rent', amount: 15000, percentage: 75 },
-      { name: 'Food', amount: 3350, percentage: 17 },
-      { name: 'Travel', amount: 820, percentage: 4 },
-      { name: 'Entertainment', amount: 600, percentage: 3 }
+      { name: 'Rent', amount: 0, percentage: 75 },
+      { name: 'Food', amount: 0, percentage: 17 },
+      { name: 'Travel', amount: 0, percentage: 4 },
+      { name: 'Entertainment', amount: 0, percentage: 3 }
     ],
     suggestions: [
       {
         type: 'warning',
         title: 'High Food Spending',
         description: 'You spent 30% more on food this month. Consider meal planning to reduce costs.',
-        potential_savings: 850
+        potential_savings: 0
       },
       {
         type: 'tip',
         title: 'Travel Optimization',
         description: 'Try using public transport or carpooling to reduce travel expenses.',
-        potential_savings: 200
+        potential_savings: 0
       },
       {
         type: 'goal',
         title: 'Savings Goal',
-        description: 'You\'re on track to save ₹40,000 this month. Keep up the good work!',
+        description: 'You\'re on track to save ₹0 this month. Keep up the good work!',
         potential_savings: 0
       }
     ],

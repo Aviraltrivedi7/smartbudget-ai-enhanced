@@ -151,15 +151,15 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
               <div className="flex gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-200 rounded-full"></div>
-                  <span>Low (&lt;₹2k)</span>
+                  <span>Low (&lt;₹0)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-orange-200 rounded-full"></div>
-                  <span>Medium (₹2k-5k)</span>
+                  <span>Medium (₹0-0)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-red-200 rounded-full"></div>
-                  <span>High (&gt;₹5k)</span>
+                  <span>High (&gt;₹0)</span>
                 </div>
               </div>
             </CardHeader>

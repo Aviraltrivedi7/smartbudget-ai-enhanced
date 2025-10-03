@@ -36,11 +36,11 @@ const Gamification: React.FC<GamificationProps> = ({ onBack, transactions }) => 
   const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
   const [badges, setBadges] = useState<Badge[]>([
-    { id: '1', name: 'First Saver', description: 'पहली बार ₹500 बचाएं', icon: '🏆', earned: false, progress: 0, target: 500 },
+    { id: '1', name: 'First Saver', description: 'पहली बार ₹0 बचाएं', icon: '🏆', earned: false, progress: 0, target: 0 },
     { id: '2', name: 'Budget Master', description: '10 transactions record करें', icon: '💰', earned: false, progress: 0, target: 10 },
     { id: '3', name: 'Expense Tracker', description: '30 दिन continuously track करें', icon: '📊', earned: false, progress: 0, target: 30 },
     { id: '4', name: 'Smart Spender', description: 'किसी category में limit के अंदर रहें', icon: '🧠', earned: false, progress: 0, target: 1 },
-    { id: '5', name: 'Saving Champion', description: '₹10,000 बचाएं', icon: '🏅', earned: false, progress: 0, target: 10000 },
+    { id: '5', name: 'Saving Champion', description: '₹0 बचाएं', icon: '🏅', earned: false, progress: 0, target: 0 },
   ]);
   const { toast } = useToast();
 
@@ -101,9 +101,9 @@ const Gamification: React.FC<GamificationProps> = ({ onBack, transactions }) => 
   };
 
   const challenges = [
-    { title: "आज ₹100 बचाएं", reward: "50 points", completed: false },
+    { title: "आज ₹0 बचाएं", reward: "50 points", completed: false },
     { title: "5 transactions add करें", reward: "100 points", completed: transactions.length >= 5 },
-    { title: "Food category में ₹500 की limit set करें", reward: "75 points", completed: false },
+    { title: "Food category में ₹0 की limit set करें", reward: "75 points", completed: false },
   ];
 
   return (

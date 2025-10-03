@@ -52,7 +52,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({ onBack, transaction
 
     // High spending in specific categories
     Object.entries(categoryTotals).forEach(([category, amount]) => {
-      if (amount > 2000) {
+      if (amount > 0) {
         newSuggestions.push({
           id: `high-${category}`,
           type: 'warning',
@@ -79,7 +79,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({ onBack, transaction
     const foodExpenses = expenses.filter(t => t.category === 'Food');
     if (foodExpenses.length > 0) {
       const avgFoodExpense = foodExpenses.reduce((sum, t) => sum + t.amount, 0) / foodExpenses.length;
-      if (avgFoodExpense > 500) {
+      if (avgFoodExpense > 0) {
         newSuggestions.push({
           id: 'food-suggestion',
           type: 'tip',
@@ -93,7 +93,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({ onBack, transaction
 
     // Entertainment spending
     const entertainmentTotal = categoryTotals['Entertainment'] || 0;
-    if (entertainmentTotal > 1000) {
+    if (entertainmentTotal > 0) {
       newSuggestions.push({
         id: 'entertainment-tip',
         type: 'tip',
@@ -106,7 +106,7 @@ const SmartSuggestions: React.FC<SmartSuggestionsProps> = ({ onBack, transaction
 
     // Travel expenses
     const travelTotal = categoryTotals['Travel'] || 0;
-    if (travelTotal > 800) {
+    if (travelTotal > 0) {
       newSuggestions.push({
         id: 'travel-tip',
         type: 'tip',

@@ -45,8 +45,8 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     {
       id: '1',
       title: 'Emergency Fund',
-      target: 50000,
-      current: 32000,
+      target: 0,
+      current: 0,
       deadline: '2024-12-31',
       category: 'Security',
       reward: 'Premium features unlock',
@@ -57,11 +57,11 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     {
       id: '2',
       title: 'New Laptop',
-      target: 80000,
-      current: 45000,
+      target: 0,
+      current: 0,
       deadline: '2024-12-15',
       category: 'Gadgets',
-      reward: '₹500 cashback',
+      reward: '₹0 cashback',
       streak: 8,
       level: 2,
       icon: '💻'
@@ -69,8 +69,8 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     {
       id: '3',
       title: 'Vacation Fund',
-      target: 25000,
-      current: 18000,
+      target: 0,
+      current: 0,
       deadline: '2024-11-30',
       category: 'Travel',
       reward: 'Travel planning guide',
@@ -93,7 +93,7 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     {
       id: '2',
       title: 'Daily Saver',
-      description: 'Save at least ₹100 every day',
+      description: 'Save at least ₹0 every day',
       points: 50,
       duration: '3 days left',
       completed: false,

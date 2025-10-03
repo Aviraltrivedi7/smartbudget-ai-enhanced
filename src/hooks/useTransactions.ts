@@ -27,13 +27,13 @@ export const useTransactions = () => {
 
   // Default transactions for offline/demo mode
   const defaultTransactions: LocalTransaction[] = [
-    { id: '1', title: 'Salary', amount: 50000, category: 'Income', date: '2024-11-01', type: 'income' },
-    { id: '2', title: "McDonald's", amount: 850, category: 'Food', date: '2024-11-02', type: 'expense' },
-    { id: '3', title: 'Uber', amount: 320, category: 'Travel', date: '2024-11-03', type: 'expense' },
-    { id: '4', title: 'Rent', amount: 15000, category: 'Rent', date: '2024-11-04', type: 'expense' },
-    { id: '5', title: 'Grocery', amount: 2500, category: 'Food', date: '2024-11-05', type: 'expense' },
-    { id: '6', title: 'Movie Tickets', amount: 600, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
-    { id: '7', title: 'Freelance', amount: 8000, category: 'Income', date: '2024-11-07', type: 'income' },
+    { id: '1', title: 'Salary', amount: 0, category: 'Income', date: '2024-11-01', type: 'income' },
+    { id: '2', title: "McDonald's", amount: 0, category: 'Food', date: '2024-11-02', type: 'expense' },
+    { id: '3', title: 'Uber', amount: 0, category: 'Travel', date: '2024-11-03', type: 'expense' },
+    { id: '4', title: 'Rent', amount: 0, category: 'Rent', date: '2024-11-04', type: 'expense' },
+    { id: '5', title: 'Grocery', amount: 0, category: 'Food', date: '2024-11-05', type: 'expense' },
+    { id: '6', title: 'Movie Tickets', amount: 0, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
+    { id: '7', title: 'Freelance', amount: 0, category: 'Income', date: '2024-11-07', type: 'income' },
   ];
 
   // Load transactions from local storage
