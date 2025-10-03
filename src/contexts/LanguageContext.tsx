@@ -23,10 +23,10 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState('hi');
+  const [currentLanguage, setCurrentLanguage] = useState('en');
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('app_language') || 'hi';
+    const savedLanguage = localStorage.getItem('app_language') || 'en';
     setCurrentLanguage(savedLanguage);
   }, []);
 
