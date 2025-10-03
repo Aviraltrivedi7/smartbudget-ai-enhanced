@@ -87,10 +87,10 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 animated-bg">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 animate-slideInTop">
           <Button
             variant="outline"
             size="sm"
@@ -108,7 +108,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
         </div>
 
         {/* Form Card */}
-        <Card className="border-0 card-shadow">
+        <Card className="border-0 card-shadow glass-card animate-scaleIn animate-delay-300">
           <CardHeader>
             <CardTitle>{t('transactionDetails')}</CardTitle>
           </CardHeader>

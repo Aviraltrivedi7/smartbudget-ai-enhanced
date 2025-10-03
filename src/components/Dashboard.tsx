@@ -179,12 +179,12 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 animate-slideInTop">
             <div className="flex items-center justify-center gap-4">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-glow float-animation">
                 SmartBudget AI
               </h1>
               {onShowWelcomeGuide && (
@@ -225,8 +225,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         </Card>
 
         {/* Balance Cards with Enhanced Visuals */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="financial-gradient text-white border-0 card-shadow hover:scale-105 transition-transform duration-300">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp animate-delay-300">
+          <Card className="financial-gradient text-white border-0 card-shadow hover:scale-105 transition-transform duration-300 animate-scaleIn animate-delay-100 animate-wiggle">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
@@ -242,7 +242,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 card-shadow hover:scale-105 transition-transform duration-300">
+          <Card className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 card-shadow hover:scale-105 transition-transform duration-300 animate-scaleIn animate-delay-200 animate-wiggle">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -258,7 +258,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </CardContent>
           </Card>
           
-          <Card className="expense-gradient text-white border-0 card-shadow hover:scale-105 transition-transform duration-300">
+          <Card className="expense-gradient text-white border-0 card-shadow hover:scale-105 transition-transform duration-300 animate-scaleIn animate-delay-300 animate-wiggle">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium opacity-90 flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
@@ -276,7 +276,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Enhanced Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slideInLeft animate-delay-500">
           {/* Interactive Chart */}
           <Card className="border-0 card-shadow">
             <CardHeader>
@@ -323,7 +323,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             <CardContent>
               <div className="space-y-3 max-h-[300px] overflow-y-auto">
                 {transactions.slice(-5).reverse().map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg hover:shadow-md transition-shadow">
+                  <div key={transaction.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-105 glass-card animate-fadeInUp" style={{ animationDelay: `${Math.random() * 0.5}s` }}>
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center",
@@ -356,10 +356,10 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Enhanced Action Buttons with New Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slideInBottom animate-delay-500">
           <Button 
             onClick={() => onNavigate?.('add-expense')}
-            className="financial-gradient text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
+            className="financial-gradient text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-100"
           >
             <Plus className="mr-2 h-5 w-5" />
             {t('addTransaction')}
@@ -367,7 +367,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           
           <Button 
             onClick={() => onNavigate?.('calendar-tracker')}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-200"
           >
             <Calendar className="mr-2 h-5 w-5" />
             📅 {t('calendarTracker')}
@@ -375,7 +375,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           
           <Button 
             onClick={() => onNavigate?.('advanced-analytics')}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-300"
           >
             <PieChartIcon className="mr-2 h-5 w-5" />
             📊 {t('advancedAnalytics')}
@@ -384,7 +384,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           
           <Button 
             onClick={() => onNavigate?.('budget-progress')}
-            className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-100"
           >
             <Target className="mr-2 h-5 w-5" />
             🎯 {t('budgetProgress')}

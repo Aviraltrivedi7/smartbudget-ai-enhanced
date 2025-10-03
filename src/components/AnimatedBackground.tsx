@@ -19,12 +19,12 @@ const AnimatedBackground: React.FC = () => {
       'hsl(var(--digital-cyan) / 0.2)',
     ];
 
-    const newParticles: Particle[] = Array.from({ length: 15 }, (_, i) => ({
+    const newParticles: Particle[] = Array.from({ length: 25 }, (_, i) => ({
       id: i,
-      size: Math.random() * 60 + 20,
+      size: Math.random() * 80 + 30,
       color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 20,
-      duration: Math.random() * 10 + 15,
+      delay: Math.random() * 25,
+      duration: Math.random() * 15 + 20,
     }));
 
     setParticles(newParticles);
@@ -40,14 +40,35 @@ const AnimatedBackground: React.FC = () => {
         {particles.map((particle) => (
           <div
             key={particle.id}
-            className="floating-particle absolute rounded-full opacity-60"
+            className="floating-particle absolute opacity-40 animate-pulse"
             style={{
               width: `${particle.size}px`,
               height: `${particle.size}px`,
               background: particle.color,
+              borderRadius: particle.id % 3 === 0 ? '50%' : particle.id % 3 === 1 ? '20%' : '0%',
               top: `${Math.random() * 100}vh`,
+              left: `${Math.random() * 100}vw`,
               animationDelay: `${particle.delay}s`,
               animationDuration: `${particle.duration}s`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          />
+        ))}
+        
+        {/* Additional floating elements */}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={`extra-${i}`}
+            className="absolute animate-bounce opacity-20"
+            style={{
+              width: '4px',
+              height: '4px',
+              borderRadius: '50%',
+              background: 'hsl(var(--primary))',
+              top: `${Math.random() * 100}vh`,
+              left: `${Math.random() * 100}vw`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 2}s`,
             }}
           />
         ))}
