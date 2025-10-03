@@ -130,21 +130,25 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ isOpen, onClose, onFeatureS
         </DialogHeader>
 
         {currentStep < steps.length ? (
-          <div className="space-y-6 p-6">
+          <div className="space-y-6 p-6 animate-fadeInUp">
             {/* Progress bar */}
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-500 ease-out relative overflow-hidden"
                 style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-              />
+              >
+                <div className="absolute inset-0 bg-white/30 animate-pulse" />
+              </div>
             </div>
 
             {/* Step content */}
-            <div className="text-center space-y-4">
-              <div className="flex justify-center mb-4">
-                {currentStepData.icon}
+            <div className="text-center space-y-6 animate-scaleIn">
+              <div className="flex justify-center mb-6 animate-bounceIn">
+                <div className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full shadow-lg">
+                  {currentStepData.icon}
+                </div>
               </div>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-gray-600 leading-relaxed animate-fadeInUp animate-delay-200">
                 {getText(currentStepData.description)}
               </p>
             </div>
@@ -165,8 +169,8 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ isOpen, onClose, onFeatureS
               </span>
               
               <Button 
-                onClick={nextStep}
-                className="px-6 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+                onClick={currentStep === steps.length - 1 ? () => setCurrentStep(steps.length) : nextStep}
+                className="px-6 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90 button-hover-effect"
               >
                 {currentStep === steps.length - 1 
                   ? getText({ en: "Get Started", hi: "शुरू करें" })
@@ -190,16 +194,17 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ isOpen, onClose, onFeatureS
             </div>
 
             {/* Feature selection */}
-            <div className="grid grid-cols-2 gap-4">
-              {features.map((feature) => (
+            <div className="grid grid-cols-2 gap-4 animate-fadeInUp animate-delay-300">
+              {features.map((feature, index) => (
                 <Card 
                   key={feature.key}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 border-2 hover:border-blue-300"
+                  className="cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 hover:border-gradient-to-r hover:from-blue-400 hover:to-purple-400 glass-card button-hover-effect animate-scaleIn"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => handleFeatureSelect(feature.key)}
                 >
-                  <CardContent className="p-4 text-center space-y-2">
-                    <div className="text-3xl">{feature.emoji}</div>
-                    <h3 className="font-medium text-sm">
+                  <CardContent className="p-6 text-center space-y-3">
+                    <div className="text-4xl transform hover:scale-125 transition-transform duration-200">{feature.emoji}</div>
+                    <h3 className="font-semibold text-sm text-gray-700">
                       {getText(feature.title)}
                     </h3>
                   </CardContent>

@@ -179,12 +179,28 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2 animate-slideInTop">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
+      {/* Add floating particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={`floating-${i}`}
+            className="absolute w-2 h-2 bg-blue-400/20 rounded-full animate-pulse float-animation"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${i * 0.5}s`,
+              animationDuration: `${3 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
+      
+      <div className="max-w-6xl mx-auto space-y-6 relative z-10">
+        {/* Enhanced Header */}
+        <div className="text-center space-y-4 animate-slideInTop">
             <div className="flex items-center justify-center gap-4">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-glow float-animation">
+              <h1 className="text-5xl font-black bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent animate-glow float-animation drop-shadow-sm">
                 SmartBudget AI
               </h1>
               {onShowWelcomeGuide && (
@@ -192,10 +208,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                   variant="outline"
                   size="sm"
                   onClick={onShowWelcomeGuide}
-                  className="ml-2 p-2 h-8 w-8 rounded-full"
+                  className="ml-2 p-2 h-10 w-10 rounded-full button-hover-effect animate-heartbeat hover:animate-none"
                   title={currentLanguage === 'hi' ? 'मदद गाइड देखें' : 'View Help Guide'}
                 >
-                  <HelpCircle className="h-4 w-4" />
+                  <HelpCircle className="h-5 w-5" />
                 </Button>
               )}
             </div>
