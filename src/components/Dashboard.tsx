@@ -30,7 +30,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onShowWelcomeGuide
 }) => {
   const { t, currentLanguage } = useLanguage();
-  const [selectedMonth, setSelectedMonth] = useState('november-2024');
+  const [selectedMonth, setSelectedMonth] = useState('january-2025');
   const [chartView, setChartView] = useState<'pie' | 'bar' | 'trend'>('pie');
 
   // Use prop transactions or fallback to default data
@@ -214,10 +214,90 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder={t('selectMonth')} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="november-2024">{t('november')} 2024</SelectItem>
-                  <SelectItem value="october-2024">{t('october')} 2024</SelectItem>
-                  <SelectItem value="september-2024">{t('september')} 2024</SelectItem>
+                <SelectContent className="max-h-64 overflow-y-auto">
+                  {/* 2025 */}
+                  <SelectItem value="january-2025">{t('january')} 2025</SelectItem>
+                  <SelectItem value="february-2025">{t('february')} 2025</SelectItem>
+                  <SelectItem value="march-2025">{t('march')} 2025</SelectItem>
+                  <SelectItem value="april-2025">{t('april')} 2025</SelectItem>
+                  <SelectItem value="may-2025">{t('may')} 2025</SelectItem>
+                  <SelectItem value="june-2025">{t('june')} 2025</SelectItem>
+                  <SelectItem value="july-2025">{t('july')} 2025</SelectItem>
+                  <SelectItem value="august-2025">{t('august')} 2025</SelectItem>
+                  <SelectItem value="september-2025">{t('september')} 2025</SelectItem>
+                  <SelectItem value="october-2025">{t('october')} 2025</SelectItem>
+                  <SelectItem value="november-2025">{t('november')} 2025</SelectItem>
+                  <SelectItem value="december-2025">{t('december')} 2025</SelectItem>
+                  
+                  {/* 2026 */}
+                  <SelectItem value="january-2026">{t('january')} 2026</SelectItem>
+                  <SelectItem value="february-2026">{t('february')} 2026</SelectItem>
+                  <SelectItem value="march-2026">{t('march')} 2026</SelectItem>
+                  <SelectItem value="april-2026">{t('april')} 2026</SelectItem>
+                  <SelectItem value="may-2026">{t('may')} 2026</SelectItem>
+                  <SelectItem value="june-2026">{t('june')} 2026</SelectItem>
+                  <SelectItem value="july-2026">{t('july')} 2026</SelectItem>
+                  <SelectItem value="august-2026">{t('august')} 2026</SelectItem>
+                  <SelectItem value="september-2026">{t('september')} 2026</SelectItem>
+                  <SelectItem value="october-2026">{t('october')} 2026</SelectItem>
+                  <SelectItem value="november-2026">{t('november')} 2026</SelectItem>
+                  <SelectItem value="december-2026">{t('december')} 2026</SelectItem>
+                  
+                  {/* 2027 */}
+                  <SelectItem value="january-2027">{t('january')} 2027</SelectItem>
+                  <SelectItem value="february-2027">{t('february')} 2027</SelectItem>
+                  <SelectItem value="march-2027">{t('march')} 2027</SelectItem>
+                  <SelectItem value="april-2027">{t('april')} 2027</SelectItem>
+                  <SelectItem value="may-2027">{t('may')} 2027</SelectItem>
+                  <SelectItem value="june-2027">{t('june')} 2027</SelectItem>
+                  <SelectItem value="july-2027">{t('july')} 2027</SelectItem>
+                  <SelectItem value="august-2027">{t('august')} 2027</SelectItem>
+                  <SelectItem value="september-2027">{t('september')} 2027</SelectItem>
+                  <SelectItem value="october-2027">{t('october')} 2027</SelectItem>
+                  <SelectItem value="november-2027">{t('november')} 2027</SelectItem>
+                  <SelectItem value="december-2027">{t('december')} 2027</SelectItem>
+                  
+                  {/* 2028 */}
+                  <SelectItem value="january-2028">{t('january')} 2028</SelectItem>
+                  <SelectItem value="february-2028">{t('february')} 2028</SelectItem>
+                  <SelectItem value="march-2028">{t('march')} 2028</SelectItem>
+                  <SelectItem value="april-2028">{t('april')} 2028</SelectItem>
+                  <SelectItem value="may-2028">{t('may')} 2028</SelectItem>
+                  <SelectItem value="june-2028">{t('june')} 2028</SelectItem>
+                  <SelectItem value="july-2028">{t('july')} 2028</SelectItem>
+                  <SelectItem value="august-2028">{t('august')} 2028</SelectItem>
+                  <SelectItem value="september-2028">{t('september')} 2028</SelectItem>
+                  <SelectItem value="october-2028">{t('october')} 2028</SelectItem>
+                  <SelectItem value="november-2028">{t('november')} 2028</SelectItem>
+                  <SelectItem value="december-2028">{t('december')} 2028</SelectItem>
+                  
+                  {/* 2029 */}
+                  <SelectItem value="january-2029">{t('january')} 2029</SelectItem>
+                  <SelectItem value="february-2029">{t('february')} 2029</SelectItem>
+                  <SelectItem value="march-2029">{t('march')} 2029</SelectItem>
+                  <SelectItem value="april-2029">{t('april')} 2029</SelectItem>
+                  <SelectItem value="may-2029">{t('may')} 2029</SelectItem>
+                  <SelectItem value="june-2029">{t('june')} 2029</SelectItem>
+                  <SelectItem value="july-2029">{t('july')} 2029</SelectItem>
+                  <SelectItem value="august-2029">{t('august')} 2029</SelectItem>
+                  <SelectItem value="september-2029">{t('september')} 2029</SelectItem>
+                  <SelectItem value="october-2029">{t('october')} 2029</SelectItem>
+                  <SelectItem value="november-2029">{t('november')} 2029</SelectItem>
+                  <SelectItem value="december-2029">{t('december')} 2029</SelectItem>
+                  
+                  {/* 2030 */}
+                  <SelectItem value="january-2030">{t('january')} 2030</SelectItem>
+                  <SelectItem value="february-2030">{t('february')} 2030</SelectItem>
+                  <SelectItem value="march-2030">{t('march')} 2030</SelectItem>
+                  <SelectItem value="april-2030">{t('april')} 2030</SelectItem>
+                  <SelectItem value="may-2030">{t('may')} 2030</SelectItem>
+                  <SelectItem value="june-2030">{t('june')} 2030</SelectItem>
+                  <SelectItem value="july-2030">{t('july')} 2030</SelectItem>
+                  <SelectItem value="august-2030">{t('august')} 2030</SelectItem>
+                  <SelectItem value="september-2030">{t('september')} 2030</SelectItem>
+                  <SelectItem value="october-2030">{t('october')} 2030</SelectItem>
+                  <SelectItem value="november-2030">{t('november')} 2030</SelectItem>
+                  <SelectItem value="december-2030">{t('december')} 2030</SelectItem>
                 </SelectContent>
               </Select>
             </div>
