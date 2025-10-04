@@ -26,7 +26,7 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
   const [locationData, setLocationData] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [apiKey, setApiKey] = useState('AIzaSyBFw0Qbyq9zTFTd-tUqqo6885S3b3TvjjQ');
+  const [apiKey, setApiKey] = useState('AIzaSyC_itkbXDLtm5v_ZY9hJbfhu7cgHMJOf9M');
   const [showMapInput, setShowMapInput] = useState(false);
   const [mapError, setMapError] = useState(false);
   const { toast } = useToast();
