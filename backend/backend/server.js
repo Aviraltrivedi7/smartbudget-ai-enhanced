@@ -11,8 +11,10 @@ import { Server as SocketIOServer } from 'socket.io';
 
 // Import routes
 import authRoutes from './routes/auth.js';
+import authDemoRoutes from './routes/auth-demo.js';
 import userRoutes from './routes/user.js';
 import transactionRoutes from './routes/transactions.js';
+import transactionDemoRoutes from './routes/transactions-demo.js';
 import categoryRoutes from './routes/categories.js';
 import budgetRoutes from './routes/budgets.js';
 import goalRoutes from './routes/goals.js';
@@ -124,16 +126,47 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/user', authenticateToken, userRoutes);
-app.use('/api/transactions', authenticateToken, transactionRoutes);
-app.use('/api/categories', authenticateToken, categoryRoutes);
-app.use('/api/budgets', authenticateToken, budgetRoutes);
-app.use('/api/goals', authenticateToken, goalRoutes);
-app.use('/api/bills', authenticateToken, billRoutes);
-app.use('/api/analytics', authenticateToken, analyticsRoutes);
-app.use('/api/ai', authenticateToken, aiRoutes);
+// Variable to store database connection status
+let isDBConnected = false;
+
+// API Routes - use demo routes if MongoDB is not connected
+app.use('/api/auth', (req, res, next) => {
+  if (isDBConnected) {
+    authRoutes(req, res, next);
+  } else {
+    authDemoRoutes(req, res, next);
+  }
+});
+
+app.use('/api/transactions', (req, res, next) => {
+  if (isDBConnected) {
+    authenticateToken(req, res, () => {
+      transactionRoutes(req, res, next);
+    });
+  } else {
+    transactionDemoRoutes(req, res, next);
+  }
+});
+
+// Use original routes for authenticated endpoints when DB is connected
+if (mongoose.connection.readyState === 1) {
+  app.use('/api/user', authenticateToken, userRoutes);
+  app.use('/api/categories', authenticateToken, categoryRoutes);
+  app.use('/api/budgets', authenticateToken, budgetRoutes);
+  app.use('/api/goals', authenticateToken, goalRoutes);
+  app.use('/api/bills', authenticateToken, billRoutes);
+  app.use('/api/analytics', authenticateToken, analyticsRoutes);
+  app.use('/api/ai', authenticateToken, aiRoutes);
+} else {
+  // Placeholder routes for demo mode
+  app.use('/api/user', (req, res) => res.json({ success: true, message: 'Demo mode - endpoint not available', data: null }));
+  app.use('/api/categories', (req, res) => res.json({ success: true, message: 'Demo mode - using default categories', data: [] }));
+  app.use('/api/budgets', (req, res) => res.json({ success: true, message: 'Demo mode - endpoint not available', data: [] }));
+  app.use('/api/goals', (req, res) => res.json({ success: true, message: 'Demo mode - endpoint not available', data: [] }));
+  app.use('/api/bills', (req, res) => res.json({ success: true, message: 'Demo mode - endpoint not available', data: [] }));
+  app.use('/api/analytics', (req, res) => res.json({ success: true, message: 'Demo mode - endpoint not available', data: {} }));
+  app.use('/api/ai', (req, res) => res.json({ success: true, message: 'Demo mode - AI features not available', data: null }));
+}
 
 // Socket.IO initialization
 initializeSocket(io);
@@ -158,17 +191,27 @@ process.on('SIGTERM', () => {
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-  const isDBConnected = await connectDB();
+  isDBConnected = await connectDB();
   
   server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-    console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
+    console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
     console.log(`💾 Database: ${isDBConnected ? process.env.DB_NAME || 'Connected' : 'Demo Mode (No DB)'}`);
     
     if (!isDBConnected) {
       console.log('🎨 Demo Mode Active - API will return sample data');
+      console.log('🔧 To use real database, add MONGODB_URI to .env file');
     }
+    
+    console.log('\n🌟 Backend is ready!');
+    console.log('📡 Available endpoints:');
+    console.log('   GET  /health - Server health check');
+    console.log('   POST /api/auth/login - User login');
+    console.log('   POST /api/auth/register - User registration');
+    console.log('   GET  /api/transactions - Get transactions');
+    console.log('   POST /api/transactions - Create transaction');
+    console.log('\n🔗 Connect your frontend to: http://localhost:' + PORT);
   });
 };
 
