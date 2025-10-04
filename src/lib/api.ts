@@ -95,15 +95,21 @@ export const apiRequest = async <T = any>(
 
     const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
+    // Return the response structure from backend as-is
+    if (response.ok) {
+      return {
+        success: data.success !== false,
+        message: data.message || 'Success',
+        data: data.data || data,
+      };
+    } else {
+      // Handle error responses without throwing
+      return {
+        success: false,
+        message: data.message || `HTTP error! status: ${response.status}`,
+        error: data.error || data.message || 'Request failed',
+      };
     }
-
-    return {
-      success: true,
-      message: data.message || 'Success',
-      data: data.data || data,
-    };
 
   } catch (error: any) {
     console.error('API Request Error:', error);
