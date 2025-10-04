@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,7 +24,7 @@ interface DashboardProps {
   onShowWelcomeGuide?: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ 
+const Dashboard: React.FC<DashboardProps> = memo(({ 
   transactions: propTransactions, 
   onNavigate,
   onShowWelcomeGuide
@@ -53,7 +53,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     { id: '7', title: 'Freelance', amount: 0, category: 'Income', date: '2024-11-07', type: 'income' },
   ];
 
-  const calculateTotals = () => {
+  // Memoize expensive calculations for better performance
+  const { income, expenses, balance } = useMemo(() => {
     const income = transactions
       .filter(t => t.type === 'income')
       .reduce((sum, t) => sum + t.amount, 0);
@@ -63,9 +64,9 @@ const Dashboard: React.FC<DashboardProps> = ({
       .reduce((sum, t) => sum + t.amount, 0);
     
     return { income, expenses, balance: income - expenses };
-  };
+  }, [transactions]);
 
-  const getCategoryData = () => {
+  const categoryData = useMemo(() => {
     const categoryTotals = transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
@@ -80,9 +81,9 @@ const Dashboard: React.FC<DashboardProps> = ({
       value: amount,
       fill: colors[index % colors.length]
     }));
-  };
+  }, [transactions, currentLanguage]);
 
-  const getTrendData = () => {
+  const trendData = useMemo(() => {
     const dailyData = transactions.reduce((acc, t) => {
       const date = new Date(t.date).getDate();
       if (!acc[date]) {
@@ -97,11 +98,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     }, {} as Record<number, { day: number; income: number; expenses: number }>);
 
     return Object.values(dailyData).sort((a, b) => a.day - b.day);
-  };
-
-  const { income, expenses, balance } = calculateTotals();
-  const categoryData = getCategoryData();
-  const trendData = getTrendData();
+  }, [transactions]);
 
   const chartConfig = {
     income: {
@@ -114,7 +111,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     },
   };
 
-  const renderChart = () => {
+  const renderChart = useCallback(() => {
     switch (chartView) {
       case 'bar':
         return (
@@ -185,7 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           </ChartContainer>
         );
     }
-  };
+  }, [chartView, categoryData, trendData, chartConfig]);
 
   // Skeleton loader component
   const SkeletonCard = ({ className = "", height = "h-32" }: { className?: string; height?: string }) => (
@@ -230,17 +227,17 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
-      {/* Add floating particles - only after loaded */}
+      {/* Reduced floating particles for better performance */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={`floating-${i}`}
-            className="absolute w-2 h-2 bg-blue-400/20 rounded-full animate-pulse float-animation"
+            className="absolute w-1.5 h-1.5 bg-blue-400/10 rounded-full animate-pulse"
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              animationDelay: `${i * 0.5}s`,
-              animationDuration: `${3 + Math.random() * 2}s`,
+              animationDelay: `${i * 1}s`,
+              animationDuration: `${5 + Math.random() * 3}s`,
             }}
           />
         ))}
@@ -629,6 +626,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default Dashboard;

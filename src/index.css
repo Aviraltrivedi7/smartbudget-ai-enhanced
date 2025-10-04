@@ -145,12 +145,12 @@
 
   .animated-bg {
     background: linear-gradient(-45deg, 
-      hsl(var(--primary) / 0.05),
-      hsl(var(--secondary) / 0.1),
-      hsl(var(--digital-blue) / 0.05),
-      hsl(var(--digital-purple) / 0.08));
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+      hsl(var(--primary) / 0.03),
+      hsl(var(--secondary) / 0.05),
+      hsl(var(--digital-blue) / 0.03),
+      hsl(var(--digital-purple) / 0.04));
+    background-size: 200% 200%;
+    animation: gradientShift 20s ease infinite;
   }
 
   .floating-particle {
@@ -273,11 +273,21 @@
     height: auto;
   }
   
-  /* Performance optimizations */
+  /* Enhanced performance optimizations */
   .gpu-accelerated {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
+    will-change: transform, opacity;
+  }
+  
+  .optimized-transition {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  }
+  
+  .reduce-complexity {
+    contain: layout style paint;
+    transform: translateZ(0);
   }
   
   /* Reduce motion for users who prefer it */
