@@ -1,23 +1,24 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { authService, User, LoginCredentials, SignupData } from '@/services/authService';
+import { socketService } from '@/services/socketService';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: AuthError | null }>;
-  signOut: () => Promise<{ error: AuthError | null }>;
-  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  signup: (userData: SignupData) => Promise<boolean>;
+  logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<boolean>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -29,135 +30,155 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Check authentication status on mount
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    };
+    checkAuthStatus();
+  }, []);
 
-    getInitialSession();
+  // Setup socket connection when user is authenticated
+  useEffect(() => {
+    if (user) {
+      socketService.connect();
+      socketService.joinUserRoom(user.id);
+    } else {
+      socketService.disconnect();
+    }
+  }, [user]);
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Welcome back! 👋",
-            description: "Successfully signed in to your account.",
-          });
-        }
-
-        if (event === 'SIGNED_OUT') {
-          toast({
-            title: "Goodbye! 👋",
-            description: "You've been signed out successfully.",
-          });
+  const checkAuthStatus = async () => {
+    try {
+      if (authService.isAuthenticated()) {
+        const response = await authService.getCurrentUser();
+        if (response.success && response.data) {
+          setUser(response.data);
+        } else {
+          // Token might be expired, clear it
+          await authService.logout();
         }
       }
-    );
-
-    return () => subscription.unsubscribe();
-  }, [toast]);
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        title: "Sign In Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Auth check error:', error);
+      await authService.logout();
+    } finally {
+      setIsLoading(false);
     }
-
-    return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        }
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const response = await authService.login(credentials);
+      
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        toast.success('Login successful! Welcome back 👋');
+        return true;
+      } else {
+        toast.error(response.error || response.message || 'Login failed');
+        return false;
       }
-    });
-
-    if (error) {
-      toast({
-        title: "Sign Up Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Account Created! 🎉",
-        description: "Please check your email to verify your account.",
-      });
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Login failed. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    return { error };
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      toast({
-        title: "Sign Out Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+  const signup = async (userData: SignupData): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const response = await authService.signup(userData);
+      
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        toast.success('Account created successfully! Welcome to SmartBudget AI 🎉');
+        return true;
+      } else {
+        toast.error(response.error || response.message || 'Signup failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      toast.error('Signup failed. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    return { error };
   };
 
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-
-    if (error) {
-      toast({
-        title: "Password Reset Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Password Reset Email Sent",
-        description: "Check your email for password reset instructions.",
-      });
+  const logout = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      if (user) {
+        socketService.leaveUserRoom(user.id);
+      }
+      socketService.disconnect();
+      await authService.logout();
+      setUser(null);
+      toast.success('Logged out successfully. See you soon! 👋');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local state even if server request fails
+      setUser(null);
+    } finally {
+      setIsLoading(false);
     }
-
-    return { error };
   };
 
-  const value = {
+  const updateUser = async (userData: Partial<User>): Promise<boolean> => {
+    if (!user) return false;
+
+    try {
+      const response = await authService.updateProfile(userData);
+      
+      if (response.success && response.data) {
+        setUser(response.data);
+        toast.success('Profile updated successfully! ✨');
+        return true;
+      } else {
+        toast.error(response.error || response.message || 'Update failed');
+        return false;
+      }
+    } catch (error) {
+      console.error('Update user error:', error);
+      toast.error('Update failed. Please try again.');
+      return false;
+    }
+  };
+
+  const refreshUser = async (): Promise<void> => {
+    if (!authService.isAuthenticated()) return;
+
+    try {
+      const response = await authService.getCurrentUser();
+      if (response.success && response.data) {
+        setUser(response.data);
+      }
+    } catch (error) {
+      console.error('Refresh user error:', error);
+    }
+  };
+
+  const value: AuthContextType = {
     user,
-    session,
-    loading,
-    signIn,
-    signUp,
-    signOut,
-    resetPassword,
+    isLoading,
+    isAuthenticated: !!user,
+    login,
+    signup,
+    logout,
+    updateUser,
+    refreshUser,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export default AuthProvider;

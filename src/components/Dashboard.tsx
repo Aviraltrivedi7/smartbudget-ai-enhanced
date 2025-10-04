@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
+import React, { useState, useMemo, useCallback, memo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,50 +8,143 @@ import { Plus, TrendingUp, DollarSign, PieChart as PieChartIcon, Calendar, Brain
 import { cn } from "@/lib/utils";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getCategoryTranslation } from '@/utils/languages';
-
-interface Transaction {
-  id: string;
-  title: string;
-  amount: number;
-  category: string;
-  date: string;
-  type: 'income' | 'expense';
-}
+import { useAuth } from '@/contexts/AuthContext';
+import { transactionService, Transaction } from '@/services/transactionService';
+import { socketService } from '@/services/socketService';
+import { toast } from 'sonner';
 
 interface DashboardProps {
-  transactions?: Transaction[];
   onNavigate?: (view: 'dashboard' | 'add-expense' | 'insights' | 'coach' | 'budget-planner' | 'savings-goals' | 'visualizer' | 'bill-reminder' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker') => void;
   onShowWelcomeGuide?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = memo(({ 
-  transactions: propTransactions, 
   onNavigate,
   onShowWelcomeGuide
 }) => {
   const { t, currentLanguage } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState('january-2025');
   const [chartView, setChartView] = useState<'pie' | 'bar' | 'trend'>('pie');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('checking');
   
-  React.useEffect(() => {
-    // Simulate component loading completion
-    const timer = setTimeout(() => {
+  // Load initial data and setup real-time updates
+  useEffect(() => {
+    const initializeDashboard = async () => {
+      setIsLoaded(false);
+      setConnectionStatus('checking');
+      
+      // Check backend connectivity
+      const isBackendAvailable = await checkBackendConnection();
+      
+      if (isBackendAvailable && isAuthenticated) {
+        setConnectionStatus('connected');
+        await loadTransactions();
+        setupRealTimeUpdates();
+      } else if (!isAuthenticated) {
+        setConnectionStatus('unauthenticated');
+        // Use demo data for unauthenticated users
+        setTransactions(getDemoTransactions());
+      } else {
+        setConnectionStatus('offline');
+        // Use demo data when backend is offline
+        setTransactions(getDemoTransactions());
+        toast.error('Backend unavailable. Showing demo data.');
+      }
+      
       setIsLoaded(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    };
+
+    initializeDashboard();
+
+    // Cleanup
+    return () => {
+      if (socketService.isConnected()) {
+        socketService.off('transaction_added', handleTransactionAdded);
+        socketService.off('transaction_updated', handleTransactionUpdated);
+        socketService.off('transaction_deleted', handleTransactionDeleted);
+      }
+    };
+  }, [isAuthenticated]);
+
+  // Check backend connection
+  const checkBackendConnection = async (): Promise<boolean> => {
+    try {
+      const response = await fetch(import.meta.env.VITE_API_URL?.replace('/api', '/health') || 'http://localhost:5000/health', {
+        method: 'GET',
+        timeout: 3000,
+      } as any);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  // Load transactions from backend
+  const loadTransactions = async () => {
+    if (!isAuthenticated) return;
+    
+    setIsLoadingData(true);
+    try {
+      const response = await transactionService.getTransactions({ limit: 100 });
+      if (response.success && response.data) {
+        setTransactions(response.data.transactions);
+      }
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+      toast.error('Failed to load transactions');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
+  // Setup real-time updates
+  const setupRealTimeUpdates = () => {
+    if (socketService.isConnected()) {
+      socketService.on('transaction_added', handleTransactionAdded);
+      socketService.on('transaction_updated', handleTransactionUpdated);
+      socketService.on('transaction_deleted', handleTransactionDeleted);
+      socketService.on('stats_updated', handleStatsUpdated);
+    }
+  };
+
+  // Real-time event handlers
+  const handleTransactionAdded = useCallback((newTransaction: Transaction) => {
+    setTransactions(prev => [newTransaction, ...prev]);
+    toast.success('💰 New transaction added!');
   }, []);
 
-  // Use prop transactions or fallback to default data
-  const transactions: Transaction[] = propTransactions || [
-    { id: '1', title: 'Salary', amount: 0, category: 'Income', date: '2024-11-01', type: 'income' },
-    { id: '2', title: 'McDonald\'s', amount: 0, category: 'Food', date: '2024-11-02', type: 'expense' },
-    { id: '3', title: 'Uber', amount: 0, category: 'Travel', date: '2024-11-03', type: 'expense' },
-    { id: '4', title: 'Rent', amount: 0, category: 'Rent', date: '2024-11-04', type: 'expense' },
-    { id: '5', title: 'Grocery', amount: 0, category: 'Food', date: '2024-11-05', type: 'expense' },
-    { id: '6', title: 'Movie Tickets', amount: 0, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
-    { id: '7', title: 'Freelance', amount: 0, category: 'Income', date: '2024-11-07', type: 'income' },
+  const handleTransactionUpdated = useCallback((updatedTransaction: Transaction) => {
+    setTransactions(prev => prev.map(t => 
+      t.id === updatedTransaction.id ? updatedTransaction : t
+    ));
+    toast.success('✏️ Transaction updated!');
+  }, []);
+
+  const handleTransactionDeleted = useCallback((deletedId: string) => {
+    setTransactions(prev => prev.filter(t => t.id !== deletedId));
+    toast.success('🗑️ Transaction deleted!');
+  }, []);
+
+  const handleStatsUpdated = useCallback((stats: any) => {
+    // Could update cached stats here
+    console.log('📊 Stats updated:', stats);
+  }, []);
+
+  // Demo data for offline/unauthenticated users
+  const getDemoTransactions = (): Transaction[] => [
+    { id: '1', title: 'Demo Salary', amount: 75000, category: 'Income', date: '2024-11-01', type: 'income' },
+    { id: '2', title: 'Demo McDonald\'s', amount: 450, category: 'Food', date: '2024-11-02', type: 'expense' },
+    { id: '3', title: 'Demo Uber', amount: 280, category: 'Travel', date: '2024-11-03', type: 'expense' },
+    { id: '4', title: 'Demo Rent', amount: 15000, category: 'Rent', date: '2024-11-04', type: 'expense' },
+    { id: '5', title: 'Demo Grocery', amount: 2500, category: 'Food', date: '2024-11-05', type: 'expense' },
+    { id: '6', title: 'Demo Movie Tickets', amount: 800, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
+    { id: '7', title: 'Demo Freelance', amount: 12000, category: 'Income', date: '2024-11-07', type: 'income' },
   ];
+
 
   // Memoize expensive calculations for better performance
   const { income, expenses, balance } = useMemo(() => {
@@ -262,7 +355,31 @@ const Dashboard: React.FC<DashboardProps> = memo(({
                 </Button>
               )}
             </div>
-            <p className="text-gray-600">{t('yourFinancialCompanion')}</p>
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <p className="text-gray-600">{t('yourFinancialCompanion')}</p>
+              {/* Connection Status Indicator */}
+              <div className="flex items-center gap-1">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  connectionStatus === 'connected' ? "bg-green-500 animate-pulse" :
+                  connectionStatus === 'offline' ? "bg-red-500" :
+                  connectionStatus === 'unauthenticated' ? "bg-yellow-500" :
+                  "bg-gray-400 animate-pulse"
+                )} />
+                <span className={cn(
+                  "text-xs font-medium",
+                  connectionStatus === 'connected' ? "text-green-600" :
+                  connectionStatus === 'offline' ? "text-red-600" :
+                  connectionStatus === 'unauthenticated' ? "text-yellow-600" :
+                  "text-gray-500"
+                )}>
+                  {connectionStatus === 'connected' ? '🔗 Live Data' :
+                   connectionStatus === 'offline' ? '📱 Demo Mode' :
+                   connectionStatus === 'unauthenticated' ? '👤 Demo Mode' :
+                   '⏳ Connecting...'}
+                </span>
+              </div>
+            </div>
         </div>
 
         {/* Month Selector */}

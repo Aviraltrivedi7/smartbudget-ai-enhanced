@@ -4,7 +4,14 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Enhanced SmartBudget AI - Personal Finance Assistant with stunning animations and AI-powered insights",
-  "keywords": ["finance", "budget", "ai", "react", "typescript", "animations"],
+  "keywords": [
+    "finance",
+    "budget",
+    "ai",
+    "react",
+    "typescript",
+    "animations"
+  ],
   "author": "Aviral Trivedi",
   "scripts": {
     "dev": "vite",
@@ -44,6 +51,7 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@supabase/supabase-js": "^2.57.4",
     "@tanstack/react-query": "^5.56.2",
+    "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -59,6 +67,7 @@
     "react-resizable-panels": "^2.1.3",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
+    "socket.io-client": "^4.8.1",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",

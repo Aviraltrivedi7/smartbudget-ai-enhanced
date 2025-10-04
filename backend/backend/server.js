@@ -47,14 +47,21 @@ const io = new SocketIOServer(server, {
 // Connect to MongoDB
 const connectDB = async () => {
   try {
+    if (!process.env.MONGODB_URI) {
+      console.log('⚠️  No MongoDB URI provided. Running in demo mode without database.');
+      return false;
+    }
+    
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log(`🍃 MongoDB Connected: ${conn.connection.host}`);
+    return true;
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
+    console.log('⚠️  Running in demo mode without database.');
+    return false;
   }
 };
 
@@ -151,13 +158,17 @@ process.on('SIGTERM', () => {
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
-  await connectDB();
+  const isDBConnected = await connectDB();
   
   server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
-    console.log(`💾 Database: ${process.env.DB_NAME}`);
+    console.log(`💾 Database: ${isDBConnected ? process.env.DB_NAME || 'Connected' : 'Demo Mode (No DB)'}`);
+    
+    if (!isDBConnected) {
+      console.log('🎨 Demo Mode Active - API will return sample data');
+    }
   });
 };
 
