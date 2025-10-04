@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow, HeatmapLayer } from '@react-google-maps/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +25,10 @@ interface GeoFinanceMapProps {
 const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) => {
   const [locationData, setLocationData] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
   const { toast } = useToast();
 
-  // Google Maps API Key - Replace with your actual key
+  // Google Maps API Key
   const GOOGLE_MAPS_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUqqo6885S3b3TvjjQ';
 
   // Map settings
@@ -42,13 +43,9 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
     lng: 78.9629
   };
 
-  const mapOptions = {
-    zoom: 5,
-    mapTypeId: 'roadmap' as google.maps.MapTypeId,
-    streetViewControl: false,
-    mapTypeControl: true,
-    fullscreenControl: true,
-  };
+  const onMapLoad = useCallback(() => {
+    setIsMapLoaded(true);
+  }, []);
 
   // Mock location data for demo - Major Indian Cities
   const mockLocations = [
@@ -205,12 +202,12 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
-                  zoom={mapOptions.zoom}
+                  zoom={5}
+                  onLoad={onMapLoad}
                   options={{
-                    mapTypeId: mapOptions.mapTypeId,
-                    streetViewControl: mapOptions.streetViewControl,
-                    mapTypeControl: mapOptions.mapTypeControl,
-                    fullscreenControl: mapOptions.fullscreenControl,
+                    streetViewControl: false,
+                    mapTypeControl: true,
+                    fullscreenControl: true,
                     styles: [
                       {
                         featureType: 'poi',
@@ -221,16 +218,13 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                   }}
                 >
                   {/* Markers for each location */}
-                  {locationData.map((location, index) => (
+                  {isMapLoaded && locationData.map((location, index) => (
                     <Marker
                       key={index}
                       position={{ lat: location.lat, lng: location.lng }}
                       onClick={() => setSelectedLocation(location)}
-                      icon={{
-                        url: location.icon,
-                        scaledSize: new window.google.maps.Size(40, 40)
-                      }}
-                      animation={window.google.maps.Animation.DROP}
+                      icon={location.icon}
+                      title={location.name}
                     />
                   ))}
 
@@ -240,26 +234,26 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                       position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
                       onCloseClick={() => setSelectedLocation(null)}
                     >
-                      <div className="p-2 min-w-[200px]">
-                        <h3 className="font-bold text-lg mb-2 text-gray-900">
+                      <div style={{ padding: '8px', minWidth: '200px' }}>
+                        <h3 style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '8px', color: '#1f2937' }}>
                           {selectedLocation.name}
                         </h3>
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Total Spent:</span>
-                            <span className="font-semibold text-red-600">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '14px', color: '#4b5563' }}>Total Spent:</span>
+                            <span style={{ fontWeight: '600', color: '#dc2626' }}>
                               ₹{selectedLocation.spent.toLocaleString()}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Transactions:</span>
-                            <span className="font-semibold text-blue-600">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '14px', color: '#4b5563' }}>Transactions:</span>
+                            <span style={{ fontWeight: '600', color: '#2563eb' }}>
                               {selectedLocation.transactions}
                             </span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Avg per Transaction:</span>
-                            <span className="font-semibold text-green-600">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '14px', color: '#4b5563' }}>Avg per Transaction:</span>
+                            <span style={{ fontWeight: '600', color: '#16a34a' }}>
                               ₹{Math.round(selectedLocation.spent / selectedLocation.transactions).toLocaleString()}
                             </span>
                           </div>
