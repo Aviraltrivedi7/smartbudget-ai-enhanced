@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from 'sonner';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { login, signup } = useAuth();
   const { t, currentLanguage } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -30,9 +31,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true);
     
-    const { error } = await signIn(signinForm.email, signinForm.password);
+    const success = await login({ email: signinForm.email, password: signinForm.password });
     
-    if (!error) {
+    if (success) {
       onClose();
       setSigninForm({ email: '', password: '' });
     }
@@ -44,15 +45,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     
     if (signupForm.password !== signupForm.confirmPassword) {
-      return; // Handle password mismatch
+      toast.error('Passwords do not match!');
+      return;
     }
     
     setLoading(true);
     
-    const { error } = await signUp(signupForm.email, signupForm.password, signupForm.fullName);
+    const success = await signup({
+      fullName: signupForm.fullName,
+      email: signupForm.email,
+      password: signupForm.password,
+      confirmPassword: signupForm.confirmPassword
+    });
     
-    if (!error) {
-      setActiveTab('signin');
+    if (success) {
+      onClose();
       setSignupForm({ email: '', password: '', fullName: '', confirmPassword: '' });
     }
     
@@ -63,7 +70,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true);
     
-    await resetPassword(resetEmail);
+    // Password reset functionality will be added later
+    toast.info('Password reset feature will be available soon!');
     setResetEmail('');
     
     setLoading(false);
