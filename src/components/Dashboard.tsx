@@ -14,11 +14,13 @@ import { socketService } from '@/services/socketService';
 import { toast } from 'sonner';
 
 interface DashboardProps {
+  transactions?: any[];
   onNavigate?: (view: 'dashboard' | 'add-expense' | 'insights' | 'coach' | 'budget-planner' | 'savings-goals' | 'visualizer' | 'bill-reminder' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker') => void;
   onShowWelcomeGuide?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = memo(({ 
+  transactions: propTransactions,
   onNavigate,
   onShowWelcomeGuide
 }) => {
@@ -31,10 +33,33 @@ const Dashboard: React.FC<DashboardProps> = memo(({
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('checking');
   
-  // Load initial data and setup real-time updates
+  // Load transactions from prop or localStorage
   useEffect(() => {
-    const initializeDashboard = async () => {
-      setIsLoaded(false);
+    if (propTransactions && propTransactions.length >= 0) {
+      setTransactions(propTransactions as Transaction[]);
+      setIsLoaded(true);
+    } else {
+      // Load from localStorage if no prop transactions
+      const loadFromStorage = () => {
+        const stored = localStorage.getItem('pocket_pal_transactions');
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            setTransactions(parsed);
+          } catch (error) {
+            console.error('Error loading transactions:', error);
+            setTransactions([]);
+          }
+        }
+        setIsLoaded(true);
+      };
+      loadFromStorage();
+    }
+  }, [propTransactions]);
+
+  // Setup backend connection and real-time updates
+  useEffect(() => {
+    const initializeBackend = async () => {
       setConnectionStatus('checking');
       
       // Check backend connectivity
@@ -46,19 +71,12 @@ const Dashboard: React.FC<DashboardProps> = memo(({
         setupRealTimeUpdates();
       } else if (!isAuthenticated) {
         setConnectionStatus('unauthenticated');
-        // Use demo data for unauthenticated users
-        setTransactions(getDemoTransactions());
       } else {
         setConnectionStatus('offline');
-        // Use demo data when backend is offline
-        setTransactions(getDemoTransactions());
-        toast.error('Backend unavailable. Showing demo data.');
       }
-      
-      setIsLoaded(true);
     };
 
-    initializeDashboard();
+    initializeBackend();
 
     // Cleanup
     return () => {
