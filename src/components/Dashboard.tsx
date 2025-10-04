@@ -134,15 +134,10 @@ const Dashboard: React.FC<DashboardProps> = memo(({
     console.log('📊 Stats updated:', stats);
   }, []);
 
-  // Demo data for offline/unauthenticated users
+  // Demo data for offline/unauthenticated users - Starting with empty transactions
   const getDemoTransactions = (): Transaction[] => [
-    { id: '1', title: 'Demo Salary', amount: 75000, category: 'Income', date: '2024-11-01', type: 'income' },
-    { id: '2', title: 'Demo McDonald\'s', amount: 450, category: 'Food', date: '2024-11-02', type: 'expense' },
-    { id: '3', title: 'Demo Uber', amount: 280, category: 'Travel', date: '2024-11-03', type: 'expense' },
-    { id: '4', title: 'Demo Rent', amount: 15000, category: 'Rent', date: '2024-11-04', type: 'expense' },
-    { id: '5', title: 'Demo Grocery', amount: 2500, category: 'Food', date: '2024-11-05', type: 'expense' },
-    { id: '6', title: 'Demo Movie Tickets', amount: 800, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
-    { id: '7', title: 'Demo Freelance', amount: 12000, category: 'Income', date: '2024-11-07', type: 'income' },
+    // No demo transactions - all amounts start at 0
+    // Users can add their own transactions using the "Add Transaction" button
   ];
 
 
