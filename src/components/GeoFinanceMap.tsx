@@ -26,10 +26,10 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
   const [locationData, setLocationData] = useState<any[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [apiKey, setApiKey] = useState('AIzaSyBFw0Qbyq9zTFTd-tUqqo6885S3b3TvjjQ');
+  const [showMapInput, setShowMapInput] = useState(false);
+  const [mapError, setMapError] = useState(false);
   const { toast } = useToast();
-
-  // Google Maps API Key
-  const GOOGLE_MAPS_API_KEY = 'AIzaSyBFw0Qbyq9zTFTd-tUqqo6885S3b3TvjjQ';
 
   // Map settings
   const mapContainerStyle = {
@@ -84,6 +84,63 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
             <p className="text-gray-600">See where your money goes geographically</p>
           </div>
         </div>
+
+        {/* API Key Configuration */}
+        <Card className="border-0 card-shadow bg-gradient-to-r from-blue-50 to-purple-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                  🔑 Google Maps API Configuration
+                  <Badge variant={mapError ? "destructive" : "outline"} className="text-xs">
+                    {mapError ? "API Error" : "Active"}
+                  </Badge>
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  {mapError ? "The current API key has issues. Please enter a valid Google Maps API key." : "Map is using the configured API key."}
+                </p>
+                {showMapInput && (
+                  <div className="flex gap-2 mt-3">
+                    <input
+                      type="text"
+                      placeholder="Enter your Google Maps API Key"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="flex-1 px-3 py-2 border rounded-lg text-sm"
+                    />
+                    <Button size="sm" onClick={() => {
+                      setShowMapInput(false);
+                      setMapError(false);
+                      toast({
+                        title: "API Key Updated",
+                        description: "The map will reload with the new API key."
+                      });
+                    }}>
+                      Apply
+                    </Button>
+                  </div>
+                )}
+                <div className="flex gap-2 mt-3">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => setShowMapInput(!showMapInput)}
+                  >
+                    {showMapInput ? "Hide" : "Change API Key"}
+                  </Button>
+                  <a 
+                    href="https://console.cloud.google.com/google/maps-apis/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline flex items-center gap-1 px-3 py-2"
+                  >
+                    Get API Key →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Location Spending Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -198,7 +255,11 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
           </CardHeader>
           <CardContent>
             <div className="relative rounded-lg overflow-hidden shadow-lg">
-              <LoadScript googleMapsApiKey={GOOGLE_MAPS_API_KEY}>
+              <LoadScript 
+                googleMapsApiKey={apiKey}
+                onError={() => setMapError(true)}
+                loadingElement={<div className="flex items-center justify-center h-[600px] bg-gray-100"><p className="text-gray-600">Loading Google Maps...</p></div>}
+              >
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
