@@ -71,7 +71,7 @@ const UserMenu: React.FC<{ user: any; onSignOut: () => void }> = ({ user, onSign
 };
 
 const Index = () => {
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, isLoading: authLoading, logout } = useAuth();
   const { transactions, addTransaction: addTransactionToDb } = useTransactions();
   const { currentLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -284,7 +284,7 @@ const Index = () => {
               {user && (
                 <UserMenu 
                   user={user}
-                  onSignOut={() => signOut()}
+                  onSignOut={() => logout()}
                 />
               )}
             </div>
