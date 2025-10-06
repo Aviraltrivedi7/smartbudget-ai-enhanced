@@ -96,7 +96,7 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -109,10 +109,10 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
               📊 Advanced Analytics
             </h1>
-            <p className="text-gray-600">Comprehensive financial insights and reports</p>
+            <p className="text-gray-600 dark:text-gray-300">Comprehensive financial insights and reports</p>
           </div>
           <Button onClick={generatePDFReport} className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
             <Download className="mr-2 h-4 w-4" />
@@ -187,7 +187,7 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
             </div>
 
             {/* Pie Chart */}
-            <Card className="border-0 card-shadow">
+            <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle>📊 Category-wise Expense Distribution</CardTitle>
               </CardHeader>
@@ -201,6 +201,7 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
                       outerRadius={120}
                       dataKey="value"
                       label={({ name, percentage }) => `${name} ${percentage}%`}
+                      labelLine={{ stroke: 'currentColor' }}
                     >
                       {categoryData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -217,16 +218,16 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
           </TabsContent>
 
           <TabsContent value="categories" className="space-y-6">
-            <Card className="border-0 card-shadow">
+            <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle>📊 Category-wise Monthly Comparison</CardTitle>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={chartConfig} className="h-[400px]">
                   <BarChart data={barData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
-                    <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="dark:stroke-gray-600" />
+                    <XAxis dataKey="category" stroke="#6b7280" className="dark:stroke-gray-400" />
+                    <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
@@ -241,16 +242,16 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
           </TabsContent>
 
           <TabsContent value="trends" className="space-y-6">
-            <Card className="border-0 card-shadow">
+            <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
                 <CardTitle>📈 Monthly Spending Trend</CardTitle>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={chartConfig} className="h-[400px]">
                   <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="dark:stroke-gray-600" />
+                    <XAxis dataKey="month" stroke="#6b7280" className="dark:stroke-gray-400" />
+                    <YAxis stroke="#6b7280" className="dark:stroke-gray-400" />
                     <ChartTooltip 
                       content={<ChartTooltipContent />}
                       formatter={(value) => [`₹${Number(value).toLocaleString()}`, '']}
@@ -265,7 +266,7 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
 
           <TabsContent value="insights" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 card-shadow">
+              <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle>🧠 AI Spending Insights</CardTitle>
                 </CardHeader>
@@ -293,13 +294,13 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
                 </CardContent>
               </Card>
 
-              <Card className="border-0 card-shadow">
+              <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
                   <CardTitle>🎯 Budget Recommendations</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {categoryData.slice(0, 3).map((category, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div>
                         <p className="font-medium">{category.name}</p>
                         <p className="text-sm text-gray-600">Current: ₹{category.value.toLocaleString()}</p>

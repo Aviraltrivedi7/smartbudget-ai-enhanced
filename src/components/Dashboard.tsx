@@ -169,7 +169,8 @@ const Dashboard: React.FC<DashboardProps> = memo(({
       .filter(t => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
     
-    return { income, expenses, balance: income - expenses };
+    // Balance can never be negative - minimum 0
+    return { income, expenses, balance: Math.max(0, income - expenses) };
   }, [transactions]);
 
   const categoryData = useMemo(() => {
