@@ -1,0 +1,37 @@
+/* Calendar Dropdown Fix for Dark Mode */
+
+/* Light mode dropdown options */
+.calendar-dropdown option {
+  background-color: white;
+  color: #111827; /* gray-900 */
+}
+
+/* Dark mode dropdown and options */
+.dark .calendar-dropdown {
+  background-color: #1f2937; /* gray-800 */
+  color: white;
+  border-color: #4b5563; /* gray-600 */
+}
+
+.dark .calendar-dropdown option {
+  background-color: #1f2937; /* gray-800 */
+  color: white;
+}
+
+/* Ensure dropdown select text is visible */
+.calendar-dropdown {
+  color: #111827;
+}
+
+.dark .calendar-dropdown {
+  color: white !important;
+}
+
+/* Option hover state */
+.calendar-dropdown option:hover {
+  background-color: #f3f4f6; /* gray-100 */
+}
+
+.dark .calendar-dropdown option:hover {
+  background-color: #374151; /* gray-700 */
+}

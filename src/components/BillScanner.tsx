@@ -280,7 +280,7 @@ const BillScanner: React.FC<BillScannerProps> = ({ onBack, onSave }) => {
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-4">
                   <Button 
                     onClick={capturePhoto}
-                    className="bg-white text-black hover:bg-gray-100"
+                    className="bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     Capture
@@ -288,7 +288,7 @@ const BillScanner: React.FC<BillScannerProps> = ({ onBack, onSave }) => {
                   <Button 
                     onClick={() => setShowCamera(false)}
                     variant="outline"
-                    className="bg-white"
+                    className="bg-white dark:bg-gray-800"
                   >
                     Cancel
                   </Button>

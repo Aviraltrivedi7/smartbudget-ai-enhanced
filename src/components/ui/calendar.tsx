@@ -4,6 +4,7 @@ import { DayPicker } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import "./calendar.css";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -31,8 +32,8 @@ function Calendar({
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium dark:text-white",
         caption_dropdowns: "flex gap-2",
-        dropdown_month: "px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 [&_option]:text-gray-900 [&_option]:dark:text-white [&_option]:bg-white [&_option]:dark:bg-gray-800",
-        dropdown_year: "px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 [&_option]:text-gray-900 [&_option]:dark:text-white [&_option]:bg-white [&_option]:dark:bg-gray-800",
+        dropdown_month: "calendar-dropdown px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600",
+        dropdown_year: "calendar-dropdown px-3 py-2 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),

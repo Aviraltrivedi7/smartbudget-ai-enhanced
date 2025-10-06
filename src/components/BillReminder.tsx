@@ -179,7 +179,7 @@ const BillReminder: React.FC<BillReminderProps> = ({ onBack }) => {
                 {upcomingBills.slice(0, 3).map((bill) => {
                   const daysUntilDue = Math.ceil((bill.dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                   return (
-                    <div key={bill.id} className="flex items-center justify-between p-2 bg-white/50 rounded-lg">
+                    <div key={bill.id} className="flex items-center justify-between p-2 bg-white/50 dark:bg-gray-700/50 rounded-lg">
                       <div>
                         <p className="font-medium">{bill.title}</p>
                         <p className="text-sm text-gray-600">
@@ -262,7 +262,7 @@ const BillReminder: React.FC<BillReminderProps> = ({ onBack }) => {
                       {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-white" align="start">
+                  <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800" align="start">
                     <Calendar
                       mode="single"
                       selected={formData.dueDate}
