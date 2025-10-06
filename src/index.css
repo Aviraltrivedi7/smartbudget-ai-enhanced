@@ -176,6 +176,35 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
+
+  /* Calendar Dropdown Dark Mode Fix - Global */
+  select.calendar-dropdown,
+  .rdp-dropdown,
+  .rdp select {
+    color: #111827 !important;
+  }
+
+  .dark select.calendar-dropdown,
+  .dark .rdp-dropdown,
+  .dark .rdp select {
+    color: white !important;
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
+  }
+
+  select.calendar-dropdown option,
+  .rdp-dropdown option,
+  .rdp select option {
+    color: #111827 !important;
+    background-color: white !important;
+  }
+
+  .dark select.calendar-dropdown option,
+  .dark .rdp-dropdown option,
+  .dark .rdp select option {
+    color: white !important;
+    background-color: #1f2937 !important;
+  }
   
   /* Animation Utility Classes */
   .animate-slideInLeft {
