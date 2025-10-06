@@ -118,14 +118,18 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // For demo, accept any email/password combination or create new user
-    let user = demoUsers.get(email);
+    let storedUser = demoUsers.get(email);
     
-    if (!user) {
+    if (!storedUser) {
       // Create demo user on first login
-      user = createDemoUser(email, email.split('@')[0]);
-      demoUsers.set(email, { ...user, password });
+      const newUser = createDemoUser(email, email.split('@')[0]);
+      demoUsers.set(email, { ...newUser, password });
+      storedUser = demoUsers.get(email);
       console.log(`👤 New demo user created: ${email}`);
     }
+
+    // Remove password from response
+    const { password: _, ...user } = storedUser;
 
     // Generate token
     const token = generateToken(user.id);
