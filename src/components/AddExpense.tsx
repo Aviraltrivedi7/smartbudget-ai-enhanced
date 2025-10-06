@@ -87,7 +87,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 animated-bg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 animated-bg">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4 animate-slideInTop">
@@ -100,15 +100,15 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent dark:from-green-400 dark:to-blue-400">
               {t('addTransaction')}
             </h1>
-            <p className="text-gray-600">{t('recordIncomeOrExpense')}</p>
+            <p className="text-gray-600 dark:text-gray-300">{t('recordIncomeOrExpense')}</p>
           </div>
         </div>
 
         {/* Form Card */}
-        <Card className="border-0 card-shadow glass-card animate-scaleIn animate-delay-300">
+        <Card className="border-0 card-shadow glass-card animate-scaleIn animate-delay-300 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
             <CardTitle>{t('transactionDetails')}</CardTitle>
           </CardHeader>
@@ -187,7 +187,7 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
                     {date ? format(date, "PPP") : <span>{t('pickDate')}</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white" align="start">
+                <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800" align="start">
                   <Calendar
                     mode="single"
                     selected={date}
@@ -212,25 +212,25 @@ const AddExpense: React.FC<AddExpenseProps> = ({ onBack, onSave }) => {
 
         {/* Preview Card */}
         {title && amount && category && (
-          <Card className="border-0 card-shadow bg-gradient-to-r from-blue-50 to-green-50">
+          <Card className="border-0 card-shadow bg-gradient-to-r from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 dark:border-gray-600">
             <CardHeader>
               <CardTitle className="text-lg">{t('preview')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-lg">{title}</p>
-                  <p className="text-gray-600">{category}</p>
-                  {date && <p className="text-sm text-gray-500">{format(date, "PPP")}</p>}
+                  <p className="font-semibold text-lg dark:text-white">{title}</p>
+                  <p className="text-gray-600 dark:text-gray-300">{category}</p>
+                  {date && <p className="text-sm text-gray-500 dark:text-gray-400">{format(date, "PPP")}</p>}
                 </div>
                 <div className="text-right">
                   <p className={cn(
                     "text-2xl font-bold",
-                    type === 'income' ? "text-green-600" : "text-red-600"
+                    type === 'income' ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
                   )}>
                     {type === 'income' ? '+' : '-'}₹{amount ? Number(amount).toLocaleString() : '0'}
                   </p>
-                  <p className="text-sm text-gray-500 capitalize">{type}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{type}</p>
                 </div>
               </div>
             </CardContent>

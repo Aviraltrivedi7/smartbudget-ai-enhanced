@@ -85,7 +85,7 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -98,15 +98,15 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
               📅 Calendar Expense Tracker
             </h1>
-            <p className="text-gray-600">Track your daily spending patterns visually</p>
+            <p className="text-gray-600 dark:text-gray-300">Track your daily spending patterns visually</p>
           </div>
         </div>
 
         {/* Monthly Summary */}
-        <Card className="border-0 card-shadow bg-gradient-to-r from-blue-100 to-purple-100">
+        <Card className="border-0 card-shadow bg-gradient-to-r from-blue-100 to-purple-100 dark:from-gray-800 dark:to-gray-700 dark:border-gray-600">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -131,8 +131,8 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">Total Month Spend</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm text-gray-600 dark:text-gray-300">Total Month Spend</p>
+                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                   ₹{monthlyTotal.toLocaleString()}
                 </p>
               </div>
@@ -142,7 +142,7 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Calendar */}
-          <Card className="border-0 card-shadow">
+          <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5" />
@@ -187,7 +187,7 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
           </Card>
 
           {/* Daily Details */}
-          <Card className="border-0 card-shadow">
+          <Card className="border-0 card-shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {selectedDate ? (
@@ -204,11 +204,11 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
               {selectedDate && (
                 <>
                   {/* Daily Summary */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600">Total Spent</p>
-                        <p className="text-2xl font-bold text-red-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Total Spent</p>
+                        <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                           ₹{(dailySpending[format(selectedDate, 'yyyy-MM-dd')]?.total || 0).toLocaleString()}
                         </p>
                       </div>
@@ -234,10 +234,10 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
                         Reminders
                       </h3>
                       {selectedDateReminders.map((reminder, index) => (
-                        <div key={index} className="p-3 bg-blue-50 border-l-4 border-blue-500 rounded">
+                        <div key={index} className="p-3 bg-blue-50 dark:bg-gray-700 border-l-4 border-blue-500 rounded">
                           <div className="flex items-center gap-2">
-                            <Bell className="h-4 w-4 text-blue-600" />
-                            <span className="font-medium">{reminder.title}</span>
+                            <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="font-medium dark:text-white">{reminder.title}</span>
                             <Badge variant="outline">{reminder.type}</Badge>
                           </div>
                         </div>
@@ -251,7 +251,7 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
                       <h3 className="font-semibold">💸 Expenses</h3>
                       <div className="space-y-2 max-h-60 overflow-y-auto">
                         {selectedDateTransactions.map((transaction) => (
-                          <div key={transaction.id} className="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-md transition-shadow">
+                          <div key={transaction.id} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 border dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow">
                             <div className="flex items-center gap-3">
                               <div className="text-2xl">
                                 {transaction.category === 'Food' ? '🍔' :
@@ -260,12 +260,12 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
                                  transaction.category === 'Rent' ? '🏠' : '💰'}
                               </div>
                               <div>
-                                <p className="font-medium">{transaction.title}</p>
-                                <p className="text-sm text-gray-600">{transaction.category}</p>
+                                <p className="font-medium dark:text-white">{transaction.title}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">{transaction.category}</p>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="font-bold text-red-600">
+                              <p className="font-bold text-red-600 dark:text-red-400">
                                 ₹{transaction.amount.toLocaleString()}
                               </p>
                             </div>
@@ -274,7 +274,7 @@ const CalendarExpenseTracker: React.FC<CalendarExpenseTrackerProps> = ({ onBack,
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                       <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No expenses recorded for this date</p>
                       <p className="text-sm">Looks like a savings day! 🎉</p>
