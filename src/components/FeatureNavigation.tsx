@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,18 +13,18 @@ const FeatureNavigation: React.FC<FeatureNavigationProps> = ({ onNavigate }) => 
   const { t } = useLanguage();
 
   const features = [
-    { id: 'expense-chat', name: `💬 ${t('expenseChat')}`, desc: 'AI se apne kharchon ka hisab poocho' },
-    { id: 'spending-limits', name: `💎 ${t('spendingLimits')}`, desc: 'Har category ki limit set karo' },
-    { id: 'gamification', name: `🏆 ${t('gamification')}`, desc: 'Badges jeeto aur bachat badhao' },
-    { id: 'monthly-report', name: `📊 ${t('monthlyReport')}`, desc: 'Summary download karo ek click mein' },
-    { id: 'smart-suggestions', name: `🧠 ${t('smartSuggestions')}`, desc: 'AI-powered badiya bachat tips' },
-    { id: 'bill-reminder', name: `🔔 ${t('billReminder')}`, desc: 'Ek bhi bill miss nahi hoga ab' },
+    { id: 'expense-chat', name: `💬 ${t('expenseChat')}`, desc: 'Ask AI assistant about your expenses' },
+    { id: 'spending-limits', name: `💎 ${t('spendingLimits')}`, desc: 'Set budget limits per category' },
+    { id: 'gamification', name: `🏆 ${t('gamification')}`, desc: 'Earn badges and boost savings' },
+    { id: 'monthly-report', name: `📊 ${t('monthlyReport')}`, desc: 'Download financial summary report' },
+    { id: 'smart-suggestions', name: `🧠 ${t('smartSuggestions')}`, desc: 'AI-powered savings recommendations' },
+    { id: 'bill-reminder', name: `🔔 ${t('billReminder')}`, desc: 'Never miss an upcoming bill payment' },
   ];
 
   return (
     <Card className="border-0 card-shadow">
       <CardHeader>
-        <CardTitle>🚀 Mast Features - Sab Kaam Ke!</CardTitle>
+        <CardTitle>🚀 Key Smart Features</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

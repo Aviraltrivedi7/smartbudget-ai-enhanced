@@ -30,7 +30,7 @@ interface Message {
 }
 
 const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions }) => {
-  const [language, setLanguage] = useState<'en' | 'hi'>('hi');
+  const [language, setLanguage] = useState<'en' | 'hi'>('en');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',

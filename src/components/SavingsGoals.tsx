@@ -56,7 +56,7 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     },
     {
       id: '2',
-      title: 'Naya Laptop 💻',
+      title: 'New Laptop 💻',
       target: 65000,
       current: 45000,
       deadline: '2026-06-15',
@@ -93,7 +93,7 @@ const SavingsGoals: React.FC<SavingsGoalsProps> = ({ onBack, transactions }) => 
     {
       id: '2',
       title: 'Daily Saver',
-      description: 'Save at least ₹0 every day',
+      description: 'Save at least ₹100 every day',
       points: 50,
       duration: '3 days left',
       completed: false,

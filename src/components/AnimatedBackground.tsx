@@ -44,7 +44,7 @@ const AnimatedBackground: React.FC = () => {
       duration: Math.random() * 15 + 15,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      shape: shapes[Math.floor(Math.random() * shapes.shape.length)] || 'circle',
+      shape: shapes[Math.floor(Math.random() * shapes.length)] || 'circle',
     }));
 
     const icons = [

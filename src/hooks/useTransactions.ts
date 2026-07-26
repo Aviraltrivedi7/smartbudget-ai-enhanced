@@ -27,13 +27,14 @@ export const useTransactions = () => {
 
   // Default transactions for offline/demo mode
   const defaultTransactions: LocalTransaction[] = [
-    { id: '1', title: 'Salary', amount: 0, category: 'Income', date: '2024-11-01', type: 'income' },
-    { id: '2', title: "McDonald's", amount: 0, category: 'Food', date: '2024-11-02', type: 'expense' },
-    { id: '3', title: 'Uber', amount: 0, category: 'Travel', date: '2024-11-03', type: 'expense' },
-    { id: '4', title: 'Rent', amount: 0, category: 'Rent', date: '2024-11-04', type: 'expense' },
-    { id: '5', title: 'Grocery', amount: 0, category: 'Food', date: '2024-11-05', type: 'expense' },
-    { id: '6', title: 'Movie Tickets', amount: 0, category: 'Entertainment', date: '2024-11-06', type: 'expense' },
-    { id: '7', title: 'Freelance', amount: 0, category: 'Income', date: '2024-11-07', type: 'income' },
+    { id: '1', title: 'Monthly Salary', amount: 75000, category: 'Income', date: '2026-07-01', type: 'income', description: 'Tech Corp Salary' },
+    { id: '2', title: 'House Rent', amount: 18000, category: 'Rent', date: '2026-07-02', type: 'expense', description: 'Apartment Rent' },
+    { id: '3', title: 'Supermarket Groceries', amount: 4500, category: 'Food', date: '2026-07-05', type: 'expense', description: 'Monthly Essentials' },
+    { id: '4', title: 'Electricity & WiFi', amount: 2400, category: 'Utilities', date: '2026-07-08', type: 'expense', description: 'Utilities Payment' },
+    { id: '5', title: 'Freelance Project', amount: 18500, category: 'Income', date: '2026-07-12', type: 'income', description: 'UI Design Consulting' },
+    { id: '6', title: 'Dining Out', amount: 3200, category: 'Food', date: '2026-07-15', type: 'expense', description: 'Weekend Dinner' },
+    { id: '7', title: 'Uber & Transport', amount: 1800, category: 'Travel', date: '2026-07-18', type: 'expense', description: 'Commute' },
+    { id: '8', title: 'Shopping & Apparel', amount: 5100, category: 'Shopping', date: '2026-07-22', type: 'expense', description: 'Summer Wear' },
   ];
 
   // Load transactions from local storage
@@ -41,7 +42,14 @@ export const useTransactions = () => {
     const stored = localStorage.getItem('pocket_pal_transactions');
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // If stored data is empty or has zero amounts from old demo, reset to new default
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const totalAmt = parsed.reduce((sum: number, item: any) => sum + (Number(item.amount) || 0), 0);
+          if (totalAmt > 0) {
+            return parsed;
+          }
+        }
       } catch (error) {
         console.error('Error parsing stored transactions:', error);
       }

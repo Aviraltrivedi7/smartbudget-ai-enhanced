@@ -31,6 +31,8 @@ import AdvancedAnalytics from '@/components/AdvancedAnalytics';
 import BudgetProgress from '@/components/BudgetProgress';
 import MoneyMonster from '@/components/MoneyMonster';
 import CalendarExpenseTracker from '@/components/CalendarExpenseTracker';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import Navbar from '@/components/Navbar';
 import WelcomeGuide from '@/components/WelcomeGuide';
 
 type ViewType = 'dashboard' | 'add-expense' | 'insights' | 'visualizer' | 'coach' | 'budget-planner' | 'savings-goals' | 'bill-reminder' | 'expense-chat' | 'spending-limits' | 'gamification' | 'monthly-report' | 'smart-suggestions' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker';
@@ -265,51 +267,34 @@ const Index = () => {
         );
       default:
         return (
-          <div>
-            <div className="flex justify-end items-center gap-4 p-4">
-              <LanguageSelector />
-              {!user && (
-                <Button
-                  onClick={() => setShowAuthModal(true)}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  <span>🔐</span>
-                  {currentLanguage === 'hi' ? 'लॉगिन' : 'Login'}
-                </Button>
-              )}
-              {user && (
-                <UserMenu
-                  user={user}
-                  onSignOut={() => logout()}
-                />
-              )}
-            </div>
-            <DashboardWithNavigation
-              transactions={transactions}
-              onNavigate={setCurrentView}
-              onShowWelcomeGuide={() => setShowWelcomeGuide(true)}
-            />
-          </div>
+          <DashboardWithNavigation
+            transactions={transactions}
+            onNavigate={setCurrentView}
+            onShowWelcomeGuide={() => setShowWelcomeGuide(true)}
+          />
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-background relative smooth-load">
-      <AnimatedBackground />
-      {renderCurrentView()}
-      <Footer />
-      <WelcomeGuide
-        isOpen={showWelcomeGuide}
-        onClose={handleWelcomeGuideClose}
-        onFeatureSelect={handleFeatureSelect}
-      />
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
-    </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative smooth-load transition-colors duration-300">
+        <Navbar
+          currentView={currentView}
+          onNavigate={setCurrentView}
+        />
+        <AnimatedBackground />
+        <main className="pb-12">
+          {renderCurrentView()}
+        </main>
+        <Footer />
+        <WelcomeGuide
+          isOpen={showWelcomeGuide}
+          onClose={handleWelcomeGuideClose}
+          onFeatureSelect={handleFeatureSelect}
+        />
+      </div>
+    </ThemeProvider>
   );
 };
 

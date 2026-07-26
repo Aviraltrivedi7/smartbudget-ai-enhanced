@@ -255,11 +255,49 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
           </CardHeader>
           <CardContent>
             <div className="relative rounded-lg overflow-hidden shadow-lg">
-              <LoadScript
-                googleMapsApiKey={apiKey}
-                onError={() => setMapError(true)}
-                loadingElement={<div className="flex items-center justify-center h-[600px] bg-gray-100"><p className="text-gray-600">Loading Google Maps...</p></div>}
-              >
+              {mapError ? (
+                <div className="p-6 bg-slate-900 text-white rounded-xl border border-slate-800 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-blue-400 flex items-center gap-2">
+                      <MapPin className="w-5 h-5" /> City Wise Spending Heatmap
+                    </h3>
+                    <Badge variant="outline" className="text-amber-400 border-amber-400">Offline Heatmap</Badge>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {locationData.map((loc, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => setSelectedLocation(loc)}
+                        className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                          selectedLocation?.name === loc.name
+                            ? 'bg-blue-600/30 border-blue-400'
+                            : 'bg-slate-800/80 border-slate-700 hover:border-slate-600'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-semibold text-sm">{loc.name}</span>
+                          <span className="text-xs text-red-400 font-bold">₹{loc.spent.toLocaleString()}</span>
+                        </div>
+                        <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${Math.min((loc.spent / 15000) * 100, 100)}%`,
+                              backgroundColor: loc.color
+                            }}
+                          />
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1">{loc.transactions} transactions</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <LoadScript
+                  googleMapsApiKey={apiKey}
+                  onError={() => setMapError(true)}
+                  loadingElement={<div className="flex items-center justify-center h-[600px] bg-gray-100 dark:bg-gray-800"><p className="text-gray-600 dark:text-gray-300">Loading Google Maps...</p></div>}
+                >
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
@@ -324,6 +362,7 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                   )}
                 </GoogleMap>
               </LoadScript>
+              )}
 
               {/* Map Stats Overlay */}
               <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-xl border border-gray-200">

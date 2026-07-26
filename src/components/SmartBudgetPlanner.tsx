@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Target, AlertTriangle, CheckCircle, TrendingUp, PieChart } from 'lucide-react';
+import { ArrowLeft, Target, AlertTriangle, CheckCircle, TrendingUp, PieChart, Brain } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -42,17 +42,15 @@ const SmartBudgetPlanner: React.FC<SmartBudgetPlannerProps> = ({ onBack, transac
     { name: 'Savings', percentage: 20, color: 'bg-emerald-500', icon: '💰' }
   ];
 
-  // Removed auto-calculation useEffect to require manual button click
-  /*
   useEffect(() => {
-    if (monthlyIncome) {
-      const income = parseFloat(monthlyIncome);
-      if (!isNaN(income)) {
-        generateBudgetPlan(income);
-      }
-    }
-  }, [monthlyIncome, transactions]);
-  */
+    const totalIncome = (transactions || [])
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const initialIncome = totalIncome > 0 ? totalIncome : 50000;
+    setMonthlyIncome(initialIncome.toString());
+    generateBudgetPlan(initialIncome);
+  }, [transactions]);
 
   const generateBudgetPlan = (income: number) => {
     // Calculate current spending by category

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,41 +38,42 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
     const income = transactions.filter(t => t.type === 'income');
 
     // Week analysis
-    if (lowerQ.includes('week') || lowerQ.includes('hafte')) {
+    if (lowerQ.includes('week')) {
       const weekTotal = expenses.reduce((sum, t) => sum + t.amount, 0);
-      return `इस हफ्ते आपने कुल ₹${weekTotal.toLocaleString()} खर्च किया है। सबसे ज्यादा खर्च ${expenses[0]?.category || 'Food'} में हुआ है।`;
+      return `This week you spent a total of ₹${weekTotal.toLocaleString()}. Your top spending category was ${expenses[0]?.category || 'Food'}.`;
     }
 
     // Month analysis
-    if (lowerQ.includes('month') || lowerQ.includes('mahine')) {
+    if (lowerQ.includes('month')) {
       const monthTotal = expenses.reduce((sum, t) => sum + t.amount, 0);
-      return `इस महीने आपका कुल खर्च ₹${monthTotal.toLocaleString()} है। आपकी सबसे बड़ी expense category ${expenses[0]?.category || 'Food'} है।`;
+      return `This month your total expense is ₹${monthTotal.toLocaleString()}. Your highest expense category is ${expenses[0]?.category || 'Food'}.`;
     }
 
     // Category analysis
-    if (lowerQ.includes('food') || lowerQ.includes('khana')) {
+    if (lowerQ.includes('food') || lowerQ.includes('dining')) {
       const foodExpenses = expenses.filter(t => t.category === 'Food');
       const foodTotal = foodExpenses.reduce((sum, t) => sum + t.amount, 0);
-      return `खाने में आपने कुल ₹${foodTotal.toLocaleString()} खर्च किया है। ${foodExpenses.length} transactions हैं Food category में।`;
+      return `You spent ₹${foodTotal.toLocaleString()} on Food across ${foodExpenses.length} transactions.`;
     }
 
     // Savings analysis
-    if (lowerQ.includes('save') || lowerQ.includes('bacha')) {
+    if (lowerQ.includes('save') || lowerQ.includes('saving') || lowerQ.includes('balance')) {
       const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
       const totalExpense = expenses.reduce((sum, t) => sum + t.amount, 0);
       const savings = totalIncome - totalExpense;
-      return `आपने ₹${savings.toLocaleString()} बचाए हैं! ${savings > 0 ? 'बहुत बढ़िया! 🎉' : 'थोड़ा और save करने की कोशिश करें।'}`;
+      return `You have saved ₹${savings.toLocaleString()}! ${savings > 0 ? 'Great job! 🎉' : 'Try to save a bit more next time.'}`;
     }
 
     // Default response
-    return `आपके कुल ${transactions.length} transactions हैं। Total expense: ₹${expenses.reduce((sum, t) => sum + t.amount, 0).toLocaleString()}। कोई specific category के बारे में पूछना चाहते हैं?`;
+    const totalExpense = expenses.reduce((sum, t) => sum + t.amount, 0);
+    return `You have ${transactions.length} total transactions. Total expenses: ₹${totalExpense.toLocaleString()}. Would you like to check a specific category?`;
   };
 
   const handleAskQuestion = async () => {
     if (!currentQuestion.trim()) {
       toast({
-        title: "कृपया कोई सवाल पूछें",
-        description: "एक सवाल लिखकर पूछें",
+        title: "Please enter a question",
+        description: "Type a question to ask the AI assistant",
         variant: "destructive",
       });
       return;
@@ -95,16 +95,16 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
     setIsLoading(false);
 
     toast({
-      title: "जवाब मिल गया! 🧠",
-      description: "आपके expense data का analysis complete हो गया।",
+      title: "Response Ready! 🧠",
+      description: "Analysis of your expense data is complete.",
     });
   };
 
   const suggestedQuestions = [
-    "इस हफ्ते कितना खर्च किया?",
-    "खाने में कितना पैसा गया?",
-    "कितना पैसा बचा?",
-    "सबसे ज्यादा कहाँ खर्च किया?"
+    "How much did I spend this week?",
+    "How much money went towards Food?",
+    "How much money did I save?",
+    "Where did I spend the most?"
   ];
 
   return (
@@ -124,7 +124,7 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               💬 Expense Chat
             </h1>
-            <p className="text-gray-600">अपने खर्च के बारे में कुछ भी पूछें!</p>
+            <p className="text-gray-600">Ask anything about your financial expenses!</p>
           </div>
         </div>
 
@@ -140,15 +140,15 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
             {/* Suggested Questions */}
             {messages.length === 0 && (
               <div className="space-y-2">
-                <p className="text-sm text-gray-600">कुछ suggested questions:</p>
-                <div className="grid grid-cols-2 gap-2">
+                <p className="text-sm text-gray-600 font-medium">Suggested Questions:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {suggestedQuestions.map((question, index) => (
                     <Button
                       key={index}
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentQuestion(question)}
-                      className="text-sm"
+                      className="text-sm justify-start text-left h-auto py-2 px-3"
                     >
                       {question}
                     </Button>
@@ -161,11 +161,11 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {messages.map((message) => (
                 <div key={message.id} className="space-y-2">
-                  <div className="bg-blue-100 p-3 rounded-lg ml-8">
-                    <p className="font-medium">आप: {message.question}</p>
+                  <div className="bg-blue-100 p-3 rounded-lg ml-8 text-blue-900">
+                    <p className="font-medium">You: {message.question}</p>
                   </div>
-                  <div className="bg-green-100 p-3 rounded-lg mr-8">
-                    <p className="text-green-800">🧠 AI: {message.answer}</p>
+                  <div className="bg-emerald-100 p-3 rounded-lg mr-8 text-emerald-900">
+                    <p className="font-medium">🧠 AI: {message.answer}</p>
                   </div>
                 </div>
               ))}
@@ -174,18 +174,13 @@ const ExpenseChat: React.FC<ExpenseChatProps> = ({ onBack, transactions }) => {
             {/* Input Section */}
             <div className="flex gap-2">
               <Input
-                placeholder="अपना सवाल यहाँ लिखें... जैसे 'इस महीने कितना खर्च किया?'"
+                placeholder="Type your question here... e.g. 'How much did I spend this month?'"
                 value={currentQuestion}
                 onChange={(e) => setCurrentQuestion(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleAskQuestion()}
-                className="flex-1"
               />
-              <Button 
-                onClick={handleAskQuestion}
-                disabled={isLoading}
-                className="financial-gradient"
-              >
-                {isLoading ? 'Loading...' : 'पूछें'}
+              <Button onClick={handleAskQuestion} disabled={isLoading}>
+                {isLoading ? 'Analyzing...' : 'Ask AI'}
               </Button>
             </div>
           </CardContent>

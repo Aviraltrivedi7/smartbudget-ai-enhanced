@@ -27,7 +27,13 @@ const Dashboard: React.FC<DashboardProps> = memo(({
 }) => {
   const { t, currentLanguage } = useLanguage();
   const { user, isAuthenticated } = useAuth();
-  const [selectedMonth, setSelectedMonth] = useState('january-2026');
+  const getCurrentMonthKey = () => {
+    const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    const now = new Date();
+    return `${months[now.getMonth()]}-${now.getFullYear()}`;
+  };
+
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
   const [chartView, setChartView] = useState<'pie' | 'bar' | 'trend'>('pie');
   const [isLoaded, setIsLoaded] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -167,7 +173,7 @@ const Dashboard: React.FC<DashboardProps> = memo(({
       'july', 'august', 'september', 'october', 'november', 'december'
     ];
 
-    return transactions.filter(t => {
+    const matched = transactions.filter(t => {
       try {
         const date = new Date(t.date);
         const monthName = months[date.getMonth()];
@@ -177,6 +183,8 @@ const Dashboard: React.FC<DashboardProps> = memo(({
         return false;
       }
     });
+
+    return matched.length > 0 ? matched : transactions;
   }, [transactions, selectedMonth]);
 
   // Memoize expensive calculations for better performance
