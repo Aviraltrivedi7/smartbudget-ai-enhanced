@@ -31,19 +31,24 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
     const categoryTotals = transactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
-        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        const amt = Number(t.amount) || 0;
+        if (amt > 0) {
+          acc[t.category] = (acc[t.category] || 0) + amt;
+        }
         return acc;
       }, {} as Record<string, number>);
 
-    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1', '#d084d0'];
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
     const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
 
-    return Object.entries(categoryTotals).map(([category, amount], index) => ({
-      name: category,
-      value: amount,
-      percentage: ((amount / total) * 100).toFixed(1),
-      fill: colors[index % colors.length]
-    }));
+    return Object.entries(categoryTotals)
+      .filter(([, amount]) => amount > 0)
+      .map(([category, amount], index) => ({
+        name: category,
+        value: amount,
+        percentage: total > 0 ? ((amount / total) * 100).toFixed(1) : '0',
+        fill: colors[index % colors.length]
+      }));
   };
 
   const getMonthlyTrendData = () => {
@@ -201,27 +206,45 @@ const AdvancedAnalytics: React.FC<AdvancedAnalyticsProps> = ({ onBack, transacti
                 <CardTitle>📊 Category-wise Expense Distribution</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={chartConfig} className="h-[400px]">
-                  <PieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={120}
-                      dataKey="value"
-                      label={({ name, percentage }) => `${name} ${percentage}%`}
-                      labelLine={{ stroke: 'currentColor' }}
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip
-                      content={<ChartTooltipContent />}
-                      formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
-                    />
-                  </PieChart>
-                </ChartContainer>
+                <div className="space-y-4">
+                  <ChartContainer config={chartConfig} className="h-[300px]">
+                    <PieChart>
+                      <Pie
+                        data={categoryData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={105}
+                        paddingAngle={4}
+                        dataKey="value"
+                        label={({ name, percentage }) => Number(percentage) > 4 ? `${name} ${percentage}%` : ''}
+                        labelLine={false}
+                      >
+                        {categoryData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} stroke="rgba(255,255,255,0.8)" strokeWidth={2} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip
+                        content={<ChartTooltipContent />}
+                        formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                      />
+                    </PieChart>
+                  </ChartContainer>
+
+                  {/* Category Legend Cards */}
+                  <div className="flex flex-wrap justify-center gap-2 pt-2">
+                    {categoryData.map((cat, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold shadow-sm"
+                      >
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.fill }} />
+                        <span className="text-slate-600 dark:text-slate-300">{cat.name}:</span>
+                        <span className="text-slate-900 dark:text-white font-bold">₹{cat.value.toLocaleString()} ({cat.percentage}%)</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

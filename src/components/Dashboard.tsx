@@ -205,17 +205,22 @@ const Dashboard: React.FC<DashboardProps> = memo(({
     const categoryTotals = filteredTransactions
       .filter(t => t.type === 'expense')
       .reduce((acc, t) => {
-        acc[t.category] = (acc[t.category] || 0) + t.amount;
+        const amt = Number(t.amount) || 0;
+        if (amt > 0) {
+          acc[t.category] = (acc[t.category] || 0) + amt;
+        }
         return acc;
       }, {} as Record<string, number>);
 
-    const colors = ['hsl(var(--primary))', 'hsl(var(--secondary))', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
 
-    return Object.entries(categoryTotals).map(([category, amount], index) => ({
-      name: getCategoryTranslation(category, currentLanguage),
-      value: amount,
-      fill: colors[index % colors.length]
-    }));
+    return Object.entries(categoryTotals)
+      .filter(([, amount]) => amount > 0)
+      .map(([category, amount], index) => ({
+        name: getCategoryTranslation(category, currentLanguage),
+        value: amount,
+        fill: colors[index % colors.length]
+      }));
   }, [filteredTransactions, currentLanguage]);
 
   const trendData = useMemo(() => {
@@ -295,26 +300,45 @@ const Dashboard: React.FC<DashboardProps> = memo(({
         );
       default:
         return (
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <PieChart>
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                dataKey="value"
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
-              />
-            </PieChart>
-          </ChartContainer>
+          <div className="space-y-4">
+            <ChartContainer config={chartConfig} className="h-[280px]">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={95}
+                  paddingAngle={4}
+                  dataKey="value"
+                  label={({ name, percent }) => percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
+                  labelLine={false}
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.fill} stroke="rgba(255,255,255,0.8)" strokeWidth={2} />
+                  ))}
+                </Pie>
+                <ChartTooltip
+                  content={<ChartTooltipContent />}
+                  formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                />
+              </PieChart>
+            </ChartContainer>
+
+            {/* Clean Category Legend Cards */}
+            <div className="flex flex-wrap justify-center gap-2 pt-1">
+              {categoryData.map((cat, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold shadow-sm"
+                >
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.fill }} />
+                  <span className="text-slate-600 dark:text-slate-300">{cat.name}:</span>
+                  <span className="text-slate-900 dark:text-white font-bold">₹{cat.value.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         );
     }
   }, [chartView, categoryData, trendData, chartConfig]);
