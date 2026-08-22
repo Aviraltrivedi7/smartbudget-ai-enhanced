@@ -58,3 +58,7 @@ The Reports & Exports page now generates a real PDF with summary cards, category
 The visual system was refined to use deep forest green, warm ivory, muted mint, and a restrained terracotta accent. Neon splash gradients, bright blue/purple/pink category accents, oversized corner radii, and high-contrast decorative colours were replaced or globally remapped. Dashboard cards, charts, Copilot surfaces, the splash screen, and legacy feature screens now share the same calmer palette. Live preview verification confirmed the dashboard renders with the new deep-green hero, softer mint/sand metric cards, and reduced visual noise.
 
 Published in commit `ab4efac style: refine premium color system and spacing`.
+
+## Navy and cobalt palette refresh
+
+The dark-green branding was removed from the primary surfaces. The app now uses midnight navy for navigation and anchor cards, cobalt for primary chart/interaction accents, soft lavender for selected states, warm off-white for the canvas, and muted coral for expense emphasis. Live preview verification confirmed the refreshed splash screen, navy sidebar, cobalt hero, and balanced metric cards render without the previous forest-green treatment.
