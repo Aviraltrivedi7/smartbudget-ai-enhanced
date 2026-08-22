@@ -42,3 +42,7 @@ The live capture now includes the AI Copilot panel with three contextual suggest
 ## Live Copilot chat verification
 
 The dashboard AI Copilot now exposes a Live chat action that routes to the redesigned SmartBudget Copilot workspace. The chat uses the existing transaction context to answer expense questions and supports quick prompts, English/Hinglish switching, typing feedback, context summary cards, and a private-workspace status. Live browser testing confirmed that asking “Where am I spending the most?” returned the current top category and amount breakdown, while “How can I grow my savings?” returned a personalized monthly and weekly savings target.
+
+## Reports and exports verification
+
+The live preview now exposes Reports & Exports in the sidebar. The redesigned screen shows total income, expenses, savings, category-level progress, a smart readout, and three functional actions: Download PDF, Export CSV, and Choose CSV file.

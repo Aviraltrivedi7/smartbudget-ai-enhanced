@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Bot, ChevronRight, Languages, MessageCircle, Send, ShieldCheck, Sparkles, TrendingUp, UserRound, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { apiRequest } from '@/lib/api';
 
 interface Transaction { id: string; title: string; amount: number; category: string; date: string; type: 'income' | 'expense'; }
 interface AIFinanceCoachProps { onBack: () => void; transactions: Transaction[]; }
@@ -13,6 +14,7 @@ const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions })
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [providerStatus, setProviderStatus] = useState<'external' | 'local'>('local');
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -59,6 +61,22 @@ const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions })
     return language === 'hi' ? `Main aapke ${transactions.length} transactions aur ${money(expenses)} ke expenses ko dekh raha hoon. Aap “sabse zyada kharcha”, “budget plan”, “savings goal”, ya “balance” ke baare mein pooch sakte hain.` : `I’m looking at ${transactions.length} transactions and ${money(expenses)} in expenses. Try asking about your biggest category, a budget plan, savings goals, or current balance.`;
   };
 
+  const getExternalResponse = async (question: string) => {
+    const response = await apiRequest<{ message: string; provider?: string; model?: string }>('/ai/chat', {
+      method: 'POST',
+      body: {
+        message: question,
+        language,
+        transactions,
+        history: messages.slice(-8).map((item) => ({ role: item.type === 'ai' ? 'assistant' : 'user', content: item.content })),
+      },
+      requireAuth: true,
+    });
+    if (!response.success || !response.data?.message) throw new Error(response.message);
+    setProviderStatus('external');
+    return response.data.message;
+  };
+
   const sendMessage = (value = input) => {
     const trimmed = value.trim();
     if (!trimmed || isTyping) return;
@@ -66,13 +84,23 @@ const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions })
     setMessages((current) => [...current, userMessage]);
     setInput('');
     setIsTyping(true);
-    window.setTimeout(() => { setMessages((current) => [...current, { id: `${Date.now()}-ai`, type: 'ai', content: getAIResponse(trimmed), timestamp: new Date(), suggestions }]); setIsTyping(false); }, 850);
+    window.setTimeout(async () => {
+      let content: string;
+      try {
+        content = await getExternalResponse(trimmed);
+      } catch {
+        setProviderStatus('local');
+        content = getAIResponse(trimmed);
+      }
+      setMessages((current) => [...current, { id: `${Date.now()}-ai`, type: 'ai', content, timestamp: new Date(), suggestions }]);
+      setIsTyping(false);
+    }, 450);
   };
 
   const toggleLanguage = () => { setLanguage((current) => current === 'hi' ? 'en' : 'hi'); toast.success(language === 'hi' ? 'Switched to English' : 'Hindi/Hinglish mode on'); };
 
   return <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-teal-700"><ArrowLeft className="h-4 w-4" /> Back to overview</button><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#102b29] text-teal-200 shadow-lg shadow-teal-950/10"><Bot className="h-5 w-5" /></span><div><p className="eyebrow">SmartBudget Copilot</p><h1 className="mt-1 text-4xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">Talk to your money.</h1></div></div><p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500">Ask clear questions, get answers grounded in your tracked transactions, and turn the next best move into an action.</p></div><div className="flex items-center gap-2"><button onClick={toggleLanguage} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition hover:border-teal-200 hover:text-teal-700"><Languages className="h-4 w-4" /> {language === 'hi' ? 'English' : 'हिंदी / Hinglish'}</button><span className="inline-flex items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 px-3.5 py-2.5 text-xs font-bold text-teal-800"><span className="h-2 w-2 animate-pulse rounded-full bg-teal-500" /> Context ready</span></div></div>
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-teal-700"><ArrowLeft className="h-4 w-4" /> Back to overview</button><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#102b29] text-teal-200 shadow-lg shadow-teal-950/10"><Bot className="h-5 w-5" /></span><div><p className="eyebrow">SmartBudget Copilot</p><h1 className="mt-1 text-4xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">Talk to your money.</h1></div></div><p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500">Ask clear questions, get answers grounded in your tracked transactions, and turn the next best move into an action.</p></div><div className="flex items-center gap-2"><button onClick={toggleLanguage} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition hover:border-teal-200 hover:text-teal-700"><Languages className="h-4 w-4" /> {language === 'hi' ? 'English' : 'हिंदी / Hinglish'}</button><span className={cn('inline-flex items-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-bold', providerStatus === 'external' ? 'border border-teal-100 bg-teal-50 text-teal-800' : 'border border-orange-100 bg-orange-50 text-orange-700')}><span className={cn('h-2 w-2 rounded-full', providerStatus === 'external' ? 'animate-pulse bg-teal-500' : 'bg-orange-400')} /> {providerStatus === 'external' ? 'External AI connected' : 'Local fallback ready'}</span></div></div>
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]"><section className="premium-card flex min-h-[620px] flex-col overflow-hidden"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-7"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><MessageCircle className="h-4 w-4" /></div><div><p className="text-sm font-bold text-slate-900">Live expense chat</p><p className="text-xs text-slate-400">Answers from your current money context</p></div></div><span className="hidden items-center gap-1.5 text-xs font-semibold text-slate-400 sm:flex"><ShieldCheck className="h-4 w-4 text-teal-600" /> Private workspace</span></div><div className="flex-1 space-y-5 overflow-y-auto px-5 py-6 sm:px-7">{messages.map((message) => <div key={message.id} className={cn('flex gap-3', message.type === 'user' && 'justify-end')}><div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-xl', message.type === 'ai' ? 'bg-[#102b29] text-teal-200' : 'bg-slate-100 text-slate-500 order-2')} >{message.type === 'ai' ? <Bot className="h-4 w-4" /> : <UserRound className="h-4 w-4" />}</div><div className={cn('max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-6', message.type === 'ai' ? 'rounded-tl-sm bg-slate-50 text-slate-700' : 'rounded-tr-sm bg-[#102b29] text-white')}><p className="whitespace-pre-line">{message.content}</p><p className={cn('mt-2 text-[10px] font-semibold', message.type === 'ai' ? 'text-slate-400' : 'text-white/45')}>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div></div>)}{isTyping && <div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#102b29] text-teal-200"><Bot className="h-4 w-4" /></div><div className="flex gap-1 rounded-2xl rounded-tl-sm bg-slate-50 px-4 py-4"><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500" /><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500 [animation-delay:120ms]" /><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500 [animation-delay:240ms]" /></div></div>}<div ref={messagesEndRef} /></div><div className="border-t border-slate-100 bg-slate-50/60 px-5 py-3 sm:px-7">{!isTyping && <div className="flex gap-2 overflow-x-auto pb-3">{(messages[messages.length - 1]?.suggestions || suggestions).slice(0, 3).map((suggestion) => <button key={suggestion} onClick={() => sendMessage(suggestion)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-teal-300 hover:text-teal-700">{suggestion}</button>)}</div>}<div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"><input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && sendMessage()} placeholder={language === 'hi' ? 'Apne expenses ke baare mein poochiye...' : 'Ask about your expenses...'} className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400" /><button onClick={() => sendMessage()} disabled={!input.trim() || isTyping} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#102b29] text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-40"><Send className="h-4 w-4" /></button></div></div></section><aside className="space-y-5"><div className="rounded-[1.75rem] bg-[#102b29] p-6 text-white shadow-[0_18px_45px_rgba(16,43,41,0.18)]"><div className="flex items-center justify-between"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-100/60">Live context</p><Sparkles className="h-5 w-5 text-teal-200" /></div><p className="mt-6 text-3xl font-semibold tracking-tight">{money(Math.max(0, summary.income - summary.expenses))}</p><p className="mt-1 text-sm text-white/55">available balance</p><div className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-5"><div><p className="text-[10px] uppercase tracking-wider text-white/40">Income</p><p className="mt-1 font-bold">{money(summary.income)}</p></div><div><p className="text-[10px] uppercase tracking-wider text-white/40">Expenses</p><p className="mt-1 font-bold">{money(summary.expenses)}</p></div></div></div><div className="premium-card p-5"><div className="flex items-center justify-between"><div><p className="eyebrow">Copilot knows</p><h2 className="mt-2 text-lg font-semibold text-slate-950">Your money snapshot</h2></div><TrendingUp className="h-5 w-5 text-teal-600" /></div><div className="mt-5 space-y-4"><Snapshot icon={Wallet} label="Transactions tracked" value={transactions.length.toString()} /><Snapshot icon={TrendingUp} label="Top category" value={summary.topCategory?.[0] || 'Add more data'} detail={summary.topCategory ? money(summary.topCategory[1]) : undefined} /><Snapshot icon={ShieldCheck} label="Context status" value="Ready to answer" /></div><button onClick={() => sendMessage(language === 'hi' ? 'Mera balance kitna hai?' : 'What is my current balance?')} className="mt-5 flex w-full items-center justify-between rounded-xl bg-slate-50 px-3.5 py-3 text-left text-xs font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">Ask a quick question <ChevronRight className="h-4 w-4" /></button></div></aside></div>
   </div>;
 };

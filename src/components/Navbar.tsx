@@ -8,6 +8,7 @@ import {
   Bell,
   CalendarDays,
   ChevronDown,
+  FileDown,
   CircleHelp,
   LayoutDashboard,
   LogOut,
@@ -41,6 +42,7 @@ const primaryItems = [
 const toolItems = [
   { id: 'budget-planner', label: 'Budget planner', icon: Target },
   { id: 'savings-goals', label: 'Savings goals', icon: Trophy },
+  { id: 'monthly-report', label: 'Reports & exports', icon: FileDown },
   { id: 'bill-scanner', label: 'Scan a bill', icon: ScanLine },
 ];
 

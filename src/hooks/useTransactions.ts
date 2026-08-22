@@ -167,6 +167,26 @@ export const useTransactions = () => {
     }
   };
 
+  // Import multiple transactions from a local file
+  const importTransactions = async (incoming: Omit<LocalTransaction, 'id'>[]) => {
+    const imported = incoming.map((transaction, index) => ({ ...transaction, id: `import-${Date.now()}-${index}` }));
+    setTransactions((current) => {
+      const updated = [...imported, ...current];
+      saveToLocalStorage(updated);
+      return updated;
+    });
+
+    if (user && imported.length > 0) {
+      try {
+        const dbInserts = imported.map((transaction) => localToDb(transaction, user.id));
+        const { error } = await supabase.from('transactions').insert(dbInserts);
+        if (error) throw error;
+      } catch (error) {
+        console.error('Error importing transactions to database:', error);
+      }
+    }
+  };
+
   // Update transaction
   const updateTransaction = async (id: string, updates: Partial<LocalTransaction>) => {
     const updatedTransactions = transactions.map(t => 
@@ -299,6 +319,7 @@ export const useTransactions = () => {
     addTransaction,
     updateTransaction,
     deleteTransaction,
+    importTransactions,
     syncTransactions,
     refetch: fetchTransactions,
   };

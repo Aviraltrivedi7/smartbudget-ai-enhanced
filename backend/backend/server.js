@@ -164,7 +164,12 @@ app.use('/api/budgets', dynamicRoute(budgetRoutes, []));
 app.use('/api/goals', dynamicRoute(goalRoutes, []));
 app.use('/api/bills', dynamicRoute(billRoutes, []));
 app.use('/api/analytics', dynamicRoute(analyticsRoutes, {}));
-app.use('/api/ai', dynamicRoute(aiRoutes, null));
+app.use('/api/ai', (req, res, next) => {
+  if (isDBConnected) {
+    return authenticateToken(req, res, () => aiRoutes(req, res, next));
+  }
+  return aiRoutes(req, res, next);
+});
 
 
 // Socket.IO initialization

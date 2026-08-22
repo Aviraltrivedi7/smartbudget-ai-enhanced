@@ -44,7 +44,7 @@ interface Transaction {
 
 const Index = () => {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { transactions, addTransaction: addTransactionToDb } = useTransactions();
+  const { transactions, addTransaction: addTransactionToDb, importTransactions } = useTransactions();
   const { currentLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => {
@@ -154,6 +154,7 @@ const Index = () => {
           <MonthlyReport
             onBack={() => setCurrentView('dashboard')}
             transactions={transactions}
+            onImport={importTransactions}
           />
         );
       case 'smart-suggestions':
