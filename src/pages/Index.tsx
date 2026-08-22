@@ -18,12 +18,8 @@ import MonthlyReport from '@/components/MonthlyReport';
 import SmartSuggestions from '@/components/SmartSuggestions';
 import LanguageSelector from '@/components/LanguageSelector';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { User, LogOut, Settings } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SpendingCoach from '@/components/SpendingCoach';
-import AnimatedBackground from '@/components/AnimatedBackground';
 import GeoFinanceMap from '@/components/GeoFinanceMap';
 import BillScanner from '@/components/BillScanner';
 import VoiceTransactionEntry from '@/components/VoiceTransactionEntry';
@@ -45,31 +41,6 @@ interface Transaction {
   date: string;
   type: 'income' | 'expense';
 }
-
-// Simple UserMenu component
-const UserMenu: React.FC<{ user: any; onSignOut: () => void }> = ({ user, onSignOut }) => {
-  const { currentLanguage } = useLanguage();
-  const isHindi = currentLanguage === 'hi';
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <User className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isHindi ? 'उपयोगकर्ता' : 'User')}
-          </span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onSignOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          {isHindi ? 'साइन आउट' : 'Sign Out'}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
 
 const Index = () => {
   const { user, isLoading: authLoading, logout } = useAuth();
@@ -278,16 +249,17 @@ const Index = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative smooth-load transition-colors duration-300">
+      <div className="min-h-screen bg-[#f6f7f8] text-slate-900 smooth-load">
         <Navbar
           currentView={currentView}
           onNavigate={setCurrentView}
         />
-        <AnimatedBackground />
-        <main className="pb-12">
-          {renderCurrentView()}
-        </main>
-        <Footer />
+        <div className="min-h-screen lg:pl-64">
+          <main className="pb-24 lg:pb-12">
+            {renderCurrentView()}
+          </main>
+          <Footer />
+        </div>
         <WelcomeGuide
           isOpen={showWelcomeGuide}
           onClose={handleWelcomeGuideClose}

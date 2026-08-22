@@ -1,748 +1,265 @@
-import React, { useState, useMemo, useCallback, memo, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, Area, AreaChart } from 'recharts';
-import { Plus, TrendingUp, IndianRupee, PieChart as PieChartIcon, Calendar, Brain, BarChart3, LineChart as LineChartIcon, MessageCircle, Target, Trophy, Bell, MapPin, Camera, Mic, HelpCircle } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  CalendarDays,
+  ChevronRight,
+  CircleHelp,
+  CreditCard,
+  IndianRupee,
+  Lightbulb,
+  Minus,
+  Plus,
+  ScanLine,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Trophy,
+  Wallet,
+  Waves,
+} from 'lucide-react';
+import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getCategoryTranslation } from '@/utils/languages';
 import { useAuth } from '@/contexts/AuthContext';
+import { getCategoryTranslation } from '@/utils/languages';
 import { transactionService, Transaction } from '@/services/transactionService';
 import { socketService } from '@/services/socketService';
-import { toast } from 'sonner';
 import MonthYearPicker from './MonthYearPicker';
+import { cn } from '@/lib/utils';
 
 interface DashboardProps {
-  transactions?: any[];
-  onNavigate?: (view: 'dashboard' | 'add-expense' | 'insights' | 'coach' | 'budget-planner' | 'savings-goals' | 'visualizer' | 'bill-reminder' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker') => void;
+  transactions?: Transaction[];
+  onNavigate?: (view: string) => void;
   onShowWelcomeGuide?: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = memo(({
-  transactions: propTransactions,
-  onNavigate,
-  onShowWelcomeGuide
-}) => {
+const chartColors = ['#0d9488', '#f59e0b', '#f97316', '#a78bfa', '#38bdf8', '#fb7185'];
+
+const currency = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+
+const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactions, onNavigate, onShowWelcomeGuide }) => {
   const { t, currentLanguage } = useLanguage();
-  const { user, isAuthenticated } = useAuth();
-  const getCurrentMonthKey = () => {
+  const { isAuthenticated } = useAuth();
+  const [selectedMonth, setSelectedMonth] = useState(() => {
     const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
     const now = new Date();
     return `${months[now.getMonth()]}-${now.getFullYear()}`;
-  };
-
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
-  const [chartView, setChartView] = useState<'pie' | 'bar' | 'trend'>('pie');
+  });
+  const [chartView, setChartView] = useState<'trend' | 'categories'>('trend');
   const [isLoaded, setIsLoaded] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('checking');
 
-  // Load transactions from prop or localStorage
   useEffect(() => {
-    if (propTransactions && propTransactions.length >= 0) {
-      setTransactions(propTransactions as Transaction[]);
+    if (propTransactions) {
+      setTransactions(propTransactions);
       setIsLoaded(true);
-    } else {
-      // Load from localStorage if no prop transactions
-      const loadFromStorage = () => {
-        const stored = localStorage.getItem('pocket_pal_transactions');
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            setTransactions(parsed);
-          } catch (error) {
-            console.error('Error loading transactions:', error);
-            setTransactions([]);
-          }
-        }
-        setIsLoaded(true);
-      };
-      loadFromStorage();
+      return;
     }
+
+    try {
+      const stored = localStorage.getItem('pocket_pal_transactions');
+      setTransactions(stored ? JSON.parse(stored) : []);
+    } catch {
+      setTransactions([]);
+    }
+    setIsLoaded(true);
   }, [propTransactions]);
 
-  // Setup backend connection and real-time updates
-  useEffect(() => {
-    const initializeBackend = async () => {
-      setConnectionStatus('checking');
-
-      // Check backend connectivity
-      const isBackendAvailable = await checkBackendConnection();
-
-      if (isBackendAvailable && isAuthenticated) {
-        setConnectionStatus('connected');
-        await loadTransactions();
-        setupRealTimeUpdates();
-      } else if (!isAuthenticated) {
-        setConnectionStatus('unauthenticated');
-      } else {
-        setConnectionStatus('offline');
-      }
-    };
-
-    initializeBackend();
-
-    // Cleanup
-    return () => {
-      if (socketService.isConnected()) {
-        socketService.off('transaction_added', handleTransactionAdded);
-        socketService.off('transaction_updated', handleTransactionUpdated);
-        socketService.off('transaction_deleted', handleTransactionDeleted);
-      }
-    };
-  }, [isAuthenticated]);
-
-  // Check backend connection
-  const checkBackendConnection = async (): Promise<boolean> => {
+  const checkBackendConnection = async () => {
     try {
       const response = await fetch(import.meta.env.VITE_API_URL?.replace('/api', '/health') || 'http://localhost:5000/health', {
         method: 'GET',
-        timeout: 3000,
-      } as any);
+        signal: AbortSignal.timeout(3000),
+      });
       return response.ok;
     } catch {
       return false;
     }
   };
 
-  // Load transactions from backend
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
     if (!isAuthenticated) return;
-
-    setIsLoadingData(true);
     try {
       const response = await transactionService.getTransactions({ limit: 100 });
-      if (response.success && response.data) {
-        setTransactions(response.data.transactions);
-      }
-    } catch (error) {
-      console.error('Error loading transactions:', error);
-      toast.error('Failed to load transactions');
-    } finally {
-      setIsLoadingData(false);
+      if (response.success && response.data) setTransactions(response.data.transactions);
+    } catch {
+      toast.error('Unable to sync transactions right now');
     }
-  };
+  }, [isAuthenticated]);
 
-  // Setup real-time updates
-  const setupRealTimeUpdates = () => {
+  const handleTransactionAdded = useCallback((transaction: Transaction) => {
+    setTransactions((previous) => [transaction, ...previous]);
+  }, []);
+  const handleTransactionUpdated = useCallback((transaction: Transaction) => {
+    setTransactions((previous) => previous.map((item) => item.id === transaction.id ? transaction : item));
+  }, []);
+  const handleTransactionDeleted = useCallback((id: string) => {
+    setTransactions((previous) => previous.filter((item) => item.id !== id));
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const initialize = async () => {
+      const available = await checkBackendConnection();
+      if (!mounted) return;
+      setConnectionStatus(available && isAuthenticated ? 'connected' : available ? 'ready' : 'offline');
+      if (available && isAuthenticated) await loadTransactions();
+    };
+    initialize();
+
     if (socketService.isConnected()) {
       socketService.on('transaction_added', handleTransactionAdded);
       socketService.on('transaction_updated', handleTransactionUpdated);
       socketService.on('transaction_deleted', handleTransactionDeleted);
-      socketService.on('stats_updated', handleStatsUpdated);
     }
-  };
-
-  // Real-time event handlers
-  const handleTransactionAdded = useCallback((newTransaction: Transaction) => {
-    setTransactions(prev => [newTransaction, ...prev]);
-    toast.success('💰 New transaction added!');
-  }, []);
-
-  const handleTransactionUpdated = useCallback((updatedTransaction: Transaction) => {
-    setTransactions(prev => prev.map(t =>
-      t.id === updatedTransaction.id ? updatedTransaction : t
-    ));
-    toast.success('✏️ Transaction updated!');
-  }, []);
-
-  const handleTransactionDeleted = useCallback((deletedId: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== deletedId));
-    toast.success('🗑️ Transaction deleted!');
-  }, []);
-
-  const handleStatsUpdated = useCallback((stats: any) => {
-    // Could update cached stats here
-    console.log('📊 Stats updated:', stats);
-  }, []);
-
-  // Demo data for offline/unauthenticated users - Starting with empty transactions
-  const getDemoTransactions = (): Transaction[] => [
-    // No demo transactions - all amounts start at 0
-    // Users can add their own transactions using the "Add Transaction" button
-  ];
-
-
-  // Filter transactions based on selected month
-  const filteredTransactions = useMemo(() => {
-    const months = [
-      'january', 'february', 'march', 'april', 'may', 'june',
-      'july', 'august', 'september', 'october', 'november', 'december'
-    ];
-
-    const matched = transactions.filter(t => {
-      try {
-        const date = new Date(t.date);
-        const monthName = months[date.getMonth()];
-        const year = date.getFullYear().toString();
-        return `${monthName}-${year}` === selectedMonth;
-      } catch (e) {
-        return false;
+    return () => {
+      mounted = false;
+      if (socketService.isConnected()) {
+        socketService.off('transaction_added', handleTransactionAdded);
+        socketService.off('transaction_updated', handleTransactionUpdated);
+        socketService.off('transaction_deleted', handleTransactionDeleted);
       }
+    };
+  }, [handleTransactionAdded, handleTransactionDeleted, handleTransactionUpdated, isAuthenticated, loadTransactions]);
+
+  const filteredTransactions = useMemo(() => {
+    const months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    const matched = transactions.filter((item) => {
+      const date = new Date(item.date);
+      return `${months[date.getMonth()]}-${date.getFullYear()}` === selectedMonth;
     });
+    return matched.length ? matched : transactions;
+  }, [selectedMonth, transactions]);
 
-    return matched.length > 0 ? matched : transactions;
-  }, [transactions, selectedMonth]);
-
-  // Memoize expensive calculations for better performance
-  const { income, expenses, balance } = useMemo(() => {
-    const income = filteredTransactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const expenses = filteredTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    // Balance can never be negative - minimum 0
+  const totals = useMemo(() => {
+    const income = filteredTransactions.filter((item) => item.type === 'income').reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const expenses = filteredTransactions.filter((item) => item.type === 'expense').reduce((sum, item) => sum + Number(item.amount || 0), 0);
     return { income, expenses, balance: Math.max(0, income - expenses) };
   }, [filteredTransactions]);
 
   const categoryData = useMemo(() => {
-    const categoryTotals = filteredTransactions
-      .filter(t => t.type === 'expense')
-      .reduce((acc, t) => {
-        const amt = Number(t.amount) || 0;
-        if (amt > 0) {
-          acc[t.category] = (acc[t.category] || 0) + amt;
-        }
-        return acc;
-      }, {} as Record<string, number>);
-
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#f97316'];
-
-    return Object.entries(categoryTotals)
-      .filter(([, amount]) => amount > 0)
-      .map(([category, amount], index) => ({
-        name: getCategoryTranslation(category, currentLanguage),
-        value: amount,
-        fill: colors[index % colors.length]
-      }));
-  }, [filteredTransactions, currentLanguage]);
+    const byCategory = filteredTransactions.filter((item) => item.type === 'expense').reduce<Record<string, number>>((result, item) => {
+      result[item.category] = (result[item.category] || 0) + Number(item.amount || 0);
+      return result;
+    }, {});
+    return Object.entries(byCategory).filter(([, amount]) => amount > 0).map(([category, amount], index) => ({
+      name: getCategoryTranslation(category, currentLanguage),
+      value: amount,
+      fill: chartColors[index % chartColors.length],
+    }));
+  }, [currentLanguage, filteredTransactions]);
 
   const trendData = useMemo(() => {
-    const dailyData = filteredTransactions.reduce((acc, t) => {
-      const date = new Date(t.date).getDate();
-      if (!acc[date]) {
-        acc[date] = { day: date, income: 0, expenses: 0 };
-      }
-      if (t.type === 'income') {
-        acc[date].income += t.amount;
-      } else {
-        acc[date].expenses += t.amount;
-      }
-      return acc;
-    }, {} as Record<number, { day: number; income: number; expenses: number }>);
-
-    return Object.values(dailyData).sort((a, b) => a.day - b.day);
+    const byDay = filteredTransactions.reduce<Record<number, { day: number; income: number; expenses: number }>>((result, item) => {
+      const day = new Date(item.date).getDate();
+      result[day] ||= { day, income: 0, expenses: 0 };
+      result[day][item.type === 'income' ? 'income' : 'expenses'] += Number(item.amount || 0);
+      return result;
+    }, {});
+    return Object.values(byDay).sort((a, b) => a.day - b.day);
   }, [filteredTransactions]);
 
-  const chartConfig = {
-    income: {
-      label: "Income",
-      color: "hsl(var(--primary))",
-    },
-    expenses: {
-      label: "Expenses",
-      color: "hsl(var(--destructive))",
-    },
-  };
-
-  const renderChart = useCallback(() => {
-    switch (chartView) {
-      case 'bar':
-        return (
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <BarChart data={categoryData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
-              />
-              <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ChartContainer>
-        );
-      case 'trend':
-        return (
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <AreaChart data={trendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                formatter={(value) => [`₹${Number(value).toLocaleString()}`, '']}
-              />
-              <Area
-                type="monotone"
-                dataKey="income"
-                stackId="1"
-                stroke="var(--color-income)"
-                fill="var(--color-income)"
-                fillOpacity={0.6}
-              />
-              <Area
-                type="monotone"
-                dataKey="expenses"
-                stackId="2"
-                stroke="var(--color-expenses)"
-                fill="var(--color-expenses)"
-                fillOpacity={0.6}
-              />
-            </AreaChart>
-          </ChartContainer>
-        );
-      default:
-        return (
-          <div className="space-y-4">
-            <ChartContainer config={chartConfig} className="h-[280px]">
-              <PieChart>
-                <Pie
-                  data={categoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={95}
-                  paddingAngle={4}
-                  dataKey="value"
-                  label={({ name, percent }) => percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : ''}
-                  labelLine={false}
-                >
-                  {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} stroke="rgba(255,255,255,0.8)" strokeWidth={2} />
-                  ))}
-                </Pie>
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
-                />
-              </PieChart>
-            </ChartContainer>
-
-            {/* Clean Category Legend Cards */}
-            <div className="flex flex-wrap justify-center gap-2 pt-1">
-              {categoryData.map((cat, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold shadow-sm"
-                >
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.fill }} />
-                  <span className="text-slate-600 dark:text-slate-300">{cat.name}:</span>
-                  <span className="text-slate-900 dark:text-white font-bold">₹{cat.value.toLocaleString()}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-    }
-  }, [chartView, categoryData, trendData, chartConfig]);
-
-  // Skeleton loader component
-  const SkeletonCard = ({ className = "", height = "h-32" }: { className?: string; height?: string }) => (
-    <div className={cn("bg-white/80 backdrop-blur-sm rounded-xl border shadow-sm animate-pulse", className)}>
-      <div className={cn("bg-gray-200 rounded-lg", height)} />
-    </div>
-  );
+  const recentTransactions = filteredTransactions.slice(0, 5);
+  const expenseRatio = totals.income ? Math.min(100, Math.round((totals.expenses / totals.income) * 100)) : 0;
 
   if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
-        <div className="max-w-6xl mx-auto space-y-6 relative z-10">
-          {/* Header skeleton */}
-          <div className="text-center space-y-4">
-            <div className="h-12 w-80 bg-gray-200 rounded-lg mx-auto animate-pulse" />
-            <div className="h-6 w-96 bg-gray-200 rounded-lg mx-auto animate-pulse" />
-          </div>
-
-          {/* Stats skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonCard key={i} height="h-24" />
-            ))}
-          </div>
-
-          {/* Chart skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SkeletonCard height="h-80" />
-            <SkeletonCard height="h-80" />
-          </div>
-
-          {/* Action buttons skeleton */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonCard key={i} height="h-24" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-10"><div className="h-48 animate-pulse rounded-[2rem] bg-white/70" /><div className="grid gap-4 md:grid-cols-3"><div className="h-32 animate-pulse rounded-3xl bg-white/70" /><div className="h-32 animate-pulse rounded-3xl bg-white/70" /><div className="h-32 animate-pulse rounded-3xl bg-white/70" /></div></div>;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-4 animated-bg relative">
-      {/* Reduced floating particles for better performance */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={`floating-${i}`}
-            className="absolute w-1.5 h-1.5 bg-blue-400/10 rounded-full animate-pulse"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${i * 1}s`,
-              animationDuration: `${5 + Math.random() * 3}s`,
-            }}
-          />
-        ))}
-      </div>
+  const statusLabel = connectionStatus === 'connected' ? 'Live sync' : connectionStatus === 'offline' ? 'Offline mode' : 'Local workspace';
 
-      <div className="max-w-6xl mx-auto space-y-6 relative z-10 animate-fadeInUp">
-        {/* Enhanced Header */}
-        <div className="text-center space-y-4 animate-slideInTop">
-          <div className="flex items-center justify-center gap-4">
-            <h1 className="text-5xl font-black bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent float-animation drop-shadow-sm whitespace-nowrap flex-shrink-0">
-              SmartBudget AI
-            </h1>
-            {onShowWelcomeGuide && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onShowWelcomeGuide}
-                className="ml-2 p-2 h-10 w-10 rounded-full button-hover-effect animate-heartbeat hover:animate-none"
-                title={currentLanguage === 'hi' ? 'मदद गाइड देखें' : 'View Help Guide'}
-              >
-                <HelpCircle className="h-5 w-5" />
-              </Button>
+  return (
+    <div className="mx-auto max-w-7xl space-y-7 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
+      <section className="hero-panel relative overflow-hidden rounded-[2rem] px-6 py-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.2)] sm:px-9 sm:py-9">
+        <div className="hero-orb hero-orb-one" />
+        <div className="hero-orb hero-orb-two" />
+        <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-teal-100/80">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5"><span className="h-1.5 w-1.5 rounded-full bg-teal-300 shadow-[0_0_14px_#5eead4]" />{statusLabel}</span>
+              <span className="text-white/40">/</span>
+              <span>Personal finance OS</span>
+            </div>
+            <p className="mb-2 text-sm font-medium text-white/60">{t('yourAIFinanceCompanion') || 'Your intelligent money companion'}</p>
+            <h1 className="max-w-xl text-4xl font-semibold tracking-[-0.055em] sm:text-5xl">Make every rupee feel intentional.</h1>
+            <p className="mt-4 max-w-lg text-sm leading-6 text-white/65 sm:text-base">See the signal behind your spending, stay ahead of your goals, and build a calmer relationship with money.</p>
+          </div>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <button onClick={onShowWelcomeGuide} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/15"><CircleHelp className="h-4 w-4" /> Quick tour</button>
+            <button onClick={() => onNavigate?.('add-expense')} className="inline-flex items-center gap-2 rounded-2xl bg-[#b9fbc0] px-5 py-3 text-sm font-bold text-[#102b29] shadow-lg shadow-teal-950/20 transition hover:-translate-y-0.5 hover:bg-white active:scale-[0.98]"><Plus className="h-4 w-4" /> Add transaction</button>
+          </div>
+        </div>
+        <div className="relative z-10 mt-9 flex flex-col gap-4 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3 text-sm text-white/70"><CalendarDays className="h-4 w-4 text-teal-200" /><span>Viewing</span><MonthYearPicker value={selectedMonth} onChange={setSelectedMonth} /></div>
+          <div className="flex items-center gap-2 text-xs text-white/45"><Waves className="h-4 w-4" /> Updated just now</div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <MetricCard label="Net balance" value={currency(totals.balance)} note="Available after expenses" icon={Wallet} tone="dark" trend="+12.8%" />
+        <MetricCard label="Total income" value={currency(totals.income)} note="This month" icon={ArrowDownRight} tone="mint" trend="+8.4%" />
+        <MetricCard label="Total expenses" value={currency(totals.expenses)} note={`${expenseRatio}% of income used`} icon={ArrowUpRight} tone="sand" trend={expenseRatio ? `${expenseRatio}%` : '0%'} />
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.9fr)]">
+        <div className="premium-card min-h-[410px] p-5 sm:p-7">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div><p className="eyebrow">Cash flow</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Your money, in motion</h2><p className="mt-1 text-sm text-slate-500">Income versus expenses across the selected month.</p></div>
+            <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1"><ChartToggle active={chartView === 'trend'} onClick={() => setChartView('trend')}>Trend</ChartToggle><ChartToggle active={chartView === 'categories'} onClick={() => setChartView('categories')}>Categories</ChartToggle></div>
+          </div>
+          <div className="h-[285px] w-full">
+            {chartView === 'trend' ? (
+              trendData.length ? <ResponsiveContainer width="100%" height="100%"><AreaChart data={trendData} margin={{ top: 10, right: 6, left: -22, bottom: 0 }}><defs><linearGradient id="incomeFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0d9488" stopOpacity={0.28} /><stop offset="100%" stopColor="#0d9488" stopOpacity={0} /></linearGradient><linearGradient id="expenseFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#fb923c" stopOpacity={0.2} /><stop offset="100%" stopColor="#fb923c" stopOpacity={0} /></linearGradient></defs><CartesianGrid vertical={false} stroke="#e7eceb" strokeDasharray="3 3" /><XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} /><YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(value) => `₹${value >= 1000 ? `${value / 1000}k` : value}`} /><Tooltip contentStyle={{ borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: '0 12px 30px rgba(15,23,42,.12)' }} formatter={(value: number, name: string) => [currency(value), name === 'income' ? 'Income' : 'Expenses']} /><Area type="monotone" dataKey="income" stroke="#0d9488" strokeWidth={3} fill="url(#incomeFill)" /><Area type="monotone" dataKey="expenses" stroke="#fb923c" strokeWidth={2.5} fill="url(#expenseFill)" /></AreaChart></ResponsiveContainer> : <EmptyChart label="Add a few transactions to see your cash flow." />
+            ) : (
+              categoryData.length ? <ResponsiveContainer width="100%" height="100%"><BarChart data={categoryData} margin={{ top: 10, right: 6, left: -22, bottom: 0 }}><CartesianGrid vertical={false} stroke="#e7eceb" strokeDasharray="3 3" /><XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} /><YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(value) => `₹${value >= 1000 ? `${value / 1000}k` : value}`} /><Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: 16, border: '1px solid #e2e8f0' }} formatter={(value: number) => [currency(value), 'Spent']} /><Bar dataKey="value" radius={[8, 8, 3, 3]}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Bar></BarChart></ResponsiveContainer> : <EmptyChart label="Categories will appear once you log spending." />
             )}
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <p className="text-gray-600 font-medium">{t('yourAIFinanceCompanion')}</p>
-            {/* Connection Status Indicator */}
-            <div className="flex items-center gap-1">
-              <div className={cn(
-                "w-2 h-2 rounded-full",
-                connectionStatus === 'connected' ? "bg-green-500 animate-pulse" :
-                  connectionStatus === 'offline' ? "bg-red-500" :
-                    connectionStatus === 'unauthenticated' ? "bg-yellow-500" :
-                      "bg-gray-400 animate-pulse"
-              )} />
-              <span className={cn(
-                "text-xs font-medium",
-                connectionStatus === 'connected' ? "text-green-600" :
-                  connectionStatus === 'offline' ? "text-red-600" :
-                    connectionStatus === 'unauthenticated' ? "text-yellow-600" :
-                      "text-gray-500"
-              )}>
-                {connectionStatus === 'connected' ? '🔗 Live Data' :
-                  connectionStatus === 'offline' ? '📱 Demo Mode' :
-                    connectionStatus === 'unauthenticated' ? '👤 Demo Mode' :
-                      '⏳ Connecting...'}
-              </span>
-            </div>
-          </div>
+          <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-slate-500"><span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-teal-600" />Income</span><span className="inline-flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-orange-400" />Expenses</span><span className="ml-auto text-slate-400">Tap chart to explore</span></div>
         </div>
 
-        {/* Month Selector */}
-        <Card className="glass-effect border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-gray-600" />
-                <span className="font-medium">{t('selectMonth')}</span>
-              </div>
-              <MonthYearPicker value={selectedMonth} onChange={setSelectedMonth} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Balance Cards with Enhanced Visuals */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeInUp animate-delay-300">
-          <Card className="financial-gradient text-white border-0 card-shadow hover:scale-105 transition-all duration-500 animate-scaleIn animate-delay-100 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <CardHeader className="pb-2">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold tracking-tight text-white uppercase">
-                  {t('netBalance')} ⚖️
-                </CardTitle>
-                <div className="p-2 bg-white/20 rounded-lg animate-spin-slow">
-                  <PieChartIcon className="h-4 w-4 text-white" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-black text-white animate-fadeInScale">₹{balance.toLocaleString()}</div>
-              <p className="text-xs font-bold text-white/90 mt-1">{t('netBalanceSubtitle')}</p>
-              <div className="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white/80 rounded-full transition-all duration-1000 ease-out" style={{ width: '75%' }} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-0 card-shadow hover:scale-105 transition-all duration-500 animate-scaleIn animate-delay-200 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <CardHeader className="pb-2">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold tracking-tight text-white uppercase">
-                  {t('totalIncome')} 💰
-                </CardTitle>
-                <div className="p-2 bg-white/20 rounded-lg animate-bounce">
-                  <TrendingUp className="h-4 w-4 text-white" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-black text-white animate-fadeInScale">₹{income.toLocaleString()}</div>
-              <p className="text-xs font-bold text-white/90 mt-1">{t('totalIncomeSubtitle')}</p>
-              <div className="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white/80 rounded-full animate-progress-flow transition-all duration-1000 ease-out" style={{ width: '90%' }} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-rose-500 to-orange-600 text-white border-0 card-shadow hover:scale-105 transition-all duration-500 animate-scaleIn animate-delay-300 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <CardHeader className="pb-2">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold tracking-tight text-white uppercase">
-                  {t('totalExpenses')} 💸
-                </CardTitle>
-                <div className="p-2 bg-white/20 rounded-lg animate-pulse">
-                  <IndianRupee className="h-4 w-4 text-white" />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-black text-white animate-fadeInScale">₹{expenses.toLocaleString()}</div>
-              <p className="text-xs font-bold text-white/90 mt-1">{t('totalExpensesSubtitle')}</p>
-              <div className="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
-                <div className="h-full bg-white/80 rounded-full transition-all duration-1000 ease-out" style={{ width: '65%' }} />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="premium-card p-5 sm:p-7">
+          <div className="flex items-start justify-between"><div><p className="eyebrow">Spending pulse</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Where it goes</h2></div><div className="rounded-xl bg-teal-50 p-2.5 text-teal-700"><BarChart3 className="h-5 w-5" /></div></div>
+          <div className="relative mx-auto mt-5 h-52 w-52">{categoryData.length ? <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={categoryData} dataKey="value" innerRadius={64} outerRadius={88} paddingAngle={4} stroke="none">{categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie></PieChart></ResponsiveContainer> : <div className="flex h-full items-center justify-center rounded-full border-[18px] border-slate-100"><div className="text-center"><p className="text-2xl font-semibold text-slate-900">0%</p><p className="text-xs text-slate-400">tracked</p></div></div>}<div className="pointer-events-none absolute inset-0 flex items-center justify-center"><div className="text-center"><p className="text-2xl font-semibold tracking-tight text-slate-950">{currency(totals.expenses)}</p><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">spent</p></div></div></div>
+          <div className="mt-4 space-y-3">{categoryData.length ? categoryData.slice(0, 4).map((category) => <div key={category.name} className="flex items-center justify-between text-sm"><span className="flex min-w-0 items-center gap-2.5 text-slate-600"><span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: category.fill }} />{category.name}</span><span className="font-semibold text-slate-900">{currency(category.value)}</span></div>) : <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-5 text-slate-500">Your spending breakdown will become more useful as you add transactions.</p>}</div>
         </div>
+      </section>
 
-        {/* Enhanced Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slideInLeft animate-delay-500">
-          {/* Interactive Chart */}
-          <Card className="border-0 card-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <PieChartIcon className="h-5 w-5" />
-                  {t('financialVisualization')}
-                </CardTitle>
-                <div className="flex gap-2">
-                  <Button
-                    variant={chartView === 'pie' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setChartView('pie')}
-                  >
-                    <PieChartIcon className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={chartView === 'bar' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setChartView('bar')}
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={chartView === 'trend' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setChartView('trend')}
-                  >
-                    <LineChartIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {renderChart()}
-            </CardContent>
-          </Card>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+        <div className="premium-card p-5 sm:p-7"><div className="mb-5 flex items-center justify-between"><div><p className="eyebrow">Activity</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Recent transactions</h2></div><button onClick={() => onNavigate?.('calendar-tracker')} className="inline-flex items-center gap-1 text-sm font-bold text-teal-700 transition hover:text-teal-900">View all <ChevronRight className="h-4 w-4" /></button></div>{recentTransactions.length ? <div className="divide-y divide-slate-100">{recentTransactions.map((transaction) => <TransactionRow key={transaction.id} transaction={transaction} currentLanguage={currentLanguage} />)}</div> : <EmptyActivity onAdd={() => onNavigate?.('add-expense')} />}</div>
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-[#102b29] p-6 text-white shadow-[0_18px_45px_rgba(16,43,41,0.18)] sm:p-7"><div className="absolute -right-14 -top-14 h-40 w-40 rounded-full border-[22px] border-teal-300/10" /><div className="absolute -bottom-20 -left-10 h-44 w-44 rounded-full border-[28px] border-orange-200/10" /><div className="relative z-10"><div className="mb-10 flex items-center justify-between"><div className="rounded-xl bg-white/10 p-2.5"><Sparkles className="h-5 w-5 text-teal-200" /></div><span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-100/70">AI insight</span></div><p className="text-sm font-medium text-teal-100/65">One small shift, big impact</p><h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight">Your next best move is consistency, not restriction.</h3><p className="mt-4 text-sm leading-6 text-white/55">Keep logging for seven days and SmartBudget will surface a clearer pattern in your spending.</p><button onClick={() => onNavigate?.('insights')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#102b29] transition hover:-translate-y-0.5">Explore insights <ChevronRight className="h-4 w-4" /></button></div></div>
+      </section>
 
-          {/* Recent Transactions with Visual Enhancements */}
-          <Card className="border-0 card-shadow">
-            <CardHeader>
-              <CardTitle>{t('recentTransactions')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                {transactions.slice(0, 5).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg hover:shadow-md transition-all duration-300 hover:scale-105 glass-card animate-fadeInUp" style={{ animationDelay: `${Math.random() * 0.5}s` }}>
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center",
-                        transaction.type === 'income' ? "bg-green-100" : "bg-red-100"
-                      )}>
-                        {transaction.type === 'income' ?
-                          <TrendingUp className="h-5 w-5 text-green-600" /> :
-                          <IndianRupee className="h-5 w-5 text-red-600" />
-                        }
-                      </div>
-                      <div>
-                        <p className="font-medium">{transaction.title}</p>
-                        <p className="text-sm text-gray-600">{getCategoryTranslation(transaction.category, currentLanguage)}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={cn(
-                        "font-semibold text-lg",
-                        transaction.type === 'income' ? "text-green-600" : "text-red-600"
-                      )}>
-                        {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {(() => {
-                          try {
-                            return new Date(transaction.date).toLocaleDateString();
-                          } catch (e) {
-                            return transaction.date;
-                          }
-                        })()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Enhanced Action Buttons with New Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-slideInBottom animate-delay-500">
-          <Button
-            onClick={() => onNavigate?.('add-expense')}
-            className="financial-gradient text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-100"
-          >
-            <Plus className="mr-2 h-5 w-5" />
-            {t('addTransaction')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('calendar-tracker')}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-200"
-          >
-            <Calendar className="mr-2 h-5 w-5" />
-            📅 {t('calendarTracker')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('advanced-analytics')}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-300"
-          >
-            <PieChartIcon className="mr-2 h-5 w-5" />
-            📊 {t('advancedAnalytics')}
-          </Button>
-
-
-          <Button
-            onClick={() => onNavigate?.('budget-progress')}
-            className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105 button-hover-effect animate-bounceIn animate-delay-100"
-          >
-            <Target className="mr-2 h-5 w-5" />
-            🎯 {t('budgetProgress')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('money-monster')}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Trophy className="mr-2 h-5 w-5" />
-            👹 {t('moneyMonster')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('spending-coach')}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Brain className="mr-2 h-5 w-5" />
-            🧠 {t('aiSpendingCoach')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('geo-map')}
-            className="bg-gradient-to-r from-green-600 to-blue-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <MapPin className="mr-2 h-5 w-5" />
-            📍 {t('geoHeatmap')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('bill-scanner')}
-            className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Camera className="mr-2 h-5 w-5" />
-            📷 {t('billScanner')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('voice-entry')}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Mic className="mr-2 h-5 w-5" />
-            🎤 {t('voiceEntry')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('bill-reminder')}
-            className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Bell className="mr-2 h-5 w-5" />
-            {t('billReminders')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('coach')}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <MessageCircle className="mr-2 h-5 w-5" />
-            {t('aiFinanceCoach')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('budget-planner')}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Target className="mr-2 h-5 w-5" />
-            {t('smartBudgetPlanner')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('savings-goals')}
-            className="bg-gradient-to-r from-pink-600 to-purple-600 text-white border-0 px-6 py-4 text-lg font-medium hover:opacity-90 transition-all duration-300 hover:scale-105"
-          >
-            <Trophy className="mr-2 h-5 w-5" />
-            {t('savingsGoals')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('insights')}
-            variant="outline"
-            className="px-6 py-4 text-lg font-medium border-2 hover:bg-blue-50 transition-all duration-300 hover:scale-105"
-          >
-            <Brain className="mr-2 h-5 w-5" />
-            {t('viewAIInsights')}
-          </Button>
-
-          <Button
-            onClick={() => onNavigate?.('visualizer')}
-            variant="outline"
-            className="px-6 py-4 text-lg font-medium border-2 hover:bg-purple-50 transition-all duration-300 hover:scale-105"
-          >
-            <BarChart3 className="mr-2 h-5 w-5" />
-            {t('advancedVisualizer')}
-          </Button>
-        </div>
-      </div>
+      <section><div className="mb-4 flex items-end justify-between"><div><p className="eyebrow">Shortcuts</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Make progress in a tap</h2></div><p className="hidden text-sm text-slate-500 sm:block">Your most useful money tools, curated.</p></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Shortcut icon={Target} title="Budget planner" description="Set a calmer monthly plan" onClick={() => onNavigate?.('budget-planner')} tone="teal" /><Shortcut icon={Trophy} title="Savings goals" description="Turn intent into milestones" onClick={() => onNavigate?.('savings-goals')} tone="violet" /><Shortcut icon={ScanLine} title="Scan a bill" description="Capture the details instantly" onClick={() => onNavigate?.('bill-scanner')} tone="orange" /><Shortcut icon={Lightbulb} title="AI finance coach" description="Get a smarter next step" onClick={() => onNavigate?.('coach')} tone="blue" /></div></section>
     </div>
   );
 });
+
+const MetricCard = ({ label, value, note, icon: Icon, tone, trend }: { label: string; value: string; note: string; icon: React.ElementType; tone: 'dark' | 'mint' | 'sand'; trend: string }) => <div className={cn('metric-card group', tone === 'dark' && 'metric-card-dark', tone === 'mint' && 'metric-card-mint', tone === 'sand' && 'metric-card-sand')}><div className="flex items-start justify-between"><div><p className="text-[11px] font-bold uppercase tracking-[0.18em] opacity-60">{label}</p><p className="mt-5 text-3xl font-semibold tracking-[-0.045em]">{value}</p></div><div className="rounded-xl bg-white/15 p-2.5"><Icon className="h-5 w-5" /></div></div><div className="mt-7 flex items-center justify-between text-xs font-semibold"><span className="opacity-60">{note}</span><span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-1"><TrendingUp className="h-3 w-3" />{trend}</span></div></div>;
+
+const ChartToggle = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) => <button onClick={onClick} className={cn('rounded-lg px-3 py-1.5 text-xs font-bold transition', active ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900')}>{children}</button>;
+
+const TransactionRow = ({ transaction, currentLanguage }: { transaction: Transaction; currentLanguage: string }) => <div className="flex items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0"><div className="flex min-w-0 items-center gap-3"><div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', transaction.type === 'income' ? 'bg-teal-50 text-teal-700' : 'bg-orange-50 text-orange-600')}>{transaction.type === 'income' ? <ArrowDownRight className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}</div><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-800">{transaction.title}</p><p className="mt-0.5 truncate text-xs text-slate-400">{getCategoryTranslation(transaction.category, currentLanguage)} · {new Date(transaction.date).toLocaleDateString()}</p></div></div><p className={cn('shrink-0 text-sm font-bold', transaction.type === 'income' ? 'text-teal-700' : 'text-slate-900')}>{transaction.type === 'income' ? '+' : '-'}{currency(transaction.amount)}</p></div>;
+
+const Shortcut = ({ icon: Icon, title, description, onClick, tone }: { icon: React.ElementType; title: string; description: string; onClick: () => void; tone: 'teal' | 'violet' | 'orange' | 'blue' }) => <button onClick={onClick} className="group flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 text-left shadow-[0_5px_20px_rgba(15,23,42,0.035)] transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_14px_30px_rgba(15,23,42,0.08)]"><div className={cn('rounded-xl p-3', tone === 'teal' && 'bg-teal-50 text-teal-700', tone === 'violet' && 'bg-violet-50 text-violet-700', tone === 'orange' && 'bg-orange-50 text-orange-600', tone === 'blue' && 'bg-sky-50 text-sky-700')}><Icon className="h-5 w-5" /></div><span className="min-w-0 flex-1"><span className="block text-sm font-bold text-slate-800">{title}</span><span className="mt-0.5 block text-xs text-slate-400">{description}</span></span><ChevronRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500" /></button>;
+
+const EmptyChart = ({ label }: { label: string }) => <div className="flex h-full items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 text-center text-sm text-slate-400"><Minus className="mr-2 h-4 w-4" />{label}</div>;
+const EmptyActivity = ({ onAdd }: { onAdd: () => void }) => <div className="flex min-h-[190px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 text-center"><div className="mb-3 rounded-xl bg-white p-3 text-slate-400 shadow-sm"><IndianRupee className="h-5 w-5" /></div><p className="text-sm font-semibold text-slate-700">Your money story starts here.</p><p className="mt-1 max-w-xs text-xs leading-5 text-slate-400">Add your first transaction and we’ll turn it into a useful signal.</p><button onClick={onAdd} className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-teal-700">Add transaction <Plus className="h-3.5 w-3.5" /></button></div>;
 
 export default Dashboard;
