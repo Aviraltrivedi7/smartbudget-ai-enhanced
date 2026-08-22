@@ -66,3 +66,7 @@ The dark-green branding was removed from the primary surfaces. The app now uses 
 ## Contrast and readability pass
 
 Low-opacity secondary text was strengthened on dark hero, insight, sidebar, and chat surfaces. Light cards now use darker slate labels and foreground colours. The month selector now explicitly uses dark ink text on its light surface, with readable cobalt selection and hover states. Savings Goals actions and report controls were also aligned to the same readable palette. Live preview verification confirmed the sidebar, hero, metrics, month selector, and dashboard copy are legible.
+
+## Hidden navigation drawer
+
+The persistent sidebar was replaced by a full-width top bar with a three-dot menu button. The drawer is hidden by default, slides in from the left on click or touch, dims and blurs the page behind it, closes from the X control, outside backdrop, or Escape key, and closes automatically after navigation. Live preview verification confirmed the three-dot trigger, readable drawer links, and clean dismissal back to the dashboard.

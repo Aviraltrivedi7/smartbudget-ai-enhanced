@@ -250,12 +250,12 @@ const Index = () => {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-[#f6f7f8] text-slate-900 smooth-load">
+      <div className="min-h-screen bg-background text-slate-900 smooth-load">
         <Navbar
           currentView={currentView}
           onNavigate={setCurrentView}
         />
-        <div className="min-h-screen lg:pl-64">
+        <div className="min-h-screen">
           <main className="pb-24 lg:pb-12">
             {renderCurrentView()}
           </main>
