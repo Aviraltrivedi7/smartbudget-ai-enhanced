@@ -46,3 +46,15 @@ The dashboard AI Copilot now exposes a Live chat action that routes to the redes
 ## Reports and exports verification
 
 The live preview now exposes Reports & Exports in the sidebar. The redesigned screen shows total income, expenses, savings, category-level progress, a smart readout, and three functional actions: Download PDF, Export CSV, and Choose CSV file.
+
+## External AI and report export integration
+
+The backend now supports a server-side `/api/ai/chat` proxy for either OpenAI or Gemini, selected with `LLM_PROVIDER`. API keys remain server-side through `OPENAI_API_KEY` or `GEMINI_API_KEY`. When no provider key is configured, the route safely returns a configuration response and the frontend retains its local transaction-aware fallback.
+
+The Reports & Exports page now generates a real PDF with summary cards, category bars, and smart readout text; exports escaped CSV; and imports CSV rows into local state and Supabase when authenticated. Live browser verification confirmed the Reports & Exports page renders the new action cards and the PDF action shows a successful download toast. Backend smoke tests confirmed health, AI readiness, and safe missing-key behavior.
+
+## Clean visual pass
+
+The visual system was refined to use deep forest green, warm ivory, muted mint, and a restrained terracotta accent. Neon splash gradients, bright blue/purple/pink category accents, oversized corner radii, and high-contrast decorative colours were replaced or globally remapped. Dashboard cards, charts, Copilot surfaces, the splash screen, and legacy feature screens now share the same calmer palette. Live preview verification confirmed the dashboard renders with the new deep-green hero, softer mint/sand metric cards, and reduced visual noise.
+
+Published in commit `ab4efac style: refine premium color system and spacing`.
