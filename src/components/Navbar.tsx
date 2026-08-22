@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
 
       <div className={`fixed inset-0 z-[60] transition-opacity duration-200 ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!isOpen}>
         <div className="absolute inset-0 bg-[#18213a]/35 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-        <aside role="dialog" aria-modal="true" aria-label="SmartBudget navigation" className={`absolute inset-y-0 left-0 flex w-[min(320px,88vw)] flex-col bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside role="dialog" aria-modal="true" aria-label="SmartBudget navigation" className={`absolute inset-y-0 left-0 flex min-h-0 w-[min(320px,88vw)] flex-col bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
             <button onClick={() => navigate('dashboard')} className="flex items-center gap-3 text-left">
               <span className="brand-mark"><Wallet className="h-5 w-5" /></span>
@@ -118,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-6">
+          <div className="drawer-scroll min-h-0 flex-1 overflow-y-auto px-5 py-6">
             <div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Workspace</div>
             <nav className="space-y-1">{primaryItems.map(renderItem)}</nav>
             <div className="mb-3 mt-9 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Tools</div>
@@ -130,7 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             </div>
           </div>
 
-          <div className="border-t border-white/10 px-5 py-5">
+          <div className="shrink-0 border-t border-white/10 px-5 py-5">
             <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dfe4ff] text-xs font-extrabold text-[#222d4b]">{initials}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-white/95">{displayName}</p><p className="mt-0.5 text-[10px] text-white/60">Personal workspace</p></div><button onClick={async () => { await logout(); setIsOpen(false); toast.success(isHindi ? 'साइन आउट हो गया' : 'Signed out successfully'); }} className="rounded-lg p-1.5 text-white/60 transition hover:bg-white/10 hover:text-white" aria-label="Sign out"><LogOut className="h-4 w-4" /></button></div>
           </div>
         </aside>

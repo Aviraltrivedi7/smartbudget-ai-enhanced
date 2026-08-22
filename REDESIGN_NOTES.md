@@ -70,3 +70,13 @@ Low-opacity secondary text was strengthened on dark hero, insight, sidebar, and 
 ## Hidden navigation drawer
 
 The persistent sidebar was replaced by a full-width top bar with a three-dot menu button. The drawer is hidden by default, slides in from the left on click or touch, dims and blurs the page behind it, closes from the X control, outside backdrop, or Escape key, and closes automatically after navigation. Live preview verification confirmed the three-dot trigger, readable drawer links, and clean dismissal back to the dashboard.
+
+## Drawer scroll fix
+
+The drawer navigation now uses a constrained flex column with `min-h-0`, an independent `drawer-scroll` navigation region, a thin visible scrollbar, and a shrink-0 profile/action footer. This keeps all lower navigation options accessible while preserving the bottom account controls.
+
+## Drawer scroll verification
+
+Source: live preview at https://5173-iumfctn7j3tdqrg7f56iq-4c69fc26.sg1.manus.computer/
+
+The navigation drawer was opened through the three-dot trigger and scrolled to its end. The scrollable navigation area moved independently while the profile/sign-out footer remained visible at the bottom, confirming the lower drawer content is no longer clipped.
