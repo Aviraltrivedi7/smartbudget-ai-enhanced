@@ -80,3 +80,7 @@ The drawer navigation now uses a constrained flex column with `min-h-0`, an inde
 Source: live preview at https://5173-iumfctn7j3tdqrg7f56iq-4c69fc26.sg1.manus.computer/
 
 The navigation drawer was opened through the three-dot trigger and scrolled to its end. The scrollable navigation area moved independently while the profile/sign-out footer remained visible at the bottom, confirming the lower drawer content is no longer clipped.
+
+## Utility controls visibility fix
+
+The drawer utility actions were moved into a dedicated shrink-0 bottom panel, separate from the scrollable workspace/tools list. Live preview verification now shows Notifications, Settings, and Dark mode together above the profile/sign-out card at the bottom of the open drawer.
