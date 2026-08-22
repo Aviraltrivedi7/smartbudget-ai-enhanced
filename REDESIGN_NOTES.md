@@ -34,3 +34,7 @@ The redesigned desktop dashboard rendered successfully through the exposed local
 ## Feature-screen verification
 
 The Savings Goals page was also rebuilt around the new system: it now uses the same editorial typography, white premium cards, mint/orange/violet stat tones, progress hierarchy, and dark-sidebar shell. The first goal action was tested successfully; adding ₹100 updated both the goal progress and total points in the rendered interface.
+
+## Second preview pass
+
+The live capture now includes the AI Copilot panel with three contextual suggestions: spending guardrail, goal accelerator, and weekly pulse. It also includes a clickable Transaction Rhythm bar chart with selected-day detail and animated bar emphasis. The hero screenshot confirms the premium graphite sidebar, teal hero, mint/sand stat cards, and chart entry point remain visually consistent above the fold.
