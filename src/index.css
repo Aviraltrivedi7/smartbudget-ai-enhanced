@@ -115,3 +115,11 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
+
+@layer components {
+  .premium-card .text-slate-400 { color: #687181 !important; }
+  .premium-card .text-slate-500 { color: #566172 !important; }
+  .premium-card .text-slate-600 { color: #414b5a !important; }
+  .premium-card .text-slate-700 { color: #344052 !important; }
+  .metric-card .opacity-60 { opacity: 0.78; }
+}

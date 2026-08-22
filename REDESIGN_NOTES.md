@@ -62,3 +62,7 @@ Published in commit `ab4efac style: refine premium color system and spacing`.
 ## Navy and cobalt palette refresh
 
 The dark-green branding was removed from the primary surfaces. The app now uses midnight navy for navigation and anchor cards, cobalt for primary chart/interaction accents, soft lavender for selected states, warm off-white for the canvas, and muted coral for expense emphasis. Live preview verification confirmed the refreshed splash screen, navy sidebar, cobalt hero, and balanced metric cards render without the previous forest-green treatment.
+
+## Contrast and readability pass
+
+Low-opacity secondary text was strengthened on dark hero, insight, sidebar, and chat surfaces. Light cards now use darker slate labels and foreground colours. The month selector now explicitly uses dark ink text on its light surface, with readable cobalt selection and hover states. Savings Goals actions and report controls were also aligned to the same readable palette. Live preview verification confirmed the sidebar, hero, metrics, month selector, and dashboard copy are legible.

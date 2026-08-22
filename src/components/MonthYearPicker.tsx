@@ -37,7 +37,7 @@ const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ value, onChange }) =>
                 <Button
                     variant="outline"
                     className={cn(
-                        "w-[240px] justify-start text-left font-normal glass-effect hover:bg-white/20 transition-all duration-300",
+                        "w-[240px] justify-start text-left font-normal text-[#1f2b46] glass-effect hover:bg-[#eef0fb] transition-all duration-300",
                         !value && "text-muted-foreground"
                     )}
                 >
@@ -45,7 +45,7 @@ const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ value, onChange }) =>
                     {t(selectedMonth)} {selectedYear}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-64 p-3 glass-effect border-0 shadow-2xl animate-scaleIn backdrop-blur-xl bg-white/90">
+            <PopoverContent className="w-64 p-3 glass-effect border border-[#e7e8ee] text-[#1f2b46] shadow-2xl animate-scaleIn backdrop-blur-xl bg-white/95">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <Select value={selectedYear} onValueChange={handleYearChange}>
@@ -95,8 +95,8 @@ const MonthYearPicker: React.FC<MonthYearPickerProps> = ({ value, onChange }) =>
                                 className={cn(
                                     "h-9 text-xs font-medium transition-all duration-200",
                                     selectedMonth === month
-                                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md scale-105"
-                                        : "hover:bg-blue-50 text-gray-600"
+                                        ? "bg-[#5867bb] text-white shadow-md scale-105"
+                                        : "hover:bg-[#eef0fb] text-[#5d6576]"
                                 )}
                                 onClick={() => handleMonthSelect(month)}
                             >
