@@ -38,3 +38,7 @@ The Savings Goals page was also rebuilt around the new system: it now uses the s
 ## Second preview pass
 
 The live capture now includes the AI Copilot panel with three contextual suggestions: spending guardrail, goal accelerator, and weekly pulse. It also includes a clickable Transaction Rhythm bar chart with selected-day detail and animated bar emphasis. The hero screenshot confirms the premium graphite sidebar, teal hero, mint/sand stat cards, and chart entry point remain visually consistent above the fold.
+
+## Live Copilot chat verification
+
+The dashboard AI Copilot now exposes a Live chat action that routes to the redesigned SmartBudget Copilot workspace. The chat uses the existing transaction context to answer expense questions and supports quick prompts, English/Hinglish switching, typing feedback, context summary cards, and a private-workspace status. Live browser testing confirmed that asking “Where am I spending the most?” returned the current top category and amount breakdown, while “How can I grow my savings?” returned a personalized monthly and weekly savings target.

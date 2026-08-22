@@ -1,462 +1,82 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Send, Brain, User, Bot, Lightbulb, TrendingUp, AlertCircle, Languages } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, Bot, ChevronRight, Languages, MessageCircle, Send, ShieldCheck, Sparkles, TrendingUp, UserRound, Wallet } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-interface Transaction {
-  id: string;
-  title: string;
-  amount: number;
-  category: string;
-  date: string;
-  type: 'income' | 'expense';
-}
+interface Transaction { id: string; title: string; amount: number; category: string; date: string; type: 'income' | 'expense'; }
+interface AIFinanceCoachProps { onBack: () => void; transactions: Transaction[]; }
+interface Message { id: string; type: 'user' | 'ai'; content: string; timestamp: Date; suggestions?: string[]; }
 
-interface AIFinanceCoachProps {
-  onBack: () => void;
-  transactions: Transaction[];
-}
-
-interface Message {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  timestamp: Date;
-  suggestions?: string[];
-}
+const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
 
 const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions }) => {
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: language === 'hi'
-        ? 'Namaste! Main hoon aapka AI Finance Coach 🧠. Mere se kuch bhi poocho apne kharche, budget tips, ya financial goals ke baare mein. Main aapka data analyze karke ekdum sahi advice dunga!'
-        : 'Hello! I am your AI Finance Coach 🧠. Ask me anything about your expenses, budget tips, or financial goals. I will analyze your data and give you the best advice!',
-      timestamp: new Date(),
-      suggestions: language === 'hi'
-        ? [
-          'Sabse zyada kharcha kahan ho raha hai?',
-          'Is mahine ka budget kaise plan karu?',
-          'Savings badhane ke tips chahiye',
-          'Food expenses kam karne ka tareeka?'
-        ]
-        : [
-          'Where am I spending the most?',
-          'How to plan a budget for this month?',
-          'Tips to increase savings',
-          'How to reduce food expenses?'
-        ]
-    }
-  ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const summary = useMemo(() => {
+    const expenses = transactions.filter((item) => item.type === 'expense');
+    const income = transactions.filter((item) => item.type === 'income');
+    const byCategory = expenses.reduce<Record<string, number>>((result, item) => { result[item.category] = (result[item.category] || 0) + Number(item.amount || 0); return result; }, {});
+    const topCategory = Object.entries(byCategory).sort(([, a], [, b]) => b - a)[0];
+    return { expenses: expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0), income: income.reduce((sum, item) => sum + Number(item.amount || 0), 0), byCategory, topCategory };
+  }, [transactions]);
+
+  const suggestions = useMemo(() => language === 'hi' ? ['Sabse zyada kharcha kahan ho raha hai?', 'Is mahine ka budget kaise plan karu?', 'Savings badhane ke tips chahiye?', 'Food expenses kaise kam karu?'] : ['Where am I spending the most?', 'How should I plan this month?', 'How can I grow my savings?', 'How can I reduce food expenses?'], [language]);
 
   useEffect(() => {
-    // Add a small delay to ensure DOM update is complete
-    const timeoutId = setTimeout(scrollToBottom, 50);
-    return () => clearTimeout(timeoutId);
-  }, [messages, isTyping]);
+    setMessages([{ id: 'welcome', type: 'ai', content: language === 'hi' ? 'Namaste! Main aapka SmartBudget Copilot hoon. Aap apne expenses, spending patterns, budget ya savings goals ke baare mein seedha pooch sakte hain.' : 'Hey, I’m your SmartBudget Copilot. Ask me anything about your expenses, spending patterns, budget, or savings goals.', timestamp: new Date(), suggestions }]);
+  }, [language, suggestions]);
 
-  const toggleLanguage = () => {
-    const newLang = language === 'hi' ? 'en' : 'hi';
-    setLanguage(newLang);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isTyping]);
 
-    // Add a system message about language change
-    setMessages(prev => [...prev, {
-      id: Date.now().toString(),
-      type: 'ai',
-      content: newLang === 'hi' ? 'Theek hai, ab hum Hindi/Hinglish mein baat karenge! 🇮🇳' : 'Sure, let\'s switch to English! 🇬🇧',
-      timestamp: new Date(),
-      suggestions: newLang === 'hi'
-        ? [
-          'Sabse zyada kharcha kahan ho raha hai?',
-          'Is mahine ka budget kaise plan karu?',
-          'Savings badhane ke tips chahiye'
-        ]
-        : [
-          'Where am I spending the most?',
-          'How to plan a budget for this month?',
-          'Tips to increase savings'
-        ]
-    }]);
+  const getAIResponse = (question: string) => {
+    const query = question.toLowerCase();
+    const { expenses, income, byCategory, topCategory } = summary;
+    const formatBreakdown = Object.entries(byCategory).sort(([, a], [, b]) => b - a).slice(0, 4).map(([category, amount]) => `${category}: ${money(amount)}`).join(' · ');
+
+    if (query.includes('most') || query.includes('highest') || query.includes('sabse') || query.includes('zyada') || query.includes('category')) {
+      return language === 'hi' ? `Aapka sabse bada spending lever ${topCategory?.[0] || 'Food'} hai — ${money(topCategory?.[1] || 0)}. Baaki breakdown: ${formatBreakdown || 'abhi data kam hai'}. Is category par 10% soft cap lagane se next month around ${money((topCategory?.[1] || 0) * 0.1)} ka room ban sakta hai.` : `Your biggest spending lever is ${topCategory?.[0] || 'Food'} at ${money(topCategory?.[1] || 0)}. The current breakdown is ${formatBreakdown || 'not available yet'}. A gentle 10% cap here could free up around ${money((topCategory?.[1] || 0) * 0.1)} next month.`;
+    }
+    if (query.includes('budget') || query.includes('plan') || query.includes('kaise') || query.includes('rule')) {
+      const needs = Math.round(expenses * 0.6); const wants = Math.round(expenses * 0.25); const save = Math.round(expenses * 0.15);
+      return language === 'hi' ? `Aapke current expenses ${money(expenses)} ke liye ek simple starter plan: Needs ${money(needs)}, lifestyle ${money(wants)}, aur savings buffer ${money(save)}. Pehle salary day par savings auto-transfer set karo, phir category limits ko weekly review karo.` : `For your current ${money(expenses)} in expenses, try a simple starter plan: needs ${money(needs)}, lifestyle ${money(wants)}, and a savings buffer of ${money(save)}. Automate the buffer on salary day, then review category limits every Sunday.`;
+    }
+    if (query.includes('save') || query.includes('saving') || query.includes('goal') || query.includes('bachat')) {
+      const target = Math.max(500, Math.round(income * 0.25));
+      return language === 'hi' ? `Aapki tracked income ${money(income)} hai. Ek realistic first target ${money(target)} per month rakho — around 25%. Isse weekly ${money(target / 4)} ke chhote transfers mein tod do, taaki goal automatic lage.` : `Your tracked income is ${money(income)}. A realistic first target is ${money(target)} per month — roughly 25%. Break it into weekly transfers of about ${money(target / 4)} so the goal feels automatic.`;
+    }
+    if (query.includes('food') || query.includes('khana') || query.includes('dining')) {
+      const food = byCategory.Food || byCategory.food || 0;
+      return language === 'hi' ? `Food par abhi ${money(food)} spend hua hai. Agle hafte 2 low-spend days try karo aur ek soft weekly cap set karo. Isse bina restriction ke roughly ${money(food * 0.15)} tak ka difference aa sakta hai.` : `You’ve spent ${money(food)} on food so far. Try two low-spend days next week and set a soft weekly cap. Without over-restricting, that could make roughly ${money(food * 0.15)} of difference.`;
+    }
+    if (query.includes('balance') || query.includes('left') || query.includes('kitna')) {
+      const balance = Math.max(0, income - expenses);
+      return language === 'hi' ? `Aapka current tracked balance ${money(balance)} hai — income ${money(income)} minus expenses ${money(expenses)}. Is balance ka ek chhota hissa savings goal mein move karna best next step ho sakta hai.` : `Your current tracked balance is ${money(balance)} — income of ${money(income)} minus expenses of ${money(expenses)}. Moving a small part of that balance to a savings goal could be your best next step.`;
+    }
+    return language === 'hi' ? `Main aapke ${transactions.length} transactions aur ${money(expenses)} ke expenses ko dekh raha hoon. Aap “sabse zyada kharcha”, “budget plan”, “savings goal”, ya “balance” ke baare mein pooch sakte hain.` : `I’m looking at ${transactions.length} transactions and ${money(expenses)} in expenses. Try asking about your biggest category, a budget plan, savings goals, or current balance.`;
   };
 
-  const getAIResponse = (userMessage: string): string => {
-    const message = userMessage.toLowerCase();
-
-    // Calculate spending by category with proper type casting
-    const expensesByCategory = transactions
-      .filter(t => t.type === 'expense')
-      .reduce((acc, t) => {
-        const amount = Number(t.amount) || 0;
-        acc[t.category] = (acc[t.category] || 0) + amount;
-        return acc;
-      }, {} as Record<string, number>);
-
-    const totalExpenses = Object.values(expensesByCategory).reduce((sum: number, amt: number) => sum + amt, 0);
-    const highestCategory = Object.entries(expensesByCategory)
-      .sort(([, a], [, b]) => (b as number) - (a as number))[0];
-
-    // Spending Analysis
-    if (message.includes('category') || message.includes('kharch') || message.includes('spending') || message.includes('spent')) {
-      if (language === 'hi') {
-        return `Aapke spending data ka breakdown ye raha:
- 
- ${Object.entries(expensesByCategory)
-            .sort(([, a], [, b]) => (b as number) - (a as number))
-            .map(([cat, amt]) => `💰 ${cat}: ₹${amt.toLocaleString()} (${((amt / totalExpenses) * 100).toFixed(1)}%)`)
-            .join('\n')}
- 
- 🎯 **Special Tip**: Bhai, aap sabse zyada ${highestCategory?.[0]} (₹${highestCategory?.[1].toLocaleString()}) par uuda rahe ho. Ispe thoda control karo to savings mast hogi!`;
-      } else {
-        return `Here is your spending breakdown:
-
-${Object.entries(expensesByCategory)
-            .sort(([, a], [, b]) => (b as number) - (a as number))
-            .map(([cat, amt]) => `💰 ${cat}: ₹${amt.toLocaleString()} (${((amt / totalExpenses) * 100).toFixed(1)}%)`)
-            .join('\n')}
-
-🎯 **Coach Tip**: You are spending the most on ${highestCategory?.[0]} (₹${highestCategory?.[1].toLocaleString()}). Trying to control this could boost your savings!`;
-      }
-    }
-
-    // Budget Planning
-    if (message.includes('budget') || message.includes('plan') || message.includes('kaise') || message.includes('how')) {
-      if (language === 'hi') {
-        return `Ek mast monthly budget plan ye raha:
- 
- 🏠 **Zaroori Kharcha (60% = ₹${Math.round(totalExpenses * 0.6)})**
- - Rent/Food: ₹${Math.round(totalExpenses * 0.5)}
- - Travel: ₹${Math.round(totalExpenses * 0.1)}
- 
- 💡 **Lifestyle (25% = ₹${Math.round(totalExpenses * 0.25)})**
- - Fun/Movies: ₹${Math.round(totalExpenses * 0.15)}
- - Shopping: ₹${Math.round(totalExpenses * 0.1)}
- 
- 💰 **Savings (15% = ₹${Math.round(totalExpenses * 0.15)})**
- - Emergency Fund: ₹${Math.round(totalExpenses * 0.1)}
- - Investment: ₹${Math.round(totalExpenses * 0.05)}
- 
- 💡 **Coach Tip**:
- - Rozana kharcha track karo
- - Category limit set karo
- - 50-30-20 rule follow karne ki koshish karo`;
-      } else {
-        return `Here is a solid monthly budget plan for you:
-
-🏠 **Needs (60% = ₹${Math.round(totalExpenses * 0.6).toLocaleString()})**
-- Rent/Food: ₹${Math.round(totalExpenses * 0.5).toLocaleString()}
-- Travel: ₹${Math.round(totalExpenses * 0.1).toLocaleString()}
-
-💡 **Wants (25% = ₹${Math.round(totalExpenses * 0.25).toLocaleString()})**
-- Fun/Movies: ₹${Math.round(totalExpenses * 0.15).toLocaleString()}
-- Shopping: ₹${Math.round(totalExpenses * 0.1).toLocaleString()}
-
-💰 **Savings (15% = ₹${Math.round(totalExpenses * 0.15).toLocaleString()})**
-- Emergency Fund: ₹${Math.round(totalExpenses * 0.1).toLocaleString()}
-- Investment: ₹${Math.round(totalExpenses * 0.05).toLocaleString()}
-
-💡 **Coach Tip**:
-- Track expenses daily
-- Set category limits
-- Try following the 50-30-20 rule`;
-      }
-    }
-
-    // Savings Goals
-    if (message.includes('save') || message.includes('saving') || message.includes('goal')) {
-      const monthlyIncome = transactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
-
-      const suggestedSaving = Math.round(monthlyIncome * 0.25);
-
-      if (language === 'hi') {
-        return `🎯 **Aapka Personalized Saving Goal**:
- 
- Aapki income ₹${monthlyIncome.toLocaleString()} ke hisab se:
- 
- 📊 **Saving Target**: ₹${suggestedSaving.toLocaleString()}/month (Kam se kam 25%)
- 
- 🎖️ **Goal Breakdown**:
- - Emergency Fund: ₹${Math.round(suggestedSaving * 0.6).toLocaleString()}
- - Future Investments: ₹${Math.round(suggestedSaving * 0.4).toLocaleString()}
- 
- 🚀 **Action Steps**:
- 1. Aaj se hi ₹100 ki daily saving shuru karo
- 2. Salary aate hi pehle save karo, fir kharch
- 3. Har hafte progress check karo`;
-      } else {
-        return `🎯 **Your Personalized Saving Goal**:
-
-Based on your income of ₹${monthlyIncome.toLocaleString()}:
-
-📊 **Saving Target**: ₹${suggestedSaving.toLocaleString()}/month (At least 25%)
-
-🎖️ **Goal Breakdown**:
-- Emergency Fund: ₹${Math.round(suggestedSaving * 0.6).toLocaleString()}
-- Future Investments: ₹${Math.round(suggestedSaving * 0.4).toLocaleString()}
-
-🚀 **Action Steps**:
-1. Start saving ₹100 daily from today
-2. Save first when salary arrives, then spend
-3. Check progress every week`;
-      }
-    }
-
-    // Food Expenses
-    if (message.includes('food') || message.includes('khana')) {
-      const foodExpense = expensesByCategory['Food'] || 0;
-      const avgDaily = Math.round(foodExpense / 30);
-
-      if (language === 'hi') {
-        return `🍽️ **Aapka Food Kharcha Analysis**:
- 
- Abhi tak: ₹${foodExpense.toLocaleString()}/month (Avg ₹${avgDaily}/day)
- 
- 💡 **Savings Hacks**:
- - Ghar pe khana banao (Mast savings + health)
- - Bahar ka order kam karo (Save around ₹1500/month)
- - Bulk mein groceries lo
- 
- 🎯 **Target**: Agle mahine ise ₹${Math.round(foodExpense * 0.8).toLocaleString()} tak laane ki koshish karo bhai!`;
-      } else {
-        return `🍽️ **Your Food Expense Analysis**:
-
-Total so far: ₹${foodExpense.toLocaleString()}/month (Avg ₹${avgDaily}/day)
-
-💡 **Savings Hacks**:
-- Cook at home (Great savings + health)
-- Order less takeout (Save around ₹1500/month)
-- Buy groceries in bulk
-
-🎯 **Target**: Try to bring this down to ₹${Math.round(foodExpense * 0.8).toLocaleString()} next month!`;
-      }
-    }
-
-    // Default responses
-    if (language === 'hi') {
-      const defaultResponsesHi = [
-        "Main aapke kharche analyze kar sakta hoon! Poocho ki kis category mein zyada spending ho rahi hai.",
-        "Financial freedom chahiye? Mujhse budget planning ke baare mein poocho.",
-        "Aapka data dekh ke main bata sakta hoon kahan savings ho sakti hain. Kya poonchna chahenge?",
-        "Chalo milke aapka bank balance badhate hain! Kya help chahiye?"
-      ];
-      return defaultResponsesHi[Math.floor(Math.random() * defaultResponsesHi.length)];
-    } else {
-      const defaultResponsesEn = [
-        "I can analyze your expenses! Ask me which category has the highest spending.",
-        "Want financial freedom? Ask me about budget planning.",
-        "Looking at your data, I can spot savings opportunities. What would you like to know?",
-        "Let's grow your bank balance together! How can I help?"
-      ];
-      return defaultResponsesEn[Math.floor(Math.random() * defaultResponsesEn.length)];
-    }
-  };
-
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: input,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+  const sendMessage = (value = input) => {
+    const trimmed = value.trim();
+    if (!trimmed || isTyping) return;
+    const userMessage: Message = { id: `${Date.now()}-user`, type: 'user', content: trimmed, timestamp: new Date() };
+    setMessages((current) => [...current, userMessage]);
     setInput('');
     setIsTyping(true);
-
-    // Simulate AI thinking time
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: getAIResponse(input),
-        timestamp: new Date(),
-        suggestions: language === 'hi'
-          ? [
-            'Sabse zyada kharcha kahan ho raha hai?',
-            'Savings badhane ke tips chahiye',
-            'Investment kaise start karu?'
-          ]
-          : [
-            'Where is the highest spending?',
-            'Tips to increase savings',
-            'How to start investing?'
-          ]
-      };
-
-      setMessages(prev => [...prev, aiResponse]);
-      setIsTyping(false);
-    }, 1500);
+    window.setTimeout(() => { setMessages((current) => [...current, { id: `${Date.now()}-ai`, type: 'ai', content: getAIResponse(trimmed), timestamp: new Date(), suggestions }]); setIsTyping(false); }, 850);
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInput(suggestion);
-  };
+  const toggleLanguage = () => { setLanguage((current) => current === 'hi' ? 'en' : 'hi'); toast.success(language === 'hi' ? 'Switched to English' : 'Hindi/Hinglish mode on'); };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-4">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBack}
-            className="p-2 h-10 w-10"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              AI Finance Coach
-            </h1>
-            <p className="text-gray-600 flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Your personal financial advisor powered by AI
-            </p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2 bg-white/50"
-              onClick={toggleLanguage}
-            >
-              <Languages className="h-4 w-4" />
-              {language === 'hi' ? 'Switch to English' : 'हिंदी में बदलें'}
-            </Button>
-            <Badge className="bg-green-100 text-green-800">Online</Badge>
-          </div>
-        </div>
-
-        {/* Chat Container */}
-        <Card className="border-0 card-shadow h-[600px] flex flex-col">
-          <CardHeader className="pb-4 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-blue-600" />
-              {language === 'hi' ? 'AI Coach se baat karein' : 'Chat with AI Coach'}
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-            {/* Messages */}
-            <ScrollArea className="flex-1 p-4 h-full">
-              <div className="space-y-4 pb-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={cn(
-                      "flex gap-3",
-                      message.type === 'user' ? 'justify-end' : 'justify-start'
-                    )}
-                  >
-                    {message.type === 'ai' && (
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <Bot className="h-4 w-4 text-white" />
-                      </div>
-                    )}
-
-                    <div className={cn(
-                      "max-w-[85%] lg:max-w-md px-4 py-3 rounded-2xl shadow-sm",
-                      message.type === 'user'
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-white border rounded-bl-sm"
-                    )}>
-                      <p className="whitespace-pre-line text-sm leading-relaxed">{message.content}</p>
-                      <p className={cn(
-                        "text-[10px] mt-1 text-right opacity-70",
-                        message.type === 'user' ? "text-blue-100" : "text-gray-400"
-                      )}>
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-
-                    {message.type === 'user' && (
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                        <User className="h-4 w-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {isTyping && (
-                  <div className="flex gap-3 justify-start items-center">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="bg-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Invisible element to scroll to */}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-
-            {/* Suggestions - Sticky at bottom of chat area */}
-            {!isTyping && messages[messages.length - 1]?.suggestions && (
-              <div className="px-4 py-2 flex gap-2 overflow-x-auto border-t bg-gray-50/50">
-                {messages[messages.length - 1].suggestions?.map((suggestion, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="text-xs whitespace-nowrap bg-white hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors rounded-full"
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
-            )}
-
-            {/* Input Area */}
-            <div className="p-4 border-t bg-white">
-              <div className="flex gap-2">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={language === 'hi' ? "Poochiye apne finances ke baare mein..." : "Ask me anything about your finances..."}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isTyping}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 shadow-md hover:shadow-lg transition-all"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  return <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><button onClick={onBack} className="mb-5 inline-flex items-center gap-2 text-sm font-bold text-slate-500 transition hover:text-teal-700"><ArrowLeft className="h-4 w-4" /> Back to overview</button><div className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#102b29] text-teal-200 shadow-lg shadow-teal-950/10"><Bot className="h-5 w-5" /></span><div><p className="eyebrow">SmartBudget Copilot</p><h1 className="mt-1 text-4xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">Talk to your money.</h1></div></div><p className="mt-4 max-w-2xl text-sm leading-6 text-slate-500">Ask clear questions, get answers grounded in your tracked transactions, and turn the next best move into an action.</p></div><div className="flex items-center gap-2"><button onClick={toggleLanguage} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 transition hover:border-teal-200 hover:text-teal-700"><Languages className="h-4 w-4" /> {language === 'hi' ? 'English' : 'हिंदी / Hinglish'}</button><span className="inline-flex items-center gap-2 rounded-xl border border-teal-100 bg-teal-50 px-3.5 py-2.5 text-xs font-bold text-teal-800"><span className="h-2 w-2 animate-pulse rounded-full bg-teal-500" /> Context ready</span></div></div>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(300px,0.65fr)]"><section className="premium-card flex min-h-[620px] flex-col overflow-hidden"><div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-7"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 text-teal-700"><MessageCircle className="h-4 w-4" /></div><div><p className="text-sm font-bold text-slate-900">Live expense chat</p><p className="text-xs text-slate-400">Answers from your current money context</p></div></div><span className="hidden items-center gap-1.5 text-xs font-semibold text-slate-400 sm:flex"><ShieldCheck className="h-4 w-4 text-teal-600" /> Private workspace</span></div><div className="flex-1 space-y-5 overflow-y-auto px-5 py-6 sm:px-7">{messages.map((message) => <div key={message.id} className={cn('flex gap-3', message.type === 'user' && 'justify-end')}><div className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-xl', message.type === 'ai' ? 'bg-[#102b29] text-teal-200' : 'bg-slate-100 text-slate-500 order-2')} >{message.type === 'ai' ? <Bot className="h-4 w-4" /> : <UserRound className="h-4 w-4" />}</div><div className={cn('max-w-[86%] rounded-2xl px-4 py-3 text-sm leading-6', message.type === 'ai' ? 'rounded-tl-sm bg-slate-50 text-slate-700' : 'rounded-tr-sm bg-[#102b29] text-white')}><p className="whitespace-pre-line">{message.content}</p><p className={cn('mt-2 text-[10px] font-semibold', message.type === 'ai' ? 'text-slate-400' : 'text-white/45')}>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p></div></div>)}{isTyping && <div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#102b29] text-teal-200"><Bot className="h-4 w-4" /></div><div className="flex gap-1 rounded-2xl rounded-tl-sm bg-slate-50 px-4 py-4"><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500" /><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500 [animation-delay:120ms]" /><span className="h-1.5 w-1.5 animate-bounce rounded-full bg-teal-500 [animation-delay:240ms]" /></div></div>}<div ref={messagesEndRef} /></div><div className="border-t border-slate-100 bg-slate-50/60 px-5 py-3 sm:px-7">{!isTyping && <div className="flex gap-2 overflow-x-auto pb-3">{(messages[messages.length - 1]?.suggestions || suggestions).slice(0, 3).map((suggestion) => <button key={suggestion} onClick={() => sendMessage(suggestion)} className="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-teal-300 hover:text-teal-700">{suggestion}</button>)}</div>}<div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm"><input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => event.key === 'Enter' && sendMessage()} placeholder={language === 'hi' ? 'Apne expenses ke baare mein poochiye...' : 'Ask about your expenses...'} className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 outline-none placeholder:text-slate-400" /><button onClick={() => sendMessage()} disabled={!input.trim() || isTyping} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#102b29] text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-40"><Send className="h-4 w-4" /></button></div></div></section><aside className="space-y-5"><div className="rounded-[1.75rem] bg-[#102b29] p-6 text-white shadow-[0_18px_45px_rgba(16,43,41,0.18)]"><div className="flex items-center justify-between"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-100/60">Live context</p><Sparkles className="h-5 w-5 text-teal-200" /></div><p className="mt-6 text-3xl font-semibold tracking-tight">{money(Math.max(0, summary.income - summary.expenses))}</p><p className="mt-1 text-sm text-white/55">available balance</p><div className="mt-7 grid grid-cols-2 gap-3 border-t border-white/10 pt-5"><div><p className="text-[10px] uppercase tracking-wider text-white/40">Income</p><p className="mt-1 font-bold">{money(summary.income)}</p></div><div><p className="text-[10px] uppercase tracking-wider text-white/40">Expenses</p><p className="mt-1 font-bold">{money(summary.expenses)}</p></div></div></div><div className="premium-card p-5"><div className="flex items-center justify-between"><div><p className="eyebrow">Copilot knows</p><h2 className="mt-2 text-lg font-semibold text-slate-950">Your money snapshot</h2></div><TrendingUp className="h-5 w-5 text-teal-600" /></div><div className="mt-5 space-y-4"><Snapshot icon={Wallet} label="Transactions tracked" value={transactions.length.toString()} /><Snapshot icon={TrendingUp} label="Top category" value={summary.topCategory?.[0] || 'Add more data'} detail={summary.topCategory ? money(summary.topCategory[1]) : undefined} /><Snapshot icon={ShieldCheck} label="Context status" value="Ready to answer" /></div><button onClick={() => sendMessage(language === 'hi' ? 'Mera balance kitna hai?' : 'What is my current balance?')} className="mt-5 flex w-full items-center justify-between rounded-xl bg-slate-50 px-3.5 py-3 text-left text-xs font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">Ask a quick question <ChevronRight className="h-4 w-4" /></button></div></aside></div>
+  </div>;
 };
+
+const Snapshot = ({ icon: Icon, label, value, detail }: { icon: React.ElementType; label: string; value: string; detail?: string }) => <div className="flex items-center gap-3"><div className="rounded-xl bg-teal-50 p-2 text-teal-700"><Icon className="h-4 w-4" /></div><div className="min-w-0 flex-1"><p className="text-xs text-slate-400">{label}</p><p className="truncate text-sm font-bold text-slate-800">{value}{detail && <span className="ml-1 font-semibold text-slate-400">· {detail}</span>}</p></div></div>;
 
 export default AIFinanceCoach;
