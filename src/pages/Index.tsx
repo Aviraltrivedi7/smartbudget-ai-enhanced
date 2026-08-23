@@ -34,6 +34,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navbar from '@/components/Navbar';
 import WelcomeGuide from '@/components/WelcomeGuide';
 import FloatingCoachButton from '@/components/FloatingCoachButton';
+import TransactionDetailsDialog from '@/components/TransactionDetailsDialog';
+import { LocalTransaction } from '@/hooks/useTransactions';
 
 type ViewType = 'dashboard' | 'add-expense' | 'insights' | 'visualizer' | 'coach' | 'budget-planner' | 'savings-goals' | 'bill-reminder' | 'expense-chat' | 'spending-limits' | 'gamification' | 'monthly-report' | 'smart-suggestions' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker';
 
@@ -48,7 +50,7 @@ interface Transaction {
 
 const Index = () => {
   const { user, isLoading: authLoading, logout } = useAuth();
-  const { transactions, addTransaction: addTransactionToDb, importTransactions } = useTransactions();
+  const { transactions, addTransaction: addTransactionToDb, updateTransaction, deleteTransaction, importTransactions } = useTransactions();
   const { currentLanguage } = useLanguage();
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => {
@@ -60,6 +62,7 @@ const Index = () => {
   const [isCoachPromptOpen, setIsCoachPromptOpen] = useState(false);
   const [isBudgetPlannerOpen, setIsBudgetPlannerOpen] = useState(false);
   const [coachInitialPrompt, setCoachInitialPrompt] = useState('');
+  const [selectedTransaction, setSelectedTransaction] = useState<LocalTransaction | null>(null);
 
   const handleAddTransaction = (newTransaction: {
     title: string;
@@ -258,6 +261,7 @@ const Index = () => {
             onNavigate={setCurrentView}
             onShowWelcomeGuide={() => setShowWelcomeGuide(true)}
             onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
+            onTransactionSelect={setSelectedTransaction}
           />
         );
     }
@@ -300,6 +304,13 @@ const Index = () => {
             setCurrentView('budget-planner');
           }}
         />
+        <TransactionDetailsDialog
+          open={Boolean(selectedTransaction)}
+          transaction={selectedTransaction}
+          onOpenChange={(open) => { if (!open) setSelectedTransaction(null); }}
+          onUpdate={updateTransaction}
+          onDelete={deleteTransaction}
+        />
         <CoachPromptDialog
           open={isCoachPromptOpen}
           onOpenChange={setIsCoachPromptOpen}
@@ -320,8 +331,9 @@ const DashboardWithNavigation: React.FC<{
   onNavigate: (view: ViewType) => void;
   onShowWelcomeGuide: () => void;
   onOpenBudgetPlanner: () => void;
-}> = ({ transactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner }) => {
-  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} onOpenBudgetPlanner={onOpenBudgetPlanner} />;
+  onTransactionSelect: (transaction: LocalTransaction) => void;
+}> = ({ transactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner, onTransactionSelect }) => {
+  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} onOpenBudgetPlanner={onOpenBudgetPlanner} onTransactionSelect={onTransactionSelect} />;
 };
 
 export default Index;

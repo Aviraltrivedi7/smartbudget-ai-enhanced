@@ -160,3 +160,19 @@
 .drawer-scroll::-webkit-scrollbar-track { border-radius: 999px; background: rgba(255, 255, 255, 0.06); }
 .drawer-scroll::-webkit-scrollbar-thumb { border: 2px solid #222d4b; border-radius: 999px; background: rgba(223, 228, 255, 0.52); }
 .drawer-scroll::-webkit-scrollbar-thumb:hover { background: rgba(223, 228, 255, 0.78); }
+
+
+/* Accessible dark workspace overrides used by the Command Center theme toggle. */
+.dark body { background: #11182d; color: #f8f7f4; }
+.dark .premium-card { border-color: #2e3a5e; background: #1b2541; color: #f8f7f4; }
+.dark .metric-card-mint { background: #26345d; color: #eef0fb; }
+.dark .metric-card-sand { background: #4b3340; color: #fff4ef; }
+.dark .bg-white { background-color: #1b2541 !important; }
+.dark .bg-\[\#f8f7f4\] { background-color: #161f38 !important; }
+.dark .bg-\[\#fbfaf8\] { background-color: #161f38 !important; }
+.dark .text-slate-950, .dark .text-slate-900, .dark .text-slate-800 { color: #f8f7f4 !important; }
+.dark .text-slate-700, .dark .text-slate-600, .dark .text-slate-500 { color: #c9d0e6 !important; }
+.dark .text-slate-400 { color: #9ea9c5 !important; }
+.dark .border-\[\#e7e8ee\], .dark .border-\[\#ececf1\], .dark .border-slate-100 { border-color: #2e3a5e !important; }
+.dark header { border-color: #2e3a5e; background: rgba(17, 24, 45, 0.94); }
+.dark .metric-card-dark { background: #222d4b; }

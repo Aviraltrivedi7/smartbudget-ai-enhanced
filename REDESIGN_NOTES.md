@@ -164,3 +164,38 @@ The refreshed landing-page `Open workspace` CTA successfully navigated to `/`. T
 ## Qwen review improvements verification
 
 The temporary dashboard preview now shows `DEMO MODE · LOCAL DATA` in the hero, a new `FINANCIAL HEALTH` score with logging streak, a month-aligned selected-month view, and the existing AI Copilot/dashboard structure. The browser also confirmed the refreshed dashboard renders after the splash transition without errors.
+
+
+## Remaining dashboard correctness verification
+
+The refreshed preview showed the corrected negative balance and no clamping: `-₹250` with `Expenses exceed income` and `Needs review`. Expense comparison no longer falsely claims 100% when income is absent. The dashboard also rendered the direct Monthly report CTA, Budget watch, ₹500 Buffer Goal tracker, zero-category guidance, and an exact `7-day total` for the rhythm chart. The current preview session contained one manual local test transaction, so the streak copy correctly remained in its pre-completion state.
+
+
+## Interaction surface check
+
+The preview scroll confirmed the Budget Watch and Goal Tracker cards render in the main flow, and the Transaction Rhythm card includes a horizontal overflow wrapper with a 7-day total summary. The dashboard’s Recent Transactions card follows below the Copilot/rhythm section and remains part of the same page flow.
+
+
+## Transaction details verification
+
+The recent transaction row is keyboard/focus-friendly and clickable. The browser opened a DhanSetu transaction details dialog showing amount, category, date, payment method, notes, and Edit/Delete controls. The default state correctly displays `Not captured yet` and `No notes added` when those optional fields are unavailable.
+
+
+## Theme and stale-preview note
+
+The browser continued to show the earlier pre-HMR AI insight sentence while the source and production build contain the new streak-aware copy; a Vite restart/refresh is required for the temporary preview to load the latest chunk. The current dashboard preview still confirms the corrected `-₹250` balance and details-modal flow.
+
+
+## Dark-mode preview note
+
+The Command Center was invoked from the sticky header, but the temporary browser snapshot remained blurred during the drawer transition and did not expose its controls reliably at the scrolled position. Source inspection confirms the existing Command Center Dark mode item now calls the functional ThemeContext toggle; a fresh top-of-page reload is recommended for final manual verification.
+
+
+## Final fresh preview verification
+
+After restarting Vite, the temporary preview rendered the corrected dashboard source: `-₹250` net balance, `Needs review`, no false income percentage, `Monthly report` CTA, Budget Watch, Buffer Goal, zero-category guidance, and `7-day total` rhythm summary. The current one-transaction local preview correctly shows the pre-completion message; with seven distinct logged days the source switches to the completion message.
+
+
+## Dark mode verification
+
+The fresh preview opened the Command Center and successfully toggled the theme: the menu control changed from `Dark mode` to `Light mode`, and the dashboard visibly switched to a dark navy workspace with readable metric cards and preserved contrast. The setting is persisted under `dhansetu_theme`.

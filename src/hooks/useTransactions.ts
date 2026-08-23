@@ -11,6 +11,7 @@ export interface LocalTransaction {
   date: string;
   type: 'income' | 'expense';
   description?: string;
+  paymentMethod?: string;
   location?: string;
 }
 
@@ -75,6 +76,7 @@ const toApiTransaction = (transaction: Omit<LocalTransaction, 'id'>) => ({
   type: transaction.type,
   date: transaction.date,
   description: transaction.description,
+  paymentMethod: transaction.paymentMethod,
   location: transaction.location ? { name: transaction.location, coordinates: [0, 0] as [number, number] } : undefined,
 });
 
@@ -160,6 +162,7 @@ export const useTransactions = () => {
         type: updates.type,
         date: updates.date,
         description: updates.description,
+        paymentMethod: updates.paymentMethod,
       });
       if (!response.success) throw new Error(response.message || 'Could not update transaction');
       toast({ title: 'Transaction Synced', description: 'Your changes are saved to the backend.' });

@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 interface Transaction { id: string; title: string; amount: number; category: string; date: string; type: 'income' | 'expense'; description?: string; }
 interface MonthlyReportProps { onBack: () => void; transactions: Transaction[]; onImport?: (transactions: Omit<Transaction, 'id'>[]) => Promise<void> | void; }
 
-const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+const money = (value: number) => `${value < 0 ? '-' : ''}₹${Math.abs(Math.round(value)).toLocaleString('en-IN')}`;
 const escapeCsv = (value: string | number) => { const text = String(value ?? ''); return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text; };
 const parseCsv = (text: string) => {
   const rows: string[][] = [];
@@ -32,7 +32,7 @@ const MonthlyReport: React.FC<MonthlyReportProps> = ({ onBack, transactions, onI
     const expenses = transactions.filter((item) => item.type === 'expense').reduce((sum, item) => sum + Number(item.amount || 0), 0);
     const byCategory = transactions.filter((item) => item.type === 'expense').reduce<Record<string, number>>((result, item) => { result[item.category] = (result[item.category] || 0) + Number(item.amount || 0); return result; }, {});
     const categories = Object.entries(byCategory).sort(([, a], [, b]) => b - a);
-    return { income, expenses, savings: income - expenses, byCategory: categories, topCategory: categories[0]?.[0] || '—', savingsRate: income ? (Math.max(0, income - expenses) / income) * 100 : 0 };
+    return { income, expenses, savings: income - expenses, byCategory: categories, topCategory: categories[0]?.[0] || '—', savingsRate: income ? ((income - expenses) / income) * 100 : 0 };
   }, [transactions]);
 
   const downloadCsv = () => {
