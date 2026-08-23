@@ -18,6 +18,7 @@ interface InsightTransaction {
   type: 'income' | 'expense';
   amount: number | string;
   category: string;
+  date?: string;
 }
 
 const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
@@ -42,6 +43,8 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
   const totalExpenses = expenses.reduce((sum, transaction) => sum + Number(transaction.amount), 0);
   const totalIncome = income.reduce((sum, transaction) => sum + Number(transaction.amount), 0);
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0;
+  const loggingDays = new Set(transactions.map((transaction) => transaction.date).filter(Boolean)).size;
+  const isStreakComplete = loggingDays >= 7;
 
   const categoryTotals = expenses.reduce<Record<string, number>>((acc, transaction) => {
     acc[transaction.category] = (acc[transaction.category] || 0) + Number(transaction.amount);
@@ -108,19 +111,19 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
       label: 'Spending lens',
       title: 'Find my biggest spending lever',
       prompt: 'Where am I spending the most, and what is one realistic change I can make this week?',
-      insight: `DhanSetu will compare your ${spendingCategoryTranslated.toLowerCase()} activity with your overall spend and suggest a low-friction next step.`,
+      insight: topCategories[0] ? `Your biggest tracked category is ${spendingCategoryTranslated} at ₹${Math.round(topCategories[0].amount).toLocaleString('en-IN')}. Would a ₹${Math.max(0, Math.round(topCategories[0].amount * 0.94)).toLocaleString('en-IN')} target next month create some breathing room?` : 'Add a few expenses and DhanSetu will surface your biggest spending lever with a practical next step.',
     },
     {
       label: 'Savings move',
       title: 'Build a realistic savings target',
       prompt: 'How much can I realistically save next month without feeling restricted?',
-      insight: `Your current savings rate is ${Math.max(0, savingsRate).toFixed(1)}%. The coach can turn that into a clear rupee target and weekly checkpoints.`,
+      insight: totalIncome > totalExpenses ? `Your current savings rate is ${savingsRate.toFixed(1)}%. The coach can turn that into a clear rupee target and weekly checkpoints.` : `Your tracked expenses are ${Math.abs(savingsRate).toFixed(1)}% above income. The coach can help choose one category to bring back under control.`,
     },
     {
       label: 'Budget check',
       title: 'Give me a 7-day budget reset',
       prompt: 'Create a simple seven-day spending reset based on my recent transactions.',
-      insight: 'The coach will focus on one category, one guardrail, and one small habit instead of overwhelming you with rules.',
+      insight: isStreakComplete ? 'Amazing consistency — your spending patterns are now clear. Review your top category this Sunday.' : `You have logged ${loggingDays} of 7 useful tracking days. The coach will focus on one category, one guardrail, and one small habit.`,
     },
     {
       label: 'Future view',

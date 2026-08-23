@@ -34,6 +34,7 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navbar from '@/components/Navbar';
 import WelcomeGuide from '@/components/WelcomeGuide';
 import FloatingCoachButton from '@/components/FloatingCoachButton';
+import FloatingAddTransactionButton from '@/components/FloatingAddTransactionButton';
 import TransactionDetailsDialog from '@/components/TransactionDetailsDialog';
 import { LocalTransaction } from '@/hooks/useTransactions';
 
@@ -289,6 +290,7 @@ const Index = () => {
           onFeatureSelect={handleFeatureSelect}
         />
         {currentView !== 'coach' && <FloatingCoachButton onClick={() => { setCoachInitialPrompt(''); setCurrentView('coach'); }} />}
+        {currentView !== 'add-expense' && <FloatingAddTransactionButton onClick={() => setIsTransactionModalOpen(true)} />}
         <AddTransactionDialog
           open={isTransactionModalOpen}
           onOpenChange={setIsTransactionModalOpen}

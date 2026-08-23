@@ -199,3 +199,8 @@ After restarting Vite, the temporary preview rendered the corrected dashboard so
 ## Dark mode verification
 
 The fresh preview opened the Command Center and successfully toggled the theme: the menu control changed from `Dark mode` to `Light mode`, and the dashboard visibly switched to a dark navy workspace with readable metric cards and preserved contrast. The setting is persisted under `dhansetu_theme`.
+
+
+## Enhanced7 restoration browser verification
+
+Fresh preview now shows the top-right `DEMO MODE · LOCAL DATA` badge, the Financial Health score with logging streak, the visible trust footer, the persistent Add Transaction action, and data-driven AI copy. With the current local test transaction, the insight reads `Travel is your biggest spending lever` and references the actual ₹250 amount instead of the stale seven-day prompt. The dark navy theme remained readable after the persisted theme test.

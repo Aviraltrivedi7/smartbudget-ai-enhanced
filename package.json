@@ -18,7 +18,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "lint:ci": "eslint src/components/Navbar.tsx src/components/SplashScreen.tsx src/components/AuthModal.tsx src/components/WelcomeGuide.tsx src/components/AIFinanceCoach.tsx src/components/AIInsights.tsx src/components/BudgetPlannerDialog.tsx src/components/Dashboard.tsx src/components/MonthlyReport.tsx src/components/TransactionDetailsDialog.tsx src/components/FloatingCoachButton.tsx src/components/Footer.tsx src/contexts/ThemeContext.tsx src/contexts/AuthContext.tsx src/hooks/useTransactions.ts src/utils/languages.ts src/pages/LandingPage.tsx",
+    "lint:ci": "eslint src/components/Navbar.tsx src/components/SplashScreen.tsx src/components/AuthModal.tsx src/components/WelcomeGuide.tsx src/components/AIFinanceCoach.tsx src/components/AIInsights.tsx src/components/BudgetPlannerDialog.tsx src/components/Dashboard.tsx src/components/MonthlyReport.tsx src/components/TransactionDetailsDialog.tsx src/components/FloatingCoachButton.tsx src/components/FloatingAddTransactionButton.tsx src/components/Footer.tsx src/contexts/ThemeContext.tsx src/contexts/AuthContext.tsx src/hooks/useTransactions.ts src/utils/languages.ts src/pages/LandingPage.tsx",
     "preview": "vite preview"
   },
   "dependencies": {
