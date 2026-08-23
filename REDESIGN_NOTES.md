@@ -133,3 +133,8 @@ The branded app metadata and browser title were updated to `ARTHORA AI - Intelli
 ## Cross-screen alignment pass
 
 The main ARTHORA shell now uses one centered max-width grid from the navbar through the dashboard hero and major sections. The navbar contents are wrapped in the same `max-w-7xl` container as the dashboard, and the dashboard, Reports & Exports, and Savings Goals screens now use consistent vertical rhythm, grid gaps, card padding, and section edges. The dashboard metric, chart, copilot, activity, insight, and shortcut regions were normalized to the same spacing scale. Live preview verification confirmed the navbar left/right edges align with the hero and the major card columns remain evenly spaced.
+
+
+## Dashboard motion polish
+
+Added a restrained dashboard entrance sequence with staggered rise-in timing for the hero, metrics, chart region, AI copilot, activity/insight region, and shortcuts. Added subtle ambient drift to the hero orbs, tabular numerals for financial values, and tactile press feedback for shortcut cards. The motion is GPU-friendly and explicitly disabled for users who prefer reduced motion. Live preview loaded successfully with the updated dashboard composition, and targeted ESLint plus production build passed.

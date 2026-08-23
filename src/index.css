@@ -73,6 +73,16 @@
   .hero-orb { @apply pointer-events-none absolute rounded-full border border-white/10; }
   .hero-orb-one { height: 22rem; width: 22rem; right: -8rem; top: -12rem; box-shadow: 0 0 0 30px rgba(222,228,255,0.018), 0 0 0 60px rgba(222,228,255,0.012); }
   .hero-orb-two { height: 15rem; width: 15rem; right: 18%; bottom: -12rem; background: rgba(222,228,255,0.08); }
+
+@keyframes hero-orb-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-10px, 8px, 0) rotate(3deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-orb-one { animation: hero-orb-drift 12s ease-in-out infinite; }
+  .hero-orb-two { animation: hero-orb-drift 15s ease-in-out infinite reverse; }
+}
   .brand-mark { @apply flex h-10 w-10 items-center justify-center rounded-xl bg-[#dfe4ff] text-[#222d4b] shadow-[0_0_24px_rgba(223,228,255,0.14)]; }
   .sidebar-link { @apply flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-white/55 transition duration-150 hover:bg-white/10 hover:text-white; }
   .sidebar-link-active { @apply bg-white/10 text-white shadow-inner shadow-white/5; }
@@ -112,8 +122,25 @@
 .recharts-wrapper { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
 .recharts-tooltip-cursor { fill: rgba(88, 103, 187, 0.05); }
 
+@keyframes dashboard-rise-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.dashboard-reveal {
+  animation: dashboard-rise-in 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  will-change: opacity, transform;
+}
+.dashboard-reveal-1 { animation-delay: 40ms; }
+.dashboard-reveal-2 { animation-delay: 100ms; }
+.dashboard-reveal-3 { animation-delay: 160ms; }
+.dashboard-reveal-4 { animation-delay: 220ms; }
+.dashboard-reveal-5 { animation-delay: 280ms; }
+.dashboard-reveal-6 { animation-delay: 340ms; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  .dashboard-reveal { animation: none !important; will-change: auto; }
 }
 
 @layer components {
