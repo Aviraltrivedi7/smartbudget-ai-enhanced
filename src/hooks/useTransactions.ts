@@ -38,10 +38,17 @@ const defaultTransactions: LocalTransaction[] = [
 const demoSeedTitles = new Set(defaultTransactions.map((transaction) => transaction.title));
 
 const normalizeDemoSeed = (parsed: LocalTransaction[]) => {
-  const knownDemoTitles = parsed.filter((item) => demoSeedTitles.has(item.title)).map((item) => item.title);
-  if (new Set(knownDemoTitles).size !== demoSeedTitles.size) return parsed;
-  const demoByTitle = new Map(defaultTransactions.map((transaction) => [transaction.title, transaction]));
-  return parsed.map((item) => demoByTitle.get(item.title) || item);
+  // Earlier previews persisted numeric-id demo rows. Replace any partial legacy
+  // seed with the complete August fixture, while preserving user-created rows.
+  const legacyDemoTitles = new Set(
+    parsed
+      .filter((item) => demoSeedTitles.has(item.title) && /^\d+$/.test(String(item.id)))
+      .map((item) => item.title),
+  );
+  if (legacyDemoTitles.size === 0) return parsed;
+
+  const userCreatedRows = parsed.filter((item) => !legacyDemoTitles.has(item.title));
+  return [...defaultTransactions, ...userCreatedRows];
 };
 
 const readLocalTransactions = (): LocalTransaction[] => {
