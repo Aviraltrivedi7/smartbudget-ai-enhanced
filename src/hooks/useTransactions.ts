@@ -20,8 +20,9 @@ interface ApiTransactionRecord extends Omit<ApiTransaction, 'category'> {
   category: string | ApiCategory;
 }
 
-const demoAnchor = new Date();
-const demoDate = (day: number) => new Date(Date.UTC(demoAnchor.getFullYear(), demoAnchor.getMonth(), day)).toISOString().split('T')[0];
+const DEMO_YEAR = 2026;
+const DEMO_MONTH_INDEX = 7;
+const demoDate = (day: number) => new Date(Date.UTC(DEMO_YEAR, DEMO_MONTH_INDEX, day)).toISOString().split('T')[0];
 
 const defaultTransactions: LocalTransaction[] = [
   { id: '1', title: 'Monthly Salary', amount: 75000, category: 'Income', date: demoDate(1), type: 'income', description: 'Tech Corp Salary' },
@@ -31,10 +32,17 @@ const defaultTransactions: LocalTransaction[] = [
   { id: '5', title: 'Freelance Project', amount: 18500, category: 'Income', date: demoDate(12), type: 'income', description: 'UI Design Consulting' },
   { id: '6', title: 'Dining Out', amount: 3200, category: 'Food', date: demoDate(15), type: 'expense', description: 'Weekend Dinner' },
   { id: '7', title: 'Uber & Transport', amount: 1800, category: 'Travel', date: demoDate(18), type: 'expense', description: 'Commute' },
-  { id: '8', title: 'Shopping & Apparel', amount: 5100, category: 'Shopping', date: demoDate(22), type: 'expense', description: 'Summer Wear' },
+  { id: '8', title: 'Shopping & Apparel', amount: 5100, category: 'Other', date: demoDate(22), type: 'expense', description: 'Miscellaneous spending' },
 ];
 
 const demoSeedTitles = new Set(defaultTransactions.map((transaction) => transaction.title));
+
+const normalizeDemoSeed = (parsed: LocalTransaction[]) => {
+  const knownDemoTitles = parsed.filter((item) => demoSeedTitles.has(item.title)).map((item) => item.title);
+  if (new Set(knownDemoTitles).size !== demoSeedTitles.size) return parsed;
+  const demoByTitle = new Map(defaultTransactions.map((transaction) => [transaction.title, transaction]));
+  return parsed.map((item) => demoByTitle.get(item.title) || item);
+};
 
 const readLocalTransactions = (): LocalTransaction[] => {
   try {
@@ -43,8 +51,8 @@ const readLocalTransactions = (): LocalTransaction[] => {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) {
         const totalAmount = parsed.reduce((sum: number, item: { amount?: number | string }) => sum + (Number(item.amount) || 0), 0);
-        const isLegacyDemoSeed = parsed.length === defaultTransactions.length && parsed.every((item: { title?: string }) => item.title && demoSeedTitles.has(item.title));
-        if (isLegacyDemoSeed) return defaultTransactions;
+        const normalized = normalizeDemoSeed(parsed as LocalTransaction[]);
+        if (normalized !== parsed) return normalized;
         if (totalAmount > 0) return parsed as LocalTransaction[];
       }
     }
