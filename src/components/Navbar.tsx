@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,8 +10,10 @@ import {
   FileDown,
   LayoutDashboard,
   LogOut,
-    MoreHorizontal,
+  MoreHorizontal,
   Search,
+  Command,
+  ArrowUpRight,
   Moon,
   Plus,
   ScanLine,
@@ -50,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
   const { currentLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const isHindi = currentLanguage === 'hi';
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isHindi ? 'उपयोगकर्ता' : 'Guest user');
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -62,6 +65,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
     theme: !normalizedQuery || 'dark mode light mode appearance theme'.includes(normalizedQuery),
   };
   const hasResults = filteredPrimaryItems.length > 0 || filteredToolItems.length > 0 || Object.values(utilityMatches).some(Boolean);
+  const quickActions = [
+    { id: 'add-expense', label: 'Add transaction', description: 'Log income or an expense', icon: Plus },
+    { id: 'coach', label: 'Ask AI coach', description: 'Get a smarter next step', icon: Sparkles },
+  ];
 
   const navigate = (view: string) => {
     onNavigate(view);
@@ -71,6 +78,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setIsOpen(true);
+        window.setTimeout(() => searchInputRef.current?.focus(), 0);
+      }
       if (event.key === 'Escape') setIsOpen(false);
     };
     document.addEventListener('keydown', handleKeyDown);
@@ -81,13 +93,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
     };
   }, [isOpen]);
 
+  const highlightLabel = (label: string) => {
+    if (!normalizedQuery) return label;
+    const start = label.toLowerCase().indexOf(normalizedQuery);
+    if (start < 0) return label;
+    return <>{label.slice(0, start)}<mark className="rounded bg-[#aeb8ed]/25 px-0.5 text-[#f5f6ff]">{label.slice(start, start + normalizedQuery.length)}</mark>{label.slice(start + normalizedQuery.length)}</>;
+  };
+
   const renderItem = (item: typeof primaryItems[number]) => {
     const Icon = item.icon;
     const active = currentView === item.id;
     return (
       <button key={item.id} onClick={() => navigate(item.id)} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`}>
         <Icon className="h-[18px] w-[18px]" />
-        <span>{isHindi && item.id === 'dashboard' ? 'डैशबोर्ड' : item.label}</span>
+        <span>{isHindi && item.id === 'dashboard' ? 'डैशबोर्ड' : highlightLabel(item.label)}</span>
         {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#aeb8ed]" />}
       </button>
     );
@@ -130,21 +149,33 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
           </div>
           <div className="border-b border-white/10 px-5 py-4">
+            <div className="mb-2.5 flex items-center justify-between px-1">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Command center</span>
+              <kbd className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/45"><Command className="h-3 w-3" />K</kbd>
+            </div>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" />
               <input
+                ref={searchInputRef}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search navigation..."
+                placeholder="Search anything..."
                 aria-label="Search navigation"
                 autoComplete="off"
                 className="w-full rounded-xl border border-white/10 bg-white/10 py-2.5 pl-10 pr-10 text-sm text-white outline-none placeholder:text-white/50 transition focus:border-[#aeb8ed] focus:bg-white/15"
               />
-              {searchQuery && <button onClick={() => setSearchQuery('')} aria-label="Clear navigation search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>}
+              {searchQuery && <button onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }} aria-label="Clear navigation search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>}
             </div>
+            {!normalizedQuery && <p className="mt-2 px-1 text-[11px] text-white/40">Jump anywhere in your financial workspace.</p>}
           </div>
 
           <div className="drawer-scroll min-h-0 flex-1 overflow-y-scroll overscroll-contain px-5 pb-8 pt-6">
+            {!normalizedQuery && <div className="mb-7">
+              <div className="mb-3 flex items-center justify-between px-3"><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Quick actions</span><span className="text-[10px] text-white/35">Suggested</span></div>
+              <div className="space-y-2">
+                {quickActions.map((action) => { const Icon = action.icon; return <button key={action.id} onClick={() => navigate(action.id)} className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-[#aeb8ed]/50 hover:bg-white/10"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#aeb8ed]/15 text-[#dfe4ff]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-white/90">{action.label}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{action.description}</span></span><ArrowUpRight className="h-4 w-4 text-white/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#dfe4ff]" /></button>; })}
+              </div>
+            </div>}
             {filteredPrimaryItems.length > 0 && <><div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Workspace</div><nav className="space-y-1">{filteredPrimaryItems.map(renderItem)}</nav></>}
             {filteredToolItems.length > 0 && <><div className="mb-3 mt-9 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Tools</div><nav className="space-y-1">{filteredToolItems.map(renderItem)}</nav></>}
             {!hasResults && <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-center"><Search className="mx-auto h-5 w-5 text-white/50" /><p className="mt-3 text-sm font-semibold text-white/85">No navigation found</p><p className="mt-1 text-xs leading-5 text-white/55">Try a different keyword or clear your search.</p><button onClick={() => setSearchQuery('')} className="mt-4 rounded-lg bg-[#dfe4ff] px-3 py-2 text-xs font-bold text-[#222d4b]">Clear search</button></div>}

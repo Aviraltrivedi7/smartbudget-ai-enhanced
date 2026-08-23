@@ -92,3 +92,7 @@ The hidden drawer now includes a quick search input with a search icon, clear bu
 ## Quick search verification
 
 The live sidebar search was tested with `reports`, filtering the drawer to `Reports & exports`; a nonsense query displayed the `No navigation found` state with a clear-search action; clearing the query restored the full navigation list.
+
+## Command-center sidebar upgrade
+
+The sidebar search is now presented as a command center with a `Command center` label, keyboard hint, `Search anything...` placeholder, quick action cards for Add transaction and Ask AI coach, grouped navigation, and match highlighting. Live preview verification confirmed the richer drawer layout and instant `ai` filtering to AI insights.
