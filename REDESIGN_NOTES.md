@@ -84,3 +84,11 @@ The navigation drawer was opened through the three-dot trigger and scrolled to i
 ## Utility controls visibility fix
 
 The drawer utility actions were moved into a dedicated shrink-0 bottom panel, separate from the scrollable workspace/tools list. Live preview verification now shows Notifications, Settings, and Dark mode together above the profile/sign-out card at the bottom of the open drawer.
+
+## Sidebar quick search
+
+The hidden drawer now includes a quick search input with a search icon, clear button, instant filtering across Workspace and Tools, utility-control matching, and a no-results state. Live preview verification: typing `reports` reduced the list to `Reports & exports` and exposed the clear-search control.
+
+## Quick search verification
+
+The live sidebar search was tested with `reports`, filtering the drawer to `Reports & exports`; a nonsense query displayed the `No navigation found` state with a clear-search action; clearing the query restored the full navigation list.
