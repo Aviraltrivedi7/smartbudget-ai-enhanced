@@ -9,6 +9,7 @@
     "dev": "nodemon server.js --ignore node_modules/",
     "build": "echo 'No build step required'",
     "test": "jest",
+    "smoke": "node scripts/smoke-test.js",
     "seed": "node scripts/seedDatabase.js",
     "pm2": "pm2 start server.js --name smartbudget-ai"
   },

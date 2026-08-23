@@ -6,7 +6,7 @@ export const API_CONFIG = {
 };
 
 // API Response Types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -20,7 +20,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export interface RequestConfig {
   method?: HttpMethod;
   headers?: Record<string, string>;
-  body?: any;
+  body?: unknown;
   requireAuth?: boolean;
 }
 
@@ -55,7 +55,7 @@ export const getDefaultHeaders = (includeAuth = false): Record<string, string> =
 };
 
 // Generic API Request Function
-export const apiRequest = async <T = any>(
+export const apiRequest = async <T = unknown>(
   endpoint: string,
   config: RequestConfig = {}
 ): Promise<ApiResponse<T>> => {
@@ -111,8 +111,8 @@ export const apiRequest = async <T = any>(
       };
     }
 
-  } catch (error: any) {
-    if (error.name === 'AbortError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
       return {
         success: false,
         message: 'Request timed out. The backend might be slow or unresponsive.',
@@ -125,7 +125,7 @@ export const apiRequest = async <T = any>(
     return {
       success: false,
       message: 'Request failed. Please check if the backend is running.',
-      error: error.message || 'Network error occurred',
+      error: error instanceof Error ? error.message : 'Network error occurred',
     };
   }
 };

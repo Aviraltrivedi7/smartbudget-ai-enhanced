@@ -95,6 +95,42 @@ router.get('/', [
   }
 });
 
+// @desc    Get transaction statistics (compatibility endpoint for the frontend)
+// @route   GET /api/transactions/stats
+// @access  Private
+router.get('/stats', async (req, res) => {
+  try {
+    const startDate = req.query.startDate || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const endDate = req.query.endDate || new Date();
+    const analytics = await Transaction.getAnalytics(req.userId, startDate, endDate);
+    const categoryAnalytics = await Transaction.getCategoryAnalytics(req.userId, startDate, endDate, 'expense');
+    const totals = analytics.reduce((acc, item) => {
+      if (item._id === 'income') {
+        acc.totalIncome = item.totalAmount;
+      } else if (item._id === 'expense') {
+        acc.totalExpenses = item.totalAmount;
+      }
+      return acc;
+    }, { totalIncome: 0, totalExpenses: 0 });
+    const balance = totals.totalIncome - totals.totalExpenses;
+    res.json({
+      success: true,
+      message: 'Transaction statistics retrieved successfully',
+      data: {
+        totalIncome: totals.totalIncome,
+        totalExpenses: totals.totalExpenses,
+        balance,
+        transactionCount: analytics.reduce((sum, item) => sum + (item.totalCount || 0), 0),
+        categoryBreakdown: categoryAnalytics,
+        monthlyTrend: analytics,
+      },
+    });
+  } catch (error) {
+    console.error('Get transaction stats error:', error);
+    res.status(500).json({ success: false, message: 'Server error while fetching transaction statistics' });
+  }
+});
+
 // @desc    Get transaction by ID
 // @route   GET /api/transactions/:id
 // @access  Private
@@ -137,7 +173,7 @@ router.post('/', [
   body('title').trim().isLength({ min: 1, max: 200 }).withMessage('Title is required and must be less than 200 characters'),
   body('amount').isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('type').isIn(['income', 'expense']).withMessage('Type must be income or expense'),
-  body('category').isMongoId().withMessage('Valid category ID is required'),
+  body('category').trim().notEmpty().withMessage('Category is required'),
   body('date').isISO8601().withMessage('Valid date is required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description must be less than 500 characters'),
   body('paymentMethod').optional().isIn(['cash', 'card', 'bank_transfer', 'upi', 'wallet', 'other']).withMessage('Invalid payment method'),
@@ -169,9 +205,12 @@ router.post('/', [
       recurring
     } = req.body;
 
-    // Verify category belongs to user or is default
+    // Accept either a Mongo category ID or the human-readable category name used by the frontend.
+    const categorySelector = /^[0-9a-fA-F]{24}$/.test(String(category))
+      ? { _id: category }
+      : { name: String(category).trim() };
     const categoryDoc = await Category.findOne({
-      _id: category,
+      ...categorySelector,
       $or: [
         { userId: req.userId },
         { isDefault: true, userId: null }
@@ -193,7 +232,7 @@ router.post('/', [
       title,
       amount: parseFloat(amount),
       type,
-      category,
+      category: categoryDoc._id,
       date: new Date(date),
       description,
       paymentMethod,
@@ -244,7 +283,7 @@ router.put('/:id', [
   body('title').optional().trim().isLength({ min: 1, max: 200 }).withMessage('Title must be less than 200 characters'),
   body('amount').optional().isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('type').optional().isIn(['income', 'expense']).withMessage('Type must be income or expense'),
-  body('category').optional().isMongoId().withMessage('Valid category ID is required'),
+      body('category').optional().trim().notEmpty().withMessage('Category cannot be empty'),
   body('date').optional().isISO8601().withMessage('Valid date is required'),
   body('description').optional().isLength({ max: 500 }).withMessage('Description must be less than 500 characters'),
   body('paymentMethod').optional().isIn(['cash', 'card', 'bank_transfer', 'upi', 'wallet', 'other']).withMessage('Invalid payment method'),
@@ -275,11 +314,14 @@ router.put('/:id', [
 
     const updates = req.body;
 
-    // If category is being updated, verify it's valid
+    // If category is being updated, resolve either a category ID or its display name.
     if (updates.category) {
       const type = updates.type || transaction.type;
+      const categorySelector = /^[0-9a-fA-F]{24}$/.test(String(updates.category))
+        ? { _id: updates.category }
+        : { name: String(updates.category).trim() };
       const categoryDoc = await Category.findOne({
-        _id: updates.category,
+        ...categorySelector,
         $or: [
           { userId: req.userId },
           { isDefault: true, userId: null }
@@ -294,6 +336,7 @@ router.put('/:id', [
           message: 'Invalid category for this transaction type'
         });
       }
+      updates.category = categoryDoc._id;
     }
 
     // Update transaction
@@ -524,6 +567,18 @@ router.post('/bulk-import', [
         
         // Find or suggest category
         let categoryId = txn.category;
+        if (categoryId && !/^[0-9a-fA-F]{24}$/.test(String(categoryId))) {
+          const categoryDoc = await Category.findOne({
+            name: String(categoryId).trim(),
+            $or: [
+              { userId: req.userId },
+              { isDefault: true, userId: null }
+            ],
+            type: txn.type,
+            isActive: true
+          });
+          categoryId = categoryDoc?._id || null;
+        }
         if (!categoryId) {
           const suggestedCategories = await Category.suggestCategory(
             txn.title, 

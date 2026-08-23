@@ -178,7 +178,7 @@ class TransactionService {
       const response = await apiRequest<{
         created: Transaction[];
         failed: unknown[];
-      }>('/transactions/bulk', {
+      }>('/transactions/bulk-import', {
         method: 'POST',
         body: { transactions },
         requireAuth: true,

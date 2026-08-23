@@ -25,7 +25,7 @@ import aiRoutes from './routes/ai.js';
 // Import middleware
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
-import { authenticateToken } from './middleware/auth.js';
+import { authenticateToken, authenticateDemoToken } from './middleware/auth.js';
 
 // Import socket handlers
 import { initializeSocket } from './sockets/socketHandler.js';
@@ -34,13 +34,18 @@ import { initializeSocket } from './sockets/socketHandler.js';
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 const server = createServer(app);
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:5173",
+  "http://localhost:8080",
+  process.env.PRODUCTION_URL || "https://smartbudget-ai-enhanced.vercel.app",
+  process.env.PREVIEW_URL || "https://5173-iumfctn7j3tdqrg7f56iq-4c69fc26.sg1.manus.computer",
+  /^https:\/\/5173-[a-z0-9-]+\.manus\.computer$/i,
+];
 const io = new SocketIOServer(server, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:8080",
-      process.env.PRODUCTION_URL || "https://smartbudget-ai-enhanced.vercel.app"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -91,10 +96,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || "http://localhost:8080",
-    process.env.PRODUCTION_URL || "https://smartbudget-ai-enhanced.vercel.app"
-  ],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -140,10 +142,10 @@ app.use('/api/transactions', (req, res, next) => {
     authenticateToken(req, res, () => {
       transactionRoutes(req, res, next);
     });
-  } else {
-    transactionDemoRoutes(req, res, next);
-  }
-});
+    } else {
+      authenticateDemoToken(req, res, () => transactionDemoRoutes(req, res, next));
+    }
+  });
 
 // Dynamic request-time routing for authenticated endpoints
 const dynamicRoute = (dbRouter, demoFallback = null) => {

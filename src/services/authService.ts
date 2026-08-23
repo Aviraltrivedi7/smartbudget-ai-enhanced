@@ -109,10 +109,14 @@ class AuthService {
   // Get current user profile
   async getCurrentUser() {
     try {
-      const response = await apiRequest<User>('/auth/me', {
+      const response = await apiRequest<User | { user: User }>('/auth/me', {
         method: 'GET',
         requireAuth: true,
       });
+
+      if (response.success && response.data && 'user' in response.data) {
+        return { ...response, data: response.data.user };
+      }
 
       return response;
     } catch (error) {

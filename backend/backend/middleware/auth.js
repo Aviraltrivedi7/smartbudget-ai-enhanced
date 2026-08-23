@@ -67,6 +67,22 @@ export const authenticateToken = async (req, res, next) => {
   }
 };
 
+export const authenticateDemoToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) {
+      req.userId = 'guest';
+      return next();
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'demo-secret-key');
+    req.userId = decoded.userId || 'guest';
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: 'Invalid demo token' });
+  }
+};
+
 export const optionalAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
@@ -176,6 +192,7 @@ export const rateLimitByUser = (maxRequests = 100, windowMs = 15 * 60 * 1000) =>
 
 export default {
   authenticateToken,
+  authenticateDemoToken,
   optionalAuth,
   requireRoles,
   requireSubscription,

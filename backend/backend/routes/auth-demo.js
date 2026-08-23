@@ -159,8 +159,18 @@ router.post('/login', [
 // @access  Private (but demo version)
 router.get('/me', (req, res) => {
   try {
-    // For demo, we'll create a default user if no auth
-    const demoUser = createDemoUser('demo@smartbudget.ai', 'Demo User');
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    let demoUser;
+
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'demo-secret-key');
+      demoUser = [...demoUsers.values()].find((user) => user.id === decoded.userId);
+    }
+
+    if (!demoUser) {
+      demoUser = createDemoUser('demo@smartbudget.ai', 'Demo User');
+    }
 
     res.json({
       success: true,
