@@ -147,7 +147,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-[72px] items-center justify-between border-b border-[#e7e8ee] bg-[#f8f7f4]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
+      <header className="sticky top-0 z-40 flex h-[72px] items-center border-b border-[#e7e8ee] bg-[#f8f7f4]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsOpen(true)}
@@ -168,6 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
         <div className="flex items-center gap-2">
           <span className="hidden items-center gap-2 rounded-full bg-[#eef0eb] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#667080] md:flex"><span className="h-1.5 w-1.5 rounded-full bg-[#5867bb]" />Workspace ready</span>
           <button onClick={() => onOpenTransactionModal ? onOpenTransactionModal() : navigate('add-expense')} className="inline-flex items-center gap-2 rounded-xl bg-[#222d4b] px-3.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(34,45,75,0.16)] transition hover:-translate-y-0.5 hover:bg-[#3e4c91]"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Add transaction</span></button>
+        </div>
         </div>
       </header>
 

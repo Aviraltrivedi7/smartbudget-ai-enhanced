@@ -128,3 +128,8 @@ The fixed Command Center footer was tightened so Notifications, Settings, Dark m
 The product identity is now **ARTHORA AI — Intelligent Finance Companion**. ARTHORA is positioned as a calm, intelligent wealth-building layer rather than a generic budget tracker. A custom symbol combining a navy crescent, cobalt upward financial arrow, lavender inner bar, and restrained champagne spark was generated, cleaned to true transparency, and integrated into the navbar, Command Center, splash screen, authentication modal, favicon, and mobile touch icon. The wordmark is rendered as uppercase `ARTHORA AI` on the splash and auth surfaces, with the existing finance companion tagline retained.
 
 The branded app metadata and browser title were updated to `ARTHORA AI - Intelligent Finance Companion`. The final shipped asset is `public/arthora-logo.png`.
+
+
+## Cross-screen alignment pass
+
+The main ARTHORA shell now uses one centered max-width grid from the navbar through the dashboard hero and major sections. The navbar contents are wrapped in the same `max-w-7xl` container as the dashboard, and the dashboard, Reports & Exports, and Savings Goals screens now use consistent vertical rhythm, grid gaps, card padding, and section edges. The dashboard metric, chart, copilot, activity, insight, and shortcut regions were normalized to the same spacing scale. Live preview verification confirmed the navbar left/right edges align with the hero and the major card columns remain evenly spaced.
