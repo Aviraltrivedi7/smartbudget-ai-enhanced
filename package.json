@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Enhanced SmartBudget AI - Personal Finance Assistant with stunning animations and AI-powered insights",
+  "description": "DhanSetu AI - Premium personal finance workspace with AI-powered insights",
   "keywords": [
     "finance",
     "budget",
@@ -18,6 +18,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
+    "lint:ci": "eslint src/components/Navbar.tsx src/components/SplashScreen.tsx src/components/AuthModal.tsx src/components/WelcomeGuide.tsx src/components/AIFinanceCoach.tsx src/components/AIInsights.tsx src/components/BudgetPlannerDialog.tsx src/components/Dashboard.tsx src/components/MonthlyReport.tsx src/contexts/AuthContext.tsx src/hooks/useTransactions.ts src/utils/languages.ts",
     "preview": "vite preview"
   },
   "dependencies": {

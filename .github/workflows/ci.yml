@@ -1,0 +1,100 @@
+name: DhanSetu AI CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Lint production-facing app surfaces
+        run: npm run lint:ci
+
+      - name: TypeScript validation
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
+
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: backend/backend
+        run: npm ci
+
+      - name: Check backend syntax
+        run: |
+          node --check backend/backend/server.js
+          node --check backend/backend/routes/ai.js
+          node --check backend/backend/scripts/smoke-test.js
+          node --check backend/backend/test-server.js
+
+      - name: Start backend in demo mode
+        working-directory: backend/backend
+        run: |
+          nohup npm start > /tmp/dhansetu-backend.log 2>&1 &
+          echo $! > /tmp/dhansetu-backend.pid
+
+      - name: Wait for backend health
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:5000/health; then
+              echo
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/dhansetu-backend.log
+          exit 1
+
+      - name: Run backend demo smoke test
+        working-directory: backend/backend
+        run: npm run smoke
+
+      - name: Print backend log on failure
+        if: failure()
+        run: cat /tmp/dhansetu-backend.log
+
+  repository:
+    name: Repository checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check whitespace errors
+        run: git diff --check

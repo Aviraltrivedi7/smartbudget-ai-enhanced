@@ -1,252 +1,125 @@
-# DhanSetu AI - Personal Finance Assistant
+# DhanSetu AI
 
-> **Your intelligent financial companion with advanced AI features, stunning animations, and bilingual support (English/Hindi)**
+> **Aapke Paiso Ka Smart Saathi** — a calm, intelligent bridge between today’s money and tomorrow’s goals.
 
-A comprehensive, modern financial management application that helps users track expenses, plan budgets, and achieve financial goals through AI-powered insights, gamification, and an incredibly smooth user experience with beautiful animations.
+![DhanSetu AI logo](public/dhansetu-logo.png)
 
-## 🎯 Live Demo
+DhanSetu AI is a premium personal-finance workspace for tracking transactions, understanding spending patterns, planning budgets, and turning savings goals into consistent action. The experience combines a midnight-navy, cobalt, lavender, warm off-white, and restrained saffron-gold visual system with practical finance workflows, bilingual English/Hindi support, and a transaction-aware AI Coach.
 
-🔗 **[Try DhanSetu AI Live](https://smartbudget-ai-enhanced.vercel.app/)** - Experience the stunning animations and smooth interactions!
+## Product identity
 
-## ✨ What's New in Latest Update
+The name **DhanSetu** means a bridge for wealth. DhanSetu AI helps users connect everyday financial decisions with longer-term goals instead of treating budgeting as a spreadsheet-only task. The brand mark combines a setu-style bridge arc, a rupee-inspired upward route, and growth pillars in the product’s navy, cobalt, lavender, and saffron-gold palette.
 
-- 🎨 **Stunning Visual Experience**: Enhanced with beautiful gradients, floating particles, and smooth animations
-- 🚀 **Interactive Splash Screen**: Progress bar, skip option, and dynamic loading effects
-- 💫 **Animated Background**: Morphing shapes, floating financial icons, and glowing particles
-- 🎭 **Enhanced Welcome Guide**: Smooth transitions, better navigation, and interactive feature cards
-- ⚡ **Improved Dashboard**: Heartbeat animations, hover effects, and better visual hierarchy
-- 🎪 **Micro-interactions**: Button hover effects, scale animations, and shimmer effects
+## What DhanSetu AI includes
 
-## ✨ Features
+| Area | Capability |
+| --- | --- |
+| Dashboard | Net balance, income, expenses, cash-flow trends, category breakdown, weekly transaction rhythm, recent activity, and AI next-best-move suggestions. |
+| Command Center | Three-dot drawer, `Ctrl/Cmd + K` shortcut, navigation search, recent search history, quick actions, notifications, settings, theme toggle, and compact profile footer. |
+| Transactions | Add, update, delete, import, export, category-aware tracking, optimistic UI updates, backend synchronization, and local offline recovery. |
+| AI Coach | Live transaction-aware chat with English/Hinglish switching, secure backend LLM proxy support, local fallback responses, contextual prompts, and balance/spending/savings questions. |
+| Smart planning | Budget Planner with income presets, 50/30/20 starter allocations, current-spend context, Savings Goals, AI Insights, and expandable smart prompts. |
+| Reports | CSV export/import and branded monthly PDF reports with income, expenses, savings, category breakdown, and DhanSetu insight summaries. |
+| Experience | Responsive mobile layout, splash screen, onboarding guide, PWA metadata, readable contrast, and restrained motion with reduced-motion support. |
 
-### 🎯 Core Financial Management
-- **Smart Transaction Tracking** - Add expenses via voice, text, or bill scanning
-- **AI-Powered Categorization** - Automatic expense categorization with machine learning
-- **Budget Planning & Goals** - Set and track savings goals with progress visualization
-- **Bill Reminders** - Never miss a payment with smart notifications
-- **Multi-Currency Support** - Support for Indian Rupees (₹) and other currencies
+## Architecture
 
-### 🤖 AI & Analytics
-- **AI Finance Coach** - Personalized financial advice and spending insights
-- **Expense Heatmaps** - Visual spending patterns with AI analysis
-- **Smart Suggestions** - Predictive budget recommendations
-- **Advanced Analytics** - Comprehensive financial reports and trends
+The project contains a Vite + React 18 + TypeScript frontend and an Express backend under `backend/backend`. Authenticated users use the backend-first transaction API with JWT authentication. Guest and offline sessions use localStorage as a recovery and fallback path. When `MONGODB_URI` is not configured, the backend runs in demo mode with process-local authenticated demo data; MongoDB mode is the persistent production path.
 
-### 🎮 Engagement Features
-- **Gamification System** - Earn points, badges, and achievements for good financial habits
-- **Money Monster** - Fun, interactive savings game
-- **Progress Tracking** - Visual progress bars and milestone celebrations
-- **Weekly Challenges** - Personalized financial challenges
+The backend also provides Socket.IO support, transaction statistics, CORS handling, and a secure `/api/ai/chat` proxy. OpenAI or Gemini credentials remain server-side and are never placed in frontend source or browser-exposed environment variables.
 
-### 🌍 Accessibility & Experience
-- **Bilingual Support** - Complete Hindi (हिंदी) and English localization
-- **Voice Commands** - Add transactions using speech recognition
-- **Bill Scanner** - OCR-powered receipt scanning
-- **Offline Support** - Works offline with local data sync
-- **Interactive Onboarding** - Step-by-step welcome guide with smooth animations
-- **Dark/Light Theme** - Adaptive UI themes
-- **Stunning Animations** - Floating particles, morphing backgrounds, and smooth transitions
+## Tech stack
 
-### 🎨 Animation Showcase
-- **Splash Screen**: Dynamic gradient backgrounds, floating icons, progress animations
-- **Background Effects**: Morphing shapes, orbiting elements, glowing particles
-- **Interactive Elements**: Hover effects, scale transformations, shimmer animations
-- **Page Transitions**: Smooth fade-ins, slide animations, and scale effects
-- **Micro-interactions**: Button hover states, heartbeat animations, rainbow effects
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Radix UI, Lucide, Recharts, Sonner, jsPDF |
+| Backend | Node.js, Express, Mongoose, JWT, Socket.IO, Helmet, Morgan, rate limiting |
+| Data modes | MongoDB for persistent production data; process-local demo mode and localStorage fallback for development/offline use |
+| Quality | ESLint, TypeScript compiler checks, Vite production build, Node syntax checks, backend smoke test |
 
-### 📱 Technical Features
-- **Real-time Sync** - Cloud synchronization across devices
-- **PWA Support** - Install as a mobile app
-- **Responsive Design** - Works on all device sizes
-- **Data Export** - Export financial data in multiple formats
-
-## 🚀 Tech Stack
-
-### Frontend
-- **React 18** - Modern React with hooks and context
-- **TypeScript** - Type-safe development
-- **Vite** - Lightning-fast build tool
-- **Tailwind CSS** - Utility-first CSS framework
-- **shadcn/ui** - Beautiful, accessible UI components
-- **Recharts** - Interactive data visualizations
-- **React Query** - Server state management
-- **React Router** - Client-side routing
-
-### Backend & Database
-- **Supabase** - PostgreSQL database with real-time features
-- **Row Level Security** - Secure data access
-- **Authentication** - Email/password and social login
-- **Real-time Subscriptions** - Live data updates
-- **File Storage** - Receipt and document storage
-
-### Deployment & DevOps
-- **Vercel** - Frontend deployment
-- **Netlify** - Alternative deployment option
-- **GitHub Actions** - CI/CD pipeline
-- **ESLint & Prettier** - Code quality tools
-
-## 🛠️ Installation & Setup
+## Local development
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-- Git
 
-### Quick Start
+Use Node.js 18 or newer, npm, and Git. MongoDB is optional for local development because the backend can run in demo mode without a database URI.
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Aviraltrivedi7/smartbudget-ai-enhanced.git
-   cd smartbudget-ai-enhanced
-   ```
+### 1. Clone and install the frontend
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup:**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Update `.env` with your Supabase credentials:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Database Setup:**
-   - Create a new Supabase project
-   - Run the migration files in `supabase/migrations/`
-   - Or use Supabase CLI: `supabase db reset`
-
-5. **Start development server:**
-   ```bash
-   npm run dev
-   ```
-
-6. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-## 🗄️ Database Schema
-
-The app uses a comprehensive PostgreSQL schema with the following main tables:
-
-- **profiles** - User profile information
-- **transactions** - Financial transactions with categorization
-- **categories** - Expense/income categories
-- **budgets** - Budget plans and limits
-- **savings_goals** - User-defined savings targets
-- **bill_reminders** - Recurring bill notifications
-- **user_achievements** - Gamification data
-- **user_preferences** - User settings and preferences
-
-All tables include Row Level Security (RLS) policies for data protection.
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
-
-### Netlify
-1. Connect repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Add environment variables
-
-### Manual Deployment
 ```bash
+git clone https://github.com/Aviraltrivedi7/smartbudget-ai-enhanced.git
+cd smartbudget-ai-enhanced
+npm install
+cp .env.example .env
+```
+
+The safe frontend defaults are:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+### 2. Start the backend
+
+Open a second terminal:
+
+```bash
+cd smartbudget-ai-enhanced/backend/backend
+npm install
+cp .env.example .env
+npm start
+```
+
+The backend listens on `http://localhost:5000`. With no `MONGODB_URI`, it starts in demo mode. For persistent data, configure MongoDB and long random JWT/session secrets in the backend `.env` file. Never commit `.env` files or provider credentials.
+
+### 3. Start the frontend
+
+From the repository root:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173` in a browser. The app can be explored in guest/offline mode, or users can register and sign in through the Express backend.
+
+## Verification commands
+
+Run the frontend checks from the repository root:
+
+```bash
+npm run lint:ci
+npx tsc --noEmit
 npm run build
-# Deploy the 'dist' folder to your hosting provider
 ```
 
-## 📱 Usage
+The repository’s historical `npm run lint` command still reports 20 legacy errors in older feature/UI files that are outside the current production-surface gate; `npm run lint:ci` is the passing CI gate for the shipped shell and finance workflows. The backend smoke test expects a backend process on port 5000. With the backend running, execute:
 
-### For Users
-1. **First Time:** Complete the interactive welcome guide
-2. **Add Transactions:** Use voice, manual entry, or bill scanning
-3. **Set Goals:** Define savings targets and budget limits
-4. **Track Progress:** Monitor spending patterns and achievements
-5. **Get Insights:** Review AI-powered financial recommendations
-
-### Offline Mode
-The app works completely offline with local data storage. Data syncs automatically when online.
-
-### Language Support
-Switch between English and Hindi using the language selector in the top-right corner.
-
-## 🎮 Gamification System
-
-- **Points System:** Earn points for logging expenses, staying within budget
-- **Achievements:** Unlock badges for financial milestones
-- **Streaks:** Maintain daily transaction logging streaks
-- **Challenges:** Weekly financial challenges with rewards
-- **Leaderboard:** Compare progress with friends (optional)
-
-## 🔧 Development
-
-### Available Scripts
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run type-check   # TypeScript type checking
+cd backend/backend
+npm run smoke
 ```
 
-### Project Structure
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # shadcn/ui components
-│   └── ...             # Feature components
-├── contexts/           # React contexts (Auth, Language)
-├── hooks/              # Custom React hooks
-├── integrations/       # Third-party integrations
-├── lib/                # Utility functions
-├── pages/              # Page components
-├── utils/              # Helper functions
-└── types/              # TypeScript type definitions
-```
+The smoke test covers health, CORS, registration, transaction listing, transaction creation, and transaction statistics. The CI workflow runs equivalent checks automatically for pushes and pull requests.
 
-## 🤝 Contributing
+## Environment and security
 
-We welcome contributions! Please follow these steps:
+Frontend environment variables must contain only safe localhost or public API URLs. Keep `OPENAI_API_KEY`, `GEMINI_API_KEY`, `MONGODB_URI`, JWT secrets, session secrets, and email credentials in the backend environment or deployment secret manager. The secure AI route validates and limits supplied transaction context before forwarding requests to the configured provider.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+## CI/CD
 
-### Development Guidelines
-- Follow TypeScript best practices
-- Use conventional commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure Hindi translations for new text
+GitHub Actions is configured in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Every push to `main` and every pull request runs frontend dependency installation, ESLint, TypeScript validation, the production build, backend syntax checks, and the demo-mode backend smoke test. The workflow does not require MongoDB or external LLM credentials.
 
-## 📄 License
+For deployment, connect the repository to a hosting provider such as Vercel for the frontend and a Node-compatible service for the backend. Configure the frontend API URLs and backend CORS/secret variables in the provider’s environment settings. Preview URLs should be treated as temporary; production deployments should use fixed frontend and backend domains.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Repository guide
 
-## 🙏 Acknowledgments
+| Document | Purpose |
+| --- | --- |
+| [`BACKEND_CONNECTION.md`](BACKEND_CONNECTION.md) | Current frontend/backend contract, demo mode, MongoDB mode, and smoke verification. |
+| [`BACKEND_SETUP.md`](BACKEND_SETUP.md) | Backend setup and deployment notes. |
+| [`REDESIGN_NOTES.md`](REDESIGN_NOTES.md) | UI redesign history, DhanSetu brand identity, and browser verification notes. |
+| [`MOBILE_AND_SMART_FEATURE_NOTES.md`](MOBILE_AND_SMART_FEATURE_NOTES.md) | Mobile layout and smart-feature verification notes. |
 
-- **shadcn/ui** - Beautiful UI components
-- **Supabase** - Backend infrastructure
-- **Recharts** - Data visualization
-- **Lucide Icons** - Icon library
-- **Tailwind CSS** - Styling framework
+## License and contribution
 
-## 📞 Support
-
-For support, email [your-email@example.com] or open an issue on GitHub.
-
----
-
-**Made with ❤️ for better financial management**
+Contributions are welcome. Please keep the premium visual system readable, preserve the backend-first/offline fallback behavior, avoid committing secrets, and run the relevant frontend and backend verification commands before opening a pull request.
