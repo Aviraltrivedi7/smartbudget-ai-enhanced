@@ -45,3 +45,8 @@ After the follow-up fix, the fresh preview showed a visible scrollbar on the Com
 ## Follow-up sidebar visibility verification
 
 A fresh live-preview pass confirmed the Command Center opens with the scrollbar visible at the right edge of the Workspace and Tools region. Scrolling down moved the navigation content independently and kept Notifications, Settings, Dark mode, and the Guest user profile/sign-out footer visible in the viewport. The header/search region and footer stay fixed while the middle navigation area scrolls.
+
+
+## Compact footer follow-up
+
+The fresh preview now shows Notifications, Settings, Dark mode, and the Guest user profile card together inside the drawer viewport. Utility rows use tighter 13px text, 16px icons, reduced vertical padding, and the profile card uses a smaller avatar and compact spacing. The fixed footer remains distinct from the independently scrolling navigation area.

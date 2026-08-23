@@ -116,3 +116,8 @@ Targeted ESLint passes for all changed files, and `npm run build` passes with on
 ## Independent sidebar scrolling follow-up
 
 The Command Center drawer’s middle Workspace and Tools region now has explicit dynamic viewport sizing, `overflow-y-auto`, touch momentum scrolling, stable scrollbar space, and a more discoverable navy scrollbar. A small `Swipe or scroll to explore.` cue was added below search. The header/search area and bottom utility/profile panel remain fixed while the middle navigation list scrolls independently. Fresh live-preview verification confirmed the drawer scrollbar is visible and that scrolling down reveals the navigation area without hiding Notifications, Settings, Dark mode, or the profile/sign-out footer.
+
+
+## Compact utility footer follow-up
+
+The fixed Command Center footer was tightened so Notifications, Settings, Dark mode, and the Guest user profile fit together cleanly in shorter viewports. Utility rows now use smaller icons, tighter padding, compact text, and reduced gaps; the profile card uses a smaller avatar, padding, and separator spacing. Fresh live-preview verification confirmed all four controls remain visible together while the Workspace and Tools list stays independently scrollable.
