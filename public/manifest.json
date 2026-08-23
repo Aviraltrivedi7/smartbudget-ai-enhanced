@@ -1,10 +1,10 @@
 {
-  "name": "SmartBudget AI - Enhanced Personal Finance Assistant",
-  "short_name": "SmartBudget AI",
-  "description": "Your intelligent financial companion with stunning animations and AI-powered insights",
+  "name": "DhanSetu AI - Aapke Paiso Ka Smart Saathi",
+  "short_name": "DhanSetu AI",
+  "description": "A smart bridge between today’s money and tomorrow’s goals.",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#667eea",
+  "theme_color": "#222d4b",
   "background_color": "#ffffff",
   "orientation": "portrait",
   "scope": "/",
@@ -12,9 +12,9 @@
   "categories": ["finance", "productivity", "lifestyle"],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/dhansetu-logo.png",
+      "sizes": "1920x1920",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {

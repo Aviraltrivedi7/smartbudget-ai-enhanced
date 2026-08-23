@@ -69,9 +69,9 @@ export const translations = {
     voiceEntry: "Voice Entry",
     billReminders: "Bill Reminders",
     aiFinanceCoach: "AI Finance Coach",
-    smartBudgetPlanner: "Smart Budget Planner",
+    smartBudgetPlanner: "DhanSetu Budget Planner",
 
-    // Smart Budget Planner
+    // DhanSetu Budget Planner
     budgetSubtitle: "Proper budget planning is the start of savings!",
     monthlyIncomeLabel: "Monthly Income (₹)",
     enterIncomePlaceholder: "e.g., 50000",
@@ -158,8 +158,8 @@ export const translations = {
 
     // Splash Screen
     welcome: "Welcome to",
-    smartBudgetAI: "ARTHORA AI",
-    yourPersonalFinanceAssistant: "Your Personal Finance Assistant",
+    smartBudgetAI: "DhanSetu AI",
+    yourPersonalFinanceAssistant: "Aapke paiso ka smart saathi",
     getStarted: "Get Started",
 
     // Gamification
@@ -265,9 +265,9 @@ export const translations = {
     voiceEntry: "आवाज़ एंट्री",
     billReminders: "बिल रिमाइंडर",
     aiFinanceCoach: "AI वित्त कोच",
-    smartBudgetPlanner: "स्मार्ट बजट प्लानर",
+    smartBudgetPlanner: "धनसेतु बजट प्लानर",
 
-    // Smart Budget Planner
+    // DhanSetu Budget Planner
     budgetSubtitle: "सही बजट प्लानिंग ही बचत की शुरुआत है!",
     monthlyIncomeLabel: "मासिक आय (₹)",
     enterIncomePlaceholder: "जैसे, 50000",
@@ -354,8 +354,8 @@ export const translations = {
 
     // Splash Screen
     welcome: "आपका स्वागत है",
-    smartBudgetAI: "ARTHORA AI",
-    yourPersonalFinanceAssistant: "आपका व्यक्तिगत वित्त सहायक",
+    smartBudgetAI: "DhanSetu AI",
+    yourPersonalFinanceAssistant: "आपके पैसों का स्मार्ट साथी",
     getStarted: "शुरू करें",
 
     // Gamification

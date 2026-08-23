@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-SmartBudget AI is a comprehensive React-based personal finance management application with AI-powered features, bilingual support (English/Hindi), and gamification elements. The application works offline with local data sync and provides real-time financial insights through an intuitive dashboard.
+DhanSetu AI is a comprehensive React-based personal finance management application with AI-powered features, bilingual support (English/Hindi), and gamification elements. The application works offline with local data sync and provides real-time financial insights through an intuitive dashboard.
 
 ### Key Architecture Components
 

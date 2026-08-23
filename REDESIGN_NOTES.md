@@ -1,4 +1,4 @@
-# SmartBudget AI UI Redesign Notes
+# DhanSetu AI UI Redesign Notes
 
 ## Repository baseline
 
@@ -41,7 +41,7 @@ The live capture now includes the AI Copilot panel with three contextual suggest
 
 ## Live Copilot chat verification
 
-The dashboard AI Copilot now exposes a Live chat action that routes to the redesigned SmartBudget Copilot workspace. The chat uses the existing transaction context to answer expense questions and supports quick prompts, English/Hinglish switching, typing feedback, context summary cards, and a private-workspace status. Live browser testing confirmed that asking “Where am I spending the most?” returned the current top category and amount breakdown, while “How can I grow my savings?” returned a personalized monthly and weekly savings target.
+The dashboard AI Copilot now exposes a Live chat action that routes to the redesigned DhanSetu AI Coach workspace. The chat uses the existing transaction context to answer expense questions and supports quick prompts, English/Hinglish switching, typing feedback, context summary cards, and a private-workspace status. Live browser testing confirmed that asking “Where am I spending the most?” returned the current top category and amount breakdown, while “How can I grow my savings?” returned a personalized monthly and weekly savings target.
 
 ## Reports and exports verification
 
@@ -123,16 +123,16 @@ The Command Center drawer’s middle Workspace and Tools region now has explicit
 The fixed Command Center footer was tightened so Notifications, Settings, Dark mode, and the Guest user profile fit together cleanly in shorter viewports. Utility rows now use smaller icons, tighter padding, compact text, and reduced gaps; the profile card uses a smaller avatar, padding, and separator spacing. Fresh live-preview verification confirmed all four controls remain visible together while the Workspace and Tools list stays independently scrollable.
 
 
-## ARTHORA AI brand identity
+## DhanSetu AI brand identity
 
-The product identity is now **ARTHORA AI — Intelligent Finance Companion**. ARTHORA is positioned as a calm, intelligent wealth-building layer rather than a generic budget tracker. A custom symbol combining a navy crescent, cobalt upward financial arrow, lavender inner bar, and restrained champagne spark was generated, cleaned to true transparency, and integrated into the navbar, Command Center, splash screen, authentication modal, favicon, and mobile touch icon. The wordmark is rendered as uppercase `ARTHORA AI` on the splash and auth surfaces, with the existing finance companion tagline retained.
+The final product identity is **DhanSetu AI — Aapke Paiso Ka Smart Saathi**. DhanSetu means a bridge for wealth: the product connects everyday spending decisions with future goals through a calm, intelligent finance workspace. The new symbol combines a setu-style bridge arc, a subtle rupee-inspired upward route, navy and cobalt structural elements, lavender accents, and a restrained saffron-gold highlight. It is shipped as a true transparent RGBA PNG at `public/dhansetu-logo.png` and is designed to remain legible from favicon size through the splash screen.
 
-The branded app metadata and browser title were updated to `ARTHORA AI - Intelligent Finance Companion`. The final shipped asset is `public/arthora-logo.png`.
+DhanSetu AI branding is integrated into the navbar, Command Center drawer, splash screen, authentication modal, onboarding guide, browser title and social metadata, PWA manifest, favicon, AI coach, dashboard insights, budget planner, transaction sync toasts, and PDF/CSV report exports.
 
 
 ## Cross-screen alignment pass
 
-The main ARTHORA shell now uses one centered max-width grid from the navbar through the dashboard hero and major sections. The navbar contents are wrapped in the same `max-w-7xl` container as the dashboard, and the dashboard, Reports & Exports, and Savings Goals screens now use consistent vertical rhythm, grid gaps, card padding, and section edges. The dashboard metric, chart, copilot, activity, insight, and shortcut regions were normalized to the same spacing scale. Live preview verification confirmed the navbar left/right edges align with the hero and the major card columns remain evenly spaced.
+The main DhanSetu shell now uses one centered max-width grid from the navbar through the dashboard hero and major sections. The navbar contents are wrapped in the same `max-w-7xl` container as the dashboard, and the dashboard, Reports & Exports, and Savings Goals screens now use consistent vertical rhythm, grid gaps, card padding, and section edges. The dashboard metric, chart, copilot, activity, insight, and shortcut regions were normalized to the same spacing scale. Live preview verification confirmed the navbar left/right edges align with the hero and the major card columns remain evenly spaced.
 
 
 ## Dashboard motion polish
@@ -142,4 +142,9 @@ Added a restrained dashboard entrance sequence with staggered rise-in timing for
 
 ## Mobile preview and smart planning features
 
-A 390 × 844 mobile viewport capture was performed. The compact ARTHORA header, icon-only add action, rounded hero, and first-run onboarding dialog stayed within the narrow viewport without horizontal overflow. AI Insights now has four expandable smart prompt cards—Spending lens, Savings move, Budget check, and Future view—with direct handoff into the existing transaction-aware coach. A Budget Planner modal was added with income presets, live 50/30/20 allocations, current-spend context, persistence to `arthora_budget_income`, and a full-planner handoff. Reports & Exports remains available for PDF/CSV workflows.
+A 390 × 844 mobile viewport capture was performed. The compact DhanSetu header, icon-only add action, rounded hero, and first-run onboarding dialog stayed within the narrow viewport without horizontal overflow. AI Insights now has four expandable smart prompt cards—Spending lens, Savings move, Budget check, and Future view—with direct handoff into the existing transaction-aware coach. A Budget Planner modal was added with income presets, live 50/30/20 allocations, current-spend context, persistence to `arthora_budget_income`, and a full-planner handoff. Reports & Exports remains available for PDF/CSV workflows.
+
+
+## DhanSetu AI rebrand verification
+
+The temporary Vite preview was opened successfully after the rebrand. The browser title rendered as `DhanSetu AI - Aapke Paiso Ka Smart Saathi`; the splash showed the new bridge-and-rupee mark, `DHANSETU AI`, and the bilingual-friendly tagline; the dashboard header showed the DhanSetu logo, wordmark, and `Aapke paiso ka smart saathi`; and the Command Center drawer repeated the same mark and identity while retaining its independent scrolling footer. The served `/dhansetu-logo.png` asset returned HTTP 200 and was verified locally as a 1920×1920 RGBA PNG.

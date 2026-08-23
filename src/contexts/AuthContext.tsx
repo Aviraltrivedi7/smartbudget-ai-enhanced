@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (response.success && response.data) {
         setUser(response.data.user);
-        toast.success('Account created successfully! Welcome to SmartBudget AI 🎉');
+        toast.success('Account created successfully! Welcome to DhanSetu AI 🎉');
         return true;
       } else {
         toast.error(response.message || 'Signup failed. Please try again.');

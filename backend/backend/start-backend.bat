@@ -1,7 +1,7 @@
 @echo off
 echo.
 echo ==================================
-echo 🚀 Starting SmartBudget AI Backend
+echo 🚀 Starting DhanSetu AI Backend
 echo ==================================
 echo.
 

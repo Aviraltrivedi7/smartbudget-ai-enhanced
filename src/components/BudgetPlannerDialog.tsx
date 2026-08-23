@@ -50,7 +50,7 @@ const BudgetPlannerDialog: React.FC<BudgetPlannerDialogProps> = ({ open, onOpenC
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#dfe4ff]/80">Smart planning</span>
           </div>
           <DialogTitle className="text-2xl tracking-tight">Build a calmer monthly plan.</DialogTitle>
-          <DialogDescription className="mt-2 max-w-md text-sm leading-6 text-white/65">Set your take-home income and ARTHORA will map a simple starting split for needs, wants, and future-you.</DialogDescription>
+          <DialogDescription className="mt-2 max-w-md text-sm leading-6 text-white/65">Set your take-home income and DhanSetu will map a simple starting split for needs, wants, and future-you.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={calculatePlan} className="space-y-6 px-6 py-6 sm:px-7">
@@ -79,7 +79,7 @@ const BudgetPlannerDialog: React.FC<BudgetPlannerDialogProps> = ({ open, onOpenC
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#eef0fb] text-[#5867bb]"><Brain className="h-4 w-4" /></span>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-slate-800">Your starting signal</p>
-                <p className="mt-1 text-sm leading-5 text-slate-500">{transactionSpend > 0 ? `You have logged ₹${Math.round(transactionSpend).toLocaleString('en-IN')} in spending so far. Keep your needs bucket close to ₹${plan.needs.toLocaleString('en-IN')} as you refine the plan.` : 'Log a few transactions after setting this plan and ARTHORA will surface more personal guardrails.'}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-500">{transactionSpend > 0 ? `You have logged ₹${Math.round(transactionSpend).toLocaleString('en-IN')} in spending so far. Keep your needs bucket close to ₹${plan.needs.toLocaleString('en-IN')} as you refine the plan.` : 'Log a few transactions after setting this plan and DhanSetu will surface more personal guardrails.'}</p>
               </div>
             </div>
           </div>

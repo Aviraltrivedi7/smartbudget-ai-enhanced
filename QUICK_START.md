@@ -1,4 +1,4 @@
-# 🚀 SmartBudget AI - Quick Start Guide
+# DhanSetu AI - Quick Start Guide
 
 ## ⚡ Start Your App (Fastest Way)
 
@@ -108,7 +108,7 @@ Run this to verify everything:
 curl http://localhost:5000/health
 
 # Should return:
-# {"status":"OK","message":"SmartBudget AI Backend is running!"}
+# {"status":"OK","message":"DhanSetu AI Backend is running!"}
 ```
 
 ---
@@ -163,7 +163,7 @@ Then open http://localhost:5173 in your browser!
 
 ## 🎉 You're All Set!
 
-Enjoy your SmartBudget AI application! 💰📊✨
+Enjoy your DhanSetu AI application.
 
 For detailed docs, check:
 - BACKEND_SETUP.md

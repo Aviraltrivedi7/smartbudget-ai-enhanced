@@ -18,12 +18,12 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ isOpen, onClose, onFeatureS
   const steps = [
     {
       title: {
-        en: "Welcome to ARTHORA AI!",
-        hi: "ARTHORA AI में आपका स्वागत है!"
+        en: "Welcome to DhanSetu AI!",
+        hi: "DhanSetu AI में आपका स्वागत है!"
       },
       description: {
-        en: "Your intelligent financial companion is here to help you manage money better",
-        hi: "आपका बुद्धिमान वित्तीय साथी आपको पैसा बेहतर तरीके से प्रबंधित करने में मदद करने के लिए यहां है"
+        en: "Your smart money companion helps you build a calmer path from today’s spending to tomorrow’s goals",
+        hi: "आपका स्मार्ट मनी साथी आज के खर्च से कल के लक्ष्यों तक बेहतर रास्ता बनाने में आपकी मदद करता है"
       },
       icon: <Sparkles className="h-12 w-12 text-yellow-500" />
     },

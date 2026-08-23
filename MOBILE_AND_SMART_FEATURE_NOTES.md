@@ -2,7 +2,7 @@
 
 ## Mobile preview
 
-A headless Chromium capture was run at **390 × 844 px**, matching a narrow mobile viewport. The ARTHORA header compresses to the three-dot menu, compact logo/wordmark, and icon-only add button. The hero remains within the viewport with rounded edges, and the onboarding dialog centers cleanly without horizontal overflow. The mobile capture is available at `/home/ubuntu/smartbudget-mobile.png`; it includes the first-run onboarding guide because the preview profile initializes the guide for a fresh user.
+A headless Chromium capture was run at **390 × 844 px**, matching a narrow mobile viewport. The DhanSetu header compresses to the three-dot menu, compact logo/wordmark, and icon-only add button. The hero remains within the viewport with rounded edges, and the onboarding dialog centers cleanly without horizontal overflow. The mobile capture is available at `/home/ubuntu/smartbudget-mobile.png`; it includes the first-run onboarding guide because the preview profile initializes the guide for a fresh user.
 
 ## Smart prompts
 

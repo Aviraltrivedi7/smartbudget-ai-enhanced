@@ -1,4 +1,4 @@
-# 🎉 SmartBudget AI - Your Project is READY!
+# DhanSetu AI - Your Project is READY!
 
 ## ✅ **Project Status: 100% Complete & Working!**
 
@@ -364,7 +364,7 @@ PORT=5001
 
 ## 🎉 **You're All Set!**
 
-**Tumhara SmartBudget AI app ab completely ready hai!**
+**Tumhara DhanSetu AI app ab completely ready hai!**
 
 ### Quick Recap:
 1. ✅ Frontend running on http://localhost:5173

@@ -108,7 +108,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
       label: 'Spending lens',
       title: 'Find my biggest spending lever',
       prompt: 'Where am I spending the most, and what is one realistic change I can make this week?',
-      insight: `ARTHORA will compare your ${spendingCategoryTranslated.toLowerCase()} activity with your overall spend and suggest a low-friction next step.`,
+      insight: `DhanSetu will compare your ${spendingCategoryTranslated.toLowerCase()} activity with your overall spend and suggest a low-friction next step.`,
     },
     {
       label: 'Savings move',
@@ -126,7 +126,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
       label: 'Future view',
       title: 'Plan for my next big expense',
       prompt: 'Help me prepare for my next large expense without breaking my monthly plan.',
-      insight: 'ARTHORA can map the expense against your current cash flow and suggest a calmer timeline.',
+      insight: 'DhanSetu can map the expense against your current cash flow and suggest a calmer timeline.',
     },
   ];
 
@@ -299,7 +299,7 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
                     <div className="flex items-start justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#5867bb]">{item.label}</p><h3 className="mt-2 text-sm font-bold text-slate-800">{item.title}</h3></div><ChevronRight className={`mt-1 h-4 w-4 shrink-0 text-slate-300 transition-transform ${isActive ? 'rotate-90 text-[#5867bb]' : ''}`} /></div>
                     <p className="mt-2 text-xs leading-5 text-slate-500">{item.prompt}</p>
                   </button>
-                  {isActive && <div className="mt-4 border-t border-slate-100 pt-3"><p className="text-xs leading-5 text-slate-500">{item.insight}</p>{onOpenCoach && <Button type="button" variant="outline" onClick={() => onOpenCoach(item.prompt)} className="mt-3 h-9 rounded-lg border-[#dfe4ff] px-3 text-xs font-bold text-[#5867bb] hover:bg-[#eef0fb]">Ask ARTHORA <ArrowLeft className="ml-1 h-3.5 w-3.5 rotate-180" /></Button>}</div>}
+                  {isActive && <div className="mt-4 border-t border-slate-100 pt-3"><p className="text-xs leading-5 text-slate-500">{item.insight}</p>{onOpenCoach && <Button type="button" variant="outline" onClick={() => onOpenCoach(item.prompt)} className="mt-3 h-9 rounded-lg border-[#dfe4ff] px-3 text-xs font-bold text-[#5867bb] hover:bg-[#eef0fb]">Ask DhanSetu <ArrowLeft className="ml-1 h-3.5 w-3.5 rotate-180" /></Button>}</div>}
                 </div>
               );
             })}

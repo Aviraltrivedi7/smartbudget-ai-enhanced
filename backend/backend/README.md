@@ -1,4 +1,4 @@
-# 💰 SmartBudget AI Backend - Complete MongoDB Integration
+# DhanSetu AI Backend - Complete MongoDB Integration
 
 ## 🚀 **What's Been Built**
 

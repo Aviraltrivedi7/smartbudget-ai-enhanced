@@ -1,4 +1,4 @@
-# 💰 SmartBudget AI - Personal Finance Assistant
+# DhanSetu AI - Personal Finance Assistant
 
 > **Your intelligent financial companion with advanced AI features, stunning animations, and bilingual support (English/Hindi)**
 
@@ -6,7 +6,7 @@ A comprehensive, modern financial management application that helps users track 
 
 ## 🎯 Live Demo
 
-🔗 **[Try SmartBudget AI Live](https://smartbudget-ai-enhanced.vercel.app/)** - Experience the stunning animations and smooth interactions!
+🔗 **[Try DhanSetu AI Live](https://smartbudget-ai-enhanced.vercel.app/)** - Experience the stunning animations and smooth interactions!
 
 ## ✨ What's New in Latest Update
 

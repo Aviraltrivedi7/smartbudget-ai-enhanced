@@ -38,7 +38,7 @@ const MonthlyReport: React.FC<MonthlyReportProps> = ({ onBack, transactions, onI
   const downloadCsv = () => {
     const rows = [['Date', 'Title', 'Category', 'Type', 'Amount', 'Description'], ...transactions.map((item) => [item.date, item.title, item.category, item.type, item.amount, item.description || ''])];
     const blob = new Blob([rows.map((row) => row.map(escapeCsv).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `smartbudget-transactions-${new Date().toISOString().slice(0, 7)}.csv`; link.click(); URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = `dhansetu-transactions-${new Date().toISOString().slice(0, 7)}.csv`; link.click(); URL.revokeObjectURL(url);
     toast.success(`${transactions.length} transactions exported as CSV`);
   };
 
@@ -46,16 +46,16 @@ const MonthlyReport: React.FC<MonthlyReportProps> = ({ onBack, transactions, onI
     setIsGenerating(true);
     await new Promise((resolve) => window.setTimeout(resolve, 250));
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    doc.setFillColor(16, 43, 41); doc.rect(0, 0, 210, 44, 'F');
-    doc.setTextColor(185, 251, 192); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('SMARTBUDGET.', 18, 17);
+    doc.setFillColor(34, 45, 75); doc.rect(0, 0, 210, 44, 'F');
+    doc.setTextColor(231, 220, 174); doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text('DHANSETU AI', 18, 17);
     doc.setTextColor(255, 255, 255); doc.setFontSize(23); doc.text('Monthly money report', 18, 31);
     doc.setTextColor(90, 105, 110); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text(`Generated ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, 18, 56);
     const cards = [{ label: 'TOTAL INCOME', value: money(report.income), color: [217, 248, 228] }, { label: 'TOTAL EXPENSES', value: money(report.expenses), color: [255, 240, 223] }, { label: 'NET SAVINGS', value: money(report.savings), color: [232, 229, 255] }];
-    cards.forEach((card, index) => { const x = 18 + index * 58; doc.setFillColor(card.color[0], card.color[1], card.color[2]); doc.roundedRect(x, 68, 52, 27, 4, 4, 'F'); doc.setTextColor(90, 105, 110); doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.text(card.label, x + 5, 77); doc.setTextColor(16, 43, 41); doc.setFontSize(13); doc.text(card.value, x + 5, 88); });
-    doc.setTextColor(16, 43, 41); doc.setFontSize(15); doc.text('Category breakdown', 18, 119); doc.setDrawColor(224, 232, 231); doc.line(18, 123, 192, 123);
-    report.byCategory.slice(0, 8).forEach(([category, amount], index) => { const y = 135 + index * 11; doc.setTextColor(80, 95, 100); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text(category, 18, y); doc.setTextColor(16, 43, 41); doc.setFont('helvetica', 'bold'); doc.text(money(amount), 157, y, { align: 'right' }); doc.setFillColor(13, 148, 136); doc.roundedRect(18, y + 3, Math.min(130, (amount / Math.max(report.expenses, 1)) * 130), 2.5, 1, 1, 'F'); });
-    const insightY = 135 + Math.max(1, Math.min(report.byCategory.length, 8)) * 11 + 17; doc.setFillColor(240, 248, 247); doc.roundedRect(18, insightY, 174, 32, 4, 4, 'F'); doc.setTextColor(13, 116, 110); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('SMART INSIGHT', 25, insightY + 11); doc.setTextColor(80, 95, 100); doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(`Top category: ${report.topCategory}  ·  Savings rate: ${report.savingsRate.toFixed(1)}%`, 25, insightY + 21); doc.text(`${transactions.length} transactions included in this report.`, 25, insightY + 27);
-    doc.save(`smartbudget-monthly-report-${new Date().toISOString().slice(0, 7)}.pdf`); setIsGenerating(false); toast.success('Monthly PDF report downloaded');
+    cards.forEach((card, index) => { const x = 18 + index * 58; doc.setFillColor(card.color[0], card.color[1], card.color[2]); doc.roundedRect(x, 68, 52, 27, 4, 4, 'F'); doc.setTextColor(90, 105, 110); doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.text(card.label, x + 5, 77); doc.setTextColor(34, 45, 75); doc.setFontSize(13); doc.text(card.value, x + 5, 88); });
+    doc.setTextColor(34, 45, 75); doc.setFontSize(15); doc.text('Category breakdown', 18, 119); doc.setDrawColor(224, 232, 231); doc.line(18, 123, 192, 123);
+    report.byCategory.slice(0, 8).forEach(([category, amount], index) => { const y = 135 + index * 11; doc.setTextColor(80, 95, 100); doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.text(category, 18, y); doc.setTextColor(34, 45, 75); doc.setFont('helvetica', 'bold'); doc.text(money(amount), 157, y, { align: 'right' }); doc.setFillColor(88, 103, 187); doc.roundedRect(18, y + 3, Math.min(130, (amount / Math.max(report.expenses, 1)) * 130), 2.5, 1, 1, 'F'); });
+    const insightY = 135 + Math.max(1, Math.min(report.byCategory.length, 8)) * 11 + 17; doc.setFillColor(239, 240, 250); doc.roundedRect(18, insightY, 174, 32, 4, 4, 'F'); doc.setTextColor(88, 103, 187); doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('DHANSETU INSIGHT', 25, insightY + 11); doc.setTextColor(80, 95, 100); doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(`Top category: ${report.topCategory}  ·  Savings rate: ${report.savingsRate.toFixed(1)}%`, 25, insightY + 21); doc.text(`${transactions.length} transactions included in this report.`, 25, insightY + 27);
+    doc.save(`dhansetu-monthly-report-${new Date().toISOString().slice(0, 7)}.pdf`); setIsGenerating(false); toast.success('Monthly PDF report downloaded');
   };
 
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {

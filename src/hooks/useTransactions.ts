@@ -130,7 +130,7 @@ export const useTransactions = () => {
         saveLocalTransactions(updated);
         return updated;
       });
-      toast({ title: 'Transaction Synced', description: 'Saved securely to your ARTHORA workspace.' });
+      toast({ title: 'Transaction Synced', description: 'Saved securely to your DhanSetu workspace.' });
     } catch (error) {
       console.error('Backend transaction create failed:', error);
       toast({ title: 'Saved Locally', description: 'Backend unavailable. This transaction remains in your local queue.' });

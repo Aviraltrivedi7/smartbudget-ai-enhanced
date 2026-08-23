@@ -71,7 +71,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         {/* Enhanced Logo */}
         <div className="relative z-10 flex h-48 w-48 items-center justify-center rounded-full border border-[#dfe4ff]/20 bg-[#dfe4ff]/15 p-7 shadow-2xl backdrop-blur-md animate-bounce-slow">
           <div className="relative flex h-full w-full items-center justify-center rounded-full bg-[#dfe4ff]/10 p-3">
-            <img src="/arthora-logo.png" alt="Arthora logo" className="h-full w-full object-contain drop-shadow-lg" />
+            <img src="/dhansetu-logo.png" alt="DhanSetu AI logo" className="h-full w-full object-contain drop-shadow-lg" />
             <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#e7dcae] shadow-lg">
               <Sparkles className="h-3.5 w-3.5 text-[#222d4b]" />
             </div>
@@ -83,7 +83,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       <div className="mt-10 text-center space-y-4">
         <h1 className="text-5xl font-black uppercase tracking-[0.02em] text-white drop-shadow-lg animate-fade-in">
           <span className="bg-gradient-to-r from-white to-[#dfe4ff] bg-clip-text text-transparent">
-            ARTHORA
+            DhanSetu
           </span>
           <span className="ml-3 bg-gradient-to-r from-[#dfe4ff] to-white bg-clip-text text-transparent">
             AI
@@ -95,7 +95,7 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <div className="flex items-center justify-center space-x-2 animate-fade-in-delay">
           <Sparkles className="w-4 h-4 text-[#e7dcae]" />
           <span className="text-white/80 text-sm">
-            {t('language') === 'भाषा' ? 'आपका स्मार्ट वित्तीय साथी' : 'Your Smart Financial Companion'}
+            {t('language') === 'भाषा' ? 'Aapke paiso ka smart saathi' : 'A smart bridge from today’s money to tomorrow’s goals'}
           </span>
           <Sparkles className="w-4 h-4 text-[#e7dcae]" />
         </div>

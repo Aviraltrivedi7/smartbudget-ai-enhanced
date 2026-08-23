@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 
 const baseUrl = (process.env.API_BASE_URL || 'http://127.0.0.1:5000').replace(/\/$/, '');
 const origin = process.env.FRONTEND_URL || 'http://localhost:5173';
-const email = `arthora-smoke-${Date.now()}@example.com`;
+const email = `dhansetu-smoke-${Date.now()}@example.com`;
 const password = 'SmokePass123';
 
 const request = async (path, options = {}) => {
@@ -21,7 +21,7 @@ assert.equal(health.response.headers.get('access-control-allow-origin'), origin)
 
 const registration = await request('/api/auth/register', {
   method: 'POST',
-  body: JSON.stringify({ fullName: 'ARTHORA Smoke', email, password }),
+  body: JSON.stringify({ fullName: 'DhanSetu Smoke', email, password }),
 });
 assert.equal(registration.body.success, true);
 assert.ok(registration.body.data?.token);

@@ -1,6 +1,6 @@
-# ARTHORA AI backend connection
+# DhanSetu AI backend connection
 
-ARTHORA now uses the Express service as the primary transaction API whenever a user is authenticated. The frontend keeps a local cache for guest/offline mode and falls back to it when the API is unavailable.
+DhanSetu AI now uses the Express service as the primary transaction API whenever a user is authenticated. The frontend keeps a local cache for guest/offline mode and falls back to it when the API is unavailable.
 
 ## Local setup
 
@@ -35,7 +35,7 @@ For persistent multi-user data, set these backend values in `backend/backend/.en
 
 ```env
 MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<database>?retryWrites=true&w=majority
-DB_NAME=arthora-ai
+DB_NAME=dhansetu-ai
 JWT_SECRET=<long-random-secret>
 JWT_REFRESH_SECRET=<different-long-random-secret>
 FRONTEND_URL=http://localhost:5173

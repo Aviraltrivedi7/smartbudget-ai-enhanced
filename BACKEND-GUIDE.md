@@ -1,4 +1,4 @@
-# 🚀 SmartBudget AI Backend - Complete Setup Guide
+# DhanSetu AI Backend - Complete Setup Guide
 
 ## 📋 Table of Contents
 1. [Quick Start](#quick-start)

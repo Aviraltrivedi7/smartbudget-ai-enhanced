@@ -85,8 +85,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <DialogHeader>
           <DialogTitle className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#222d4b] p-1"><img src="/arthora-logo.png" alt="Arthora logo" className="h-full w-full object-contain" /></span>
-              <span className="font-bold text-xl tracking-[0.01em]">ARTHORA AI</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#222d4b] p-1"><img src="/dhansetu-logo.png" alt="DhanSetu AI logo" className="h-full w-full object-contain" /></span>
+              <span className="font-bold text-xl tracking-[0.01em]">DhanSetu AI</span>
             </div>
             {isHindi ? 'अपने खाते में प्रवेश करें' : 'Welcome Back!'}
           </DialogTitle>

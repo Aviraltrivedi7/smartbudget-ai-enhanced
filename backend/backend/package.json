@@ -1,7 +1,7 @@
 {
   "name": "smartbudget-ai-backend",
   "version": "1.0.0",
-  "description": "Complete MongoDB backend for SmartBudget AI with authentication, real-time features, and AI integration",
+  "description": "Complete MongoDB backend for DhanSetu AI with authentication, real-time features, and AI integration",
   "main": "server.js",
   "type": "module",
   "scripts": {
