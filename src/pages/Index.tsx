@@ -33,6 +33,7 @@ import CalendarExpenseTracker from '@/components/CalendarExpenseTracker';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navbar from '@/components/Navbar';
 import WelcomeGuide from '@/components/WelcomeGuide';
+import FloatingCoachButton from '@/components/FloatingCoachButton';
 
 type ViewType = 'dashboard' | 'add-expense' | 'insights' | 'visualizer' | 'coach' | 'budget-planner' | 'savings-goals' | 'bill-reminder' | 'expense-chat' | 'spending-limits' | 'gamification' | 'monthly-report' | 'smart-suggestions' | 'spending-coach' | 'geo-map' | 'bill-scanner' | 'voice-entry' | 'advanced-analytics' | 'budget-progress' | 'money-monster' | 'calendar-tracker';
 
@@ -283,6 +284,7 @@ const Index = () => {
           onClose={handleWelcomeGuideClose}
           onFeatureSelect={handleFeatureSelect}
         />
+        {currentView !== 'coach' && <FloatingCoachButton onClick={() => { setCoachInitialPrompt(''); setCurrentView('coach'); }} />}
         <AddTransactionDialog
           open={isTransactionModalOpen}
           onOpenChange={setIsTransactionModalOpen}

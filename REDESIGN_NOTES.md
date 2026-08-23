@@ -159,3 +159,8 @@ The landing route remained stable after a refreshed browser snapshot, with the `
 
 
 The refreshed landing-page `Open workspace` CTA successfully navigated to `/`. The existing DhanSetu dashboard then rendered with its navbar, Command Center trigger, hero, transaction summary, AI Copilot, and shortcuts intact, confirming the landing route does not regress the dashboard entry point.
+
+
+## Qwen review improvements verification
+
+The temporary dashboard preview now shows `DEMO MODE · LOCAL DATA` in the hero, a new `FINANCIAL HEALTH` score with logging streak, a month-aligned selected-month view, and the existing AI Copilot/dashboard structure. The browser also confirmed the refreshed dashboard renders after the splash transition without errors.

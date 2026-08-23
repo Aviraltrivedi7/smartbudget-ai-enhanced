@@ -19,16 +19,21 @@ interface ApiTransactionRecord extends Omit<ApiTransaction, 'category'> {
   category: string | ApiCategory;
 }
 
+const demoAnchor = new Date();
+const demoDate = (day: number) => new Date(Date.UTC(demoAnchor.getFullYear(), demoAnchor.getMonth(), day)).toISOString().split('T')[0];
+
 const defaultTransactions: LocalTransaction[] = [
-  { id: '1', title: 'Monthly Salary', amount: 75000, category: 'Income', date: '2026-07-01', type: 'income', description: 'Tech Corp Salary' },
-  { id: '2', title: 'House Rent', amount: 18000, category: 'Rent', date: '2026-07-02', type: 'expense', description: 'Apartment Rent' },
-  { id: '3', title: 'Supermarket Groceries', amount: 4500, category: 'Food', date: '2026-07-05', type: 'expense', description: 'Monthly Essentials' },
-  { id: '4', title: 'Electricity & WiFi', amount: 2400, category: 'Utilities', date: '2026-07-08', type: 'expense', description: 'Utilities Payment' },
-  { id: '5', title: 'Freelance Project', amount: 18500, category: 'Income', date: '2026-07-12', type: 'income', description: 'UI Design Consulting' },
-  { id: '6', title: 'Dining Out', amount: 3200, category: 'Food', date: '2026-07-15', type: 'expense', description: 'Weekend Dinner' },
-  { id: '7', title: 'Uber & Transport', amount: 1800, category: 'Travel', date: '2026-07-18', type: 'expense', description: 'Commute' },
-  { id: '8', title: 'Shopping & Apparel', amount: 5100, category: 'Shopping', date: '2026-07-22', type: 'expense', description: 'Summer Wear' },
+  { id: '1', title: 'Monthly Salary', amount: 75000, category: 'Income', date: demoDate(1), type: 'income', description: 'Tech Corp Salary' },
+  { id: '2', title: 'House Rent', amount: 18000, category: 'Rent', date: demoDate(2), type: 'expense', description: 'Apartment Rent' },
+  { id: '3', title: 'Supermarket Groceries', amount: 4500, category: 'Food', date: demoDate(5), type: 'expense', description: 'Monthly Essentials' },
+  { id: '4', title: 'Electricity & WiFi', amount: 2400, category: 'Utilities', date: demoDate(8), type: 'expense', description: 'Utilities Payment' },
+  { id: '5', title: 'Freelance Project', amount: 18500, category: 'Income', date: demoDate(12), type: 'income', description: 'UI Design Consulting' },
+  { id: '6', title: 'Dining Out', amount: 3200, category: 'Food', date: demoDate(15), type: 'expense', description: 'Weekend Dinner' },
+  { id: '7', title: 'Uber & Transport', amount: 1800, category: 'Travel', date: demoDate(18), type: 'expense', description: 'Commute' },
+  { id: '8', title: 'Shopping & Apparel', amount: 5100, category: 'Shopping', date: demoDate(22), type: 'expense', description: 'Summer Wear' },
 ];
+
+const demoSeedTitles = new Set(defaultTransactions.map((transaction) => transaction.title));
 
 const readLocalTransactions = (): LocalTransaction[] => {
   try {
@@ -37,6 +42,8 @@ const readLocalTransactions = (): LocalTransaction[] => {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) {
         const totalAmount = parsed.reduce((sum: number, item: { amount?: number | string }) => sum + (Number(item.amount) || 0), 0);
+        const isLegacyDemoSeed = parsed.length === defaultTransactions.length && parsed.every((item: { title?: string }) => item.title && demoSeedTitles.has(item.title));
+        if (isLegacyDemoSeed) return defaultTransactions;
         if (totalAmount > 0) return parsed as LocalTransaction[];
       }
     }
