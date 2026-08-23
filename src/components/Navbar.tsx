@@ -174,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
 
       <div className={`fixed inset-0 z-[60] overflow-hidden transition-opacity duration-200 ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!isOpen}>
         <div className="absolute inset-0 bg-[#18213a]/35 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-        <aside role="dialog" aria-modal="true" aria-label="SmartBudget navigation" className={`absolute inset-y-0 left-0 flex min-h-0 w-[min(320px,88vw)] flex-col overflow-hidden bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside role="dialog" aria-modal="true" aria-label="SmartBudget navigation" className={`absolute inset-y-0 left-0 flex h-dvh max-h-dvh min-h-0 w-[min(320px,88vw)] flex-col overflow-hidden bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
             <button onClick={() => navigate('dashboard')} className="flex items-center gap-3 text-left">
               <span className="brand-mark"><Wallet className="h-5 w-5" /></span>
@@ -201,10 +201,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
               />
               {searchQuery && <button onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }} aria-label="Clear navigation search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>}
             </div>
-            {!normalizedQuery && <p className="mt-2 px-1 text-[11px] text-white/40">Jump anywhere in your financial workspace.</p>}
+            {!normalizedQuery && <p className="mt-2 px-1 text-[11px] leading-5 text-white/40">Jump anywhere in your financial workspace. <span className="text-white/55">Swipe or scroll to explore.</span></p>}
           </div>
 
-          <div className="drawer-scroll min-h-0 flex-1 overflow-y-scroll overscroll-contain px-5 pb-8 pt-6">
+          <div aria-label="Workspace and tools navigation" tabIndex={0} className="drawer-scroll min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto overscroll-contain px-5 pb-10 pt-6 outline-none [scrollbar-gutter:stable]">
             {!normalizedQuery && recentSearches.length > 0 && <div className="mb-7">
               <div className="mb-3 flex items-center justify-between px-3"><span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50"><History className="h-3.5 w-3.5" /> Recent searches</span><button onClick={() => { setRecentSearches([]); window.localStorage.removeItem(RECENT_SEARCHES_KEY); }} className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/35 transition hover:text-white/70"><Trash2 className="h-3 w-3" /> Clear</button></div>
               <div className="flex flex-wrap gap-2 px-1">{recentSearches.map((recent) => <button key={recent} onClick={() => { setSearchQuery(recent); window.setTimeout(() => searchInputRef.current?.focus(), 0); }} className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 transition hover:border-[#aeb8ed]/50 hover:bg-white/10 hover:text-white">{recent}</button>)}</div>

@@ -35,3 +35,13 @@ The add transaction flow also reset its fields after save, and the AI state clea
 | Clear-search recovery | Pass | Clear search restored quick actions and workspace results in the same drawer. |
 | Bottom utility visibility | Pass | Scrolling the drawer to the bottom showed Notifications, Settings, Dark mode, and the profile/sign-out card. |
 | Responsive interaction | Partial | The drawer and dialogs were tested at the connected desktop viewport; the responsive Tailwind layout remains in place, but no separate mobile viewport driver is available in this session. |
+
+
+## Sidebar scroll fix verification
+
+After the follow-up fix, the fresh preview showed a visible scrollbar on the Command Center’s Workspace and Tools region, plus the helper copy `Swipe or scroll to explore.` The dedicated navigation container scrolled to its end independently while the drawer footer remained fixed and accessible. The footer continued to expose Notifications, Settings, Dark mode, and the Guest user profile/sign-out control.
+
+
+## Follow-up sidebar visibility verification
+
+A fresh live-preview pass confirmed the Command Center opens with the scrollbar visible at the right edge of the Workspace and Tools region. Scrolling down moved the navigation content independently and kept Notifications, Settings, Dark mode, and the Guest user profile/sign-out footer visible in the viewport. The header/search region and footer stay fixed while the middle navigation area scrolls.
