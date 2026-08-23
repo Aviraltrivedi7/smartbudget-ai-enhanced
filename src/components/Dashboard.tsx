@@ -48,13 +48,14 @@ interface DashboardProps {
   transactions?: Transaction[];
   onNavigate?: (view: string) => void;
   onShowWelcomeGuide?: () => void;
+  onOpenBudgetPlanner?: () => void;
 }
 
 const chartColors = ['#5867bb', '#8594d0', '#bf7864', '#8c85bd', '#73809d', '#bdb9d4'];
 
 const currency = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
 
-const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactions, onNavigate, onShowWelcomeGuide }) => {
+const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner }) => {
   const { t, currentLanguage } = useLanguage();
   const { isAuthenticated } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -262,7 +263,7 @@ const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactio
         <div className="relative overflow-hidden rounded-[1.5rem] bg-[#222d4b] p-6 text-white shadow-[0_18px_45px_rgba(16,43,41,0.18)] sm:p-7"><div className="absolute -right-14 -top-14 h-40 w-40 rounded-full border-[22px] border-[#aeb9ee]/10" /><div className="absolute -bottom-20 -left-10 h-44 w-44 rounded-full border-[28px] border-orange-200/10" /><div className="relative z-10"><div className="mb-10 flex items-center justify-between"><div className="rounded-xl bg-white/10 p-2.5"><Sparkles className="h-5 w-5 text-[#dfe4ff]" /></div><span className="rounded-full border border-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/70">AI insight</span></div><p className="text-sm font-medium text-[#dfe4ff]/65">One small shift, big impact</p><h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight">Your next best move is consistency, not restriction.</h3><p className="mt-4 text-sm leading-6 text-white/70">Keep logging for seven days and SmartBudget will surface a clearer pattern in your spending.</p><button onClick={() => onNavigate?.('insights')} className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-[#222d4b] transition hover:-translate-y-0.5">Explore insights <ChevronRight className="h-4 w-4" /></button></div></div>
       </section>
 
-      <section className="dashboard-reveal dashboard-reveal-6"><div className="mb-4 flex items-end justify-between"><div><p className="eyebrow">Shortcuts</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Make progress in a tap</h2></div><p className="hidden text-sm text-slate-500 sm:block">Your most useful money tools, curated.</p></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Shortcut icon={Target} title="Budget planner" description="Set a calmer monthly plan" onClick={() => onNavigate?.('budget-planner')} tone="teal" /><Shortcut icon={Trophy} title="Savings goals" description="Turn intent into milestones" onClick={() => onNavigate?.('savings-goals')} tone="violet" /><Shortcut icon={ScanLine} title="Scan a bill" description="Capture the details instantly" onClick={() => onNavigate?.('bill-scanner')} tone="orange" /><Shortcut icon={Lightbulb} title="AI finance coach" description="Get a smarter next step" onClick={() => onNavigate?.('coach')} tone="blue" /></div></section>
+      <section className="dashboard-reveal dashboard-reveal-6"><div className="mb-4 flex items-end justify-between"><div><p className="eyebrow">Shortcuts</p><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">Make progress in a tap</h2></div><p className="hidden text-sm text-slate-500 sm:block">Your most useful money tools, curated.</p></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Shortcut icon={Target} title="Budget planner" description="Set a calmer monthly plan" onClick={() => onOpenBudgetPlanner ? onOpenBudgetPlanner() : onNavigate?.('budget-planner')} tone="teal" /><Shortcut icon={Trophy} title="Savings goals" description="Turn intent into milestones" onClick={() => onNavigate?.('savings-goals')} tone="violet" /><Shortcut icon={ScanLine} title="Scan a bill" description="Capture the details instantly" onClick={() => onNavigate?.('bill-scanner')} tone="orange" /><Shortcut icon={Lightbulb} title="AI finance coach" description="Get a smarter next step" onClick={() => onNavigate?.('coach')} tone="blue" /></div></section>
     </div>
   );
 });

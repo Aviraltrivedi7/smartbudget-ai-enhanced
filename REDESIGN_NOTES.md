@@ -138,3 +138,8 @@ The main ARTHORA shell now uses one centered max-width grid from the navbar thro
 ## Dashboard motion polish
 
 Added a restrained dashboard entrance sequence with staggered rise-in timing for the hero, metrics, chart region, AI copilot, activity/insight region, and shortcuts. Added subtle ambient drift to the hero orbs, tabular numerals for financial values, and tactile press feedback for shortcut cards. The motion is GPU-friendly and explicitly disabled for users who prefer reduced motion. Live preview loaded successfully with the updated dashboard composition, and targeted ESLint plus production build passed.
+
+
+## Mobile preview and smart planning features
+
+A 390 × 844 mobile viewport capture was performed. The compact ARTHORA header, icon-only add action, rounded hero, and first-run onboarding dialog stayed within the narrow viewport without horizontal overflow. AI Insights now has four expandable smart prompt cards—Spending lens, Savings move, Budget check, and Future view—with direct handoff into the existing transaction-aware coach. A Budget Planner modal was added with income presets, live 50/30/20 allocations, current-spend context, persistence to `arthora_budget_income`, and a full-planner handoff. Reports & Exports remains available for PDF/CSV workflows.

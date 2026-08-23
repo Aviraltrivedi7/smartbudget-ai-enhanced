@@ -33,6 +33,7 @@ interface NavbarProps {
   onOpenAuth?: () => void;
   onOpenTransactionModal?: () => void;
   onOpenCoachOverlay?: () => void;
+  onOpenBudgetPlanner?: () => void;
 }
 
 const primaryItems = [
@@ -51,7 +52,7 @@ const toolItems = [
   { id: 'bill-scanner', label: 'Scan a bill', icon: ScanLine },
 ];
 
-export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenTransactionModal, onOpenCoachOverlay }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenTransactionModal, onOpenCoachOverlay, onOpenBudgetPlanner }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { currentLanguage } = useLanguage();
@@ -137,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
     const Icon = item.icon;
     const active = currentView === item.id;
     return (
-      <button key={item.id} onClick={() => { if (normalizedQuery) recordSearch(normalizedQuery); navigate(item.id); }} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`}>
+      <button key={item.id} onClick={() => { if (item.id === 'budget-planner' && onOpenBudgetPlanner) { onOpenBudgetPlanner(); setIsOpen(false); setSearchQuery(''); return; } if (normalizedQuery) recordSearch(normalizedQuery); navigate(item.id); }} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`}>
         <Icon className="h-[18px] w-[18px]" />
         <span>{isHindi && item.id === 'dashboard' ? 'डैशबोर्ड' : highlightLabel(item.label)}</span>
         {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#aeb8ed]" />}

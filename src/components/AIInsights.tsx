@@ -4,18 +4,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Brain, TrendingUp, TrendingDown, AlertTriangle, Target, Lightbulb, Languages } from 'lucide-react';
+import { ArrowLeft, Brain, TrendingUp, TrendingDown, AlertTriangle, Target, Lightbulb, Languages, ChevronRight, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from "@/hooks/use-toast";
 import { getCategoryTranslation } from '@/utils/languages';
 
 interface AIInsightsProps {
   onBack: () => void;
+  onOpenCoach?: (prompt: string) => void;
 }
 
-const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
+interface InsightTransaction {
+  type: 'income' | 'expense';
+  amount: number | string;
+  category: string;
+}
+
+const AIInsights: React.FC<AIInsightsProps> = ({ onBack, onOpenCoach }) => {
   const { t, currentLanguage, setLanguage } = useLanguage();
   const { toast } = useToast();
+  const [activePrompt, setActivePrompt] = React.useState<number | null>(null);
 
   const toggleLanguage = () => {
     setLanguage(currentLanguage === 'hi' ? 'en' : 'hi');
@@ -27,21 +35,21 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
 
   // Sample AI insights data - in a real app this would come from your AI API
   // Calculate real insights from transactions
-  const transactions = JSON.parse(localStorage.getItem('pocket_pal_transactions') || '[]');
-  const expenses = transactions.filter((t: any) => t.type === 'expense');
-  const income = transactions.filter((t: any) => t.type === 'income');
+  const transactions: InsightTransaction[] = JSON.parse(localStorage.getItem('pocket_pal_transactions') || '[]');
+  const expenses = transactions.filter((transaction) => transaction.type === 'expense');
+  const income = transactions.filter((transaction) => transaction.type === 'income');
 
-  const totalExpenses = expenses.reduce((sum: number, t: any) => sum + Number(t.amount), 0);
-  const totalIncome = income.reduce((sum: number, t: any) => sum + Number(t.amount), 0);
+  const totalExpenses = expenses.reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+  const totalIncome = income.reduce((sum, transaction) => sum + Number(transaction.amount), 0);
   const savingsRate = totalIncome > 0 ? ((totalIncome - totalExpenses) / totalIncome) * 100 : 0;
 
-  const categoryTotals = expenses.reduce((acc: any, t: any) => {
-    acc[t.category] = (acc[t.category] || 0) + Number(t.amount);
+  const categoryTotals = expenses.reduce<Record<string, number>>((acc, transaction) => {
+    acc[transaction.category] = (acc[transaction.category] || 0) + Number(transaction.amount);
     return acc;
   }, {});
 
   const topCategories = Object.entries(categoryTotals)
-    .map(([name, amount]: [string, any]) => ({
+    .map(([name, amount]) => ({
       name,
       amount,
       percentage: totalExpenses > 0 ? Math.round((amount / totalExpenses) * 100) : 0
@@ -95,6 +103,33 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
     ]
   };
 
+  const smartPrompts = [
+    {
+      label: 'Spending lens',
+      title: 'Find my biggest spending lever',
+      prompt: 'Where am I spending the most, and what is one realistic change I can make this week?',
+      insight: `ARTHORA will compare your ${spendingCategoryTranslated.toLowerCase()} activity with your overall spend and suggest a low-friction next step.`,
+    },
+    {
+      label: 'Savings move',
+      title: 'Build a realistic savings target',
+      prompt: 'How much can I realistically save next month without feeling restricted?',
+      insight: `Your current savings rate is ${Math.max(0, savingsRate).toFixed(1)}%. The coach can turn that into a clear rupee target and weekly checkpoints.`,
+    },
+    {
+      label: 'Budget check',
+      title: 'Give me a 7-day budget reset',
+      prompt: 'Create a simple seven-day spending reset based on my recent transactions.',
+      insight: 'The coach will focus on one category, one guardrail, and one small habit instead of overwhelming you with rules.',
+    },
+    {
+      label: 'Future view',
+      title: 'Plan for my next big expense',
+      prompt: 'Help me prepare for my next large expense without breaking my monthly plan.',
+      insight: 'ARTHORA can map the expense against your current cash flow and suggest a calmer timeline.',
+    },
+  ];
+
   const getIconForSuggestionType = (type: string) => {
     switch (type) {
       case 'warning':
@@ -109,8 +144,8 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#f8f7f4] p-4">
+      <div className="mx-auto max-w-7xl space-y-6 px-0 sm:px-2 lg:px-4">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
@@ -244,6 +279,32 @@ const AIInsights: React.FC<AIInsightsProps> = ({ onBack }) => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Interactive Smart Prompts */}
+        <section className="premium-card border-0 p-0 shadow-none">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="eyebrow">Ask smarter</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Turn an insight into a next move.</h2>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">Choose a prompt to unpack your money pattern, then send it straight to the transaction-aware coach.</p>
+            </div>
+            {onOpenCoach && <Button type="button" onClick={() => onOpenCoach('Give me a calm, actionable summary of my current spending.')} className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#222d4b] font-bold text-white hover:bg-[#3e4c91]"><MessageCircle className="h-4 w-4" /> Open coach</Button>}
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {smartPrompts.map((item, index) => {
+              const isActive = activePrompt === index;
+              return (
+                <div key={item.label} className={`rounded-2xl border bg-white p-4 text-left transition duration-200 ${isActive ? 'border-[#aeb8ed] shadow-[0_14px_30px_rgba(34,45,75,0.1)]' : 'border-[#e7e8ee] hover:-translate-y-0.5 hover:border-[#cbd2f0] hover:shadow-[0_10px_24px_rgba(34,45,75,0.06)]'}`}>
+                  <button type="button" onClick={() => setActivePrompt(isActive ? null : index)} className="w-full text-left">
+                    <div className="flex items-start justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#5867bb]">{item.label}</p><h3 className="mt-2 text-sm font-bold text-slate-800">{item.title}</h3></div><ChevronRight className={`mt-1 h-4 w-4 shrink-0 text-slate-300 transition-transform ${isActive ? 'rotate-90 text-[#5867bb]' : ''}`} /></div>
+                    <p className="mt-2 text-xs leading-5 text-slate-500">{item.prompt}</p>
+                  </button>
+                  {isActive && <div className="mt-4 border-t border-slate-100 pt-3"><p className="text-xs leading-5 text-slate-500">{item.insight}</p>{onOpenCoach && <Button type="button" variant="outline" onClick={() => onOpenCoach(item.prompt)} className="mt-3 h-9 rounded-lg border-[#dfe4ff] px-3 text-xs font-bold text-[#5867bb] hover:bg-[#eef0fb]">Ask ARTHORA <ArrowLeft className="ml-1 h-3.5 w-3.5 rotate-180" /></Button>}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         {/* Spending Patterns */}
         <Card className="border-0 card-shadow">

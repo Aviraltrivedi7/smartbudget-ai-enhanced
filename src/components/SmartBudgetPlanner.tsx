@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,15 @@ import { ArrowLeft, Target, AlertTriangle, CheckCircle, TrendingUp, PieChart, Br
 import { cn } from "@/lib/utils";
 import { useLanguage } from '@/contexts/LanguageContext';
 
+interface PlannerTransaction {
+  type: 'income' | 'expense';
+  amount: number | string;
+  category: string;
+}
+
 interface SmartBudgetPlannerProps {
   onBack: () => void;
-  transactions: any[];
+  transactions: PlannerTransaction[];
 }
 
 interface BudgetCategory {
@@ -24,35 +30,22 @@ interface BudgetCategory {
   icon: string;
 }
 
+const defaultBudgetRules = [
+  { name: 'Rent', percentage: 30, color: 'bg-blue-500', icon: '🏠' },
+  { name: 'Food', percentage: 20, color: 'bg-green-500', icon: '🍽️' },
+  { name: 'Travel', percentage: 10, color: 'bg-yellow-500', icon: '🚗' },
+  { name: 'Entertainment', percentage: 10, color: 'bg-purple-500', icon: '🎬' },
+  { name: 'Shopping', percentage: 10, color: 'bg-pink-500', icon: '🛍️' },
+  { name: 'Savings', percentage: 20, color: 'bg-emerald-500', icon: '💰' },
+];
+
 const SmartBudgetPlanner: React.FC<SmartBudgetPlannerProps> = ({ onBack, transactions = [] }) => {
   const { t } = useLanguage();
   const [monthlyIncome, setMonthlyIncome] = useState('');
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
 
-  // We define labels here but use keys for dynamic mapping if needed, 
-  // but for simplicity we rely on the logic that category names might match translation keys or just be English defaults.
-  // The 'name' here is used for logic. Display name should be translated.
-  const defaultBudgetRules = [
-    { name: 'Rent', percentage: 30, color: 'bg-blue-500', icon: '🏠' },
-    { name: 'Food', percentage: 20, color: 'bg-green-500', icon: '🍽️' },
-    { name: 'Travel', percentage: 10, color: 'bg-yellow-500', icon: '🚗' },
-    { name: 'Entertainment', percentage: 10, color: 'bg-purple-500', icon: '🎬' },
-    { name: 'Shopping', percentage: 10, color: 'bg-pink-500', icon: '🛍️' },
-    { name: 'Savings', percentage: 20, color: 'bg-emerald-500', icon: '💰' }
-  ];
-
-  useEffect(() => {
-    const totalIncome = (transactions || [])
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + Number(t.amount), 0);
-
-    const initialIncome = totalIncome > 0 ? totalIncome : 50000;
-    setMonthlyIncome(initialIncome.toString());
-    generateBudgetPlan(initialIncome);
-  }, [transactions]);
-
-  const generateBudgetPlan = (income: number) => {
+  const generateBudgetPlan = useCallback((income: number) => {
     // Calculate current spending by category
     const currentSpending = (transactions || [])
       .filter(t => t.type === 'expense')
@@ -77,8 +70,18 @@ const SmartBudgetPlanner: React.FC<SmartBudgetPlannerProps> = ({ onBack, transac
 
     setBudgetCategories(budget);
     setShowRecommendations(true);
-  };
+  }, [transactions]);
 
+  useEffect(() => {
+    const totalIncome = (transactions || [])
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + Number(t.amount), 0);
+
+    const savedIncome = Number(localStorage.getItem('arthora_budget_income') || 0);
+    const initialIncome = savedIncome > 0 ? savedIncome : totalIncome > 0 ? totalIncome : 50000;
+    setMonthlyIncome(initialIncome.toString());
+    generateBudgetPlan(initialIncome);
+  }, [generateBudgetPlan, transactions]);
   const getBudgetStatus = (category: BudgetCategory) => {
     const usagePercentage = category.allocated > 0 ? (category.spent / category.allocated) * 100 : 0;
 

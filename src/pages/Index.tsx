@@ -10,6 +10,7 @@ import AIFinanceCoach from '@/components/AIFinanceCoach';
 import CoachPromptDialog from '@/components/CoachPromptDialog';
 import SavingsGoals from '@/components/SavingsGoals';
 import SmartBudgetPlanner from '@/components/SmartBudgetPlanner';
+import BudgetPlannerDialog from '@/components/BudgetPlannerDialog';
 import FinancialVisualizer from '@/components/FinancialVisualizer';
 import AIInsights from '@/components/AIInsights';
 import BillReminder from '@/components/BillReminder';
@@ -56,6 +57,7 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCoachPromptOpen, setIsCoachPromptOpen] = useState(false);
+  const [isBudgetPlannerOpen, setIsBudgetPlannerOpen] = useState(false);
   const [coachInitialPrompt, setCoachInitialPrompt] = useState('');
 
   const handleAddTransaction = (newTransaction: {
@@ -104,6 +106,10 @@ const Index = () => {
         return (
           <AIInsights
             onBack={() => setCurrentView('dashboard')}
+            onOpenCoach={(prompt) => {
+              setCoachInitialPrompt(prompt);
+              setCurrentView('coach');
+            }}
           />
         );
       case 'coach':
@@ -250,6 +256,7 @@ const Index = () => {
             transactions={transactions}
             onNavigate={setCurrentView}
             onShowWelcomeGuide={() => setShowWelcomeGuide(true)}
+            onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
           />
         );
     }
@@ -263,6 +270,7 @@ const Index = () => {
           onNavigate={setCurrentView}
           onOpenTransactionModal={() => setIsTransactionModalOpen(true)}
           onOpenCoachOverlay={() => setIsCoachPromptOpen(true)}
+          onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
         />
         <div className="min-h-screen">
           <main className="pb-24 lg:pb-12">
@@ -279,6 +287,16 @@ const Index = () => {
           open={isTransactionModalOpen}
           onOpenChange={setIsTransactionModalOpen}
           onSave={handleAddTransaction}
+        />
+        <BudgetPlannerDialog
+          open={isBudgetPlannerOpen}
+          onOpenChange={setIsBudgetPlannerOpen}
+          transactions={transactions}
+          onConfirmIncome={(income) => localStorage.setItem('arthora_budget_income', String(income))}
+          onOpenFullPlanner={() => {
+            setIsBudgetPlannerOpen(false);
+            setCurrentView('budget-planner');
+          }}
         />
         <CoachPromptDialog
           open={isCoachPromptOpen}
@@ -299,8 +317,9 @@ const DashboardWithNavigation: React.FC<{
   transactions: Transaction[];
   onNavigate: (view: ViewType) => void;
   onShowWelcomeGuide: () => void;
-}> = ({ transactions, onNavigate, onShowWelcomeGuide }) => {
-  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} />;
+  onOpenBudgetPlanner: () => void;
+}> = ({ transactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner }) => {
+  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} onOpenBudgetPlanner={onOpenBudgetPlanner} />;
 };
 
 export default Index;
