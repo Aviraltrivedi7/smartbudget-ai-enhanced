@@ -121,3 +121,10 @@ The Command Center drawer’s middle Workspace and Tools region now has explicit
 ## Compact utility footer follow-up
 
 The fixed Command Center footer was tightened so Notifications, Settings, Dark mode, and the Guest user profile fit together cleanly in shorter viewports. Utility rows now use smaller icons, tighter padding, compact text, and reduced gaps; the profile card uses a smaller avatar, padding, and separator spacing. Fresh live-preview verification confirmed all four controls remain visible together while the Workspace and Tools list stays independently scrollable.
+
+
+## ARTHORA AI brand identity
+
+The product identity is now **ARTHORA AI — Intelligent Finance Companion**. ARTHORA is positioned as a calm, intelligent wealth-building layer rather than a generic budget tracker. A custom symbol combining a navy crescent, cobalt upward financial arrow, lavender inner bar, and restrained champagne spark was generated, cleaned to true transparency, and integrated into the navbar, Command Center, splash screen, authentication modal, favicon, and mobile touch icon. The wordmark is rendered as uppercase `ARTHORA AI` on the splash and auth surfaces, with the existing finance companion tagline retained.
+
+The branded app metadata and browser title were updated to `ARTHORA AI - Intelligent Finance Companion`. The final shipped asset is `public/arthora-logo.png`.

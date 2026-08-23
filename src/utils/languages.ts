@@ -158,7 +158,7 @@ export const translations = {
 
     // Splash Screen
     welcome: "Welcome to",
-    smartBudgetAI: "SmartBudget AI",
+    smartBudgetAI: "ARTHORA AI",
     yourPersonalFinanceAssistant: "Your Personal Finance Assistant",
     getStarted: "Get Started",
 
@@ -354,7 +354,7 @@ export const translations = {
 
     // Splash Screen
     welcome: "आपका स्वागत है",
-    smartBudgetAI: "स्मार्टबजट AI",
+    smartBudgetAI: "ARTHORA AI",
     yourPersonalFinanceAssistant: "आपका व्यक्तिगत वित्त सहायक",
     getStarted: "शुरू करें",
 

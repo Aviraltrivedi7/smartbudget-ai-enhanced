@@ -24,7 +24,6 @@ import {
   Sun,
   Target,
   Trophy,
-  Wallet,
   X,
 } from 'lucide-react';
 
@@ -159,9 +158,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
             <MoreHorizontal className="h-5 w-5 transition group-hover:scale-110" />
           </button>
           <button onClick={() => navigate('dashboard')} className="flex items-center gap-2.5 text-left">
-            <span className="brand-mark"><Wallet className="h-5 w-5" /></span>
+            <span className="brand-mark"><img src="/arthora-logo.png" alt="Arthora logo" className="h-7 w-7 object-contain" /></span>
             <span>
-              <span className="block text-[16px] font-semibold tracking-[-0.03em] text-[#222d4b]">SmartBudget<span className="text-[#5867bb]">.</span></span>
+              <span className="block text-[16px] font-semibold tracking-[-0.03em] text-[#222d4b]">ARTHORA<span className="text-[#5867bb]">.</span></span>
               <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:block">Financial intelligence</span>
             </span>
           </button>
@@ -174,11 +173,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
 
       <div className={`fixed inset-0 z-[60] overflow-hidden transition-opacity duration-200 ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!isOpen}>
         <div className="absolute inset-0 bg-[#18213a]/35 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-        <aside role="dialog" aria-modal="true" aria-label="SmartBudget navigation" className={`absolute inset-y-0 left-0 flex h-dvh max-h-dvh min-h-0 w-[min(320px,88vw)] flex-col overflow-hidden bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <aside role="dialog" aria-modal="true" aria-label="Arthora navigation" className={`absolute inset-y-0 left-0 flex h-dvh max-h-dvh min-h-0 w-[min(320px,88vw)] flex-col overflow-hidden bg-[#222d4b] text-white shadow-[18px_0_55px_rgba(24,33,58,0.22)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5">
             <button onClick={() => navigate('dashboard')} className="flex items-center gap-3 text-left">
-              <span className="brand-mark"><Wallet className="h-5 w-5" /></span>
-              <span><span className="block text-[17px] font-semibold tracking-[-0.03em]">SmartBudget<span className="text-[#dfe4ff]">.</span></span><span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">Financial intelligence</span></span>
+              <span className="brand-mark"><img src="/arthora-logo.png" alt="Arthora logo" className="h-7 w-7 object-contain" /></span>
+              <span><span className="block text-[17px] font-semibold tracking-[-0.03em]">ARTHORA<span className="text-[#dfe4ff]">.</span></span><span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">Financial intelligence</span></span>
             </button>
             <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
           </div>

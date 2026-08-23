@@ -18,8 +18,8 @@ const WelcomeGuide: React.FC<WelcomeGuideProps> = ({ isOpen, onClose, onFeatureS
   const steps = [
     {
       title: {
-        en: "Welcome to SmartBudget AI!",
-        hi: "स्मार्टबजट AI में आपका स्वागत है!"
+        en: "Welcome to ARTHORA AI!",
+        hi: "ARTHORA AI में आपका स्वागत है!"
       },
       description: {
         en: "Your intelligent financial companion is here to help you manage money better",

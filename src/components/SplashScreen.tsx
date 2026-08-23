@@ -69,11 +69,11 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         </div>
 
         {/* Enhanced Logo */}
-        <div className="relative z-10 bg-[#dfe4ff]/15 backdrop-blur-md p-10 rounded-full shadow-2xl animate-bounce-slow border border-[#dfe4ff]/20">
-          <div className="relative">
-            <Wallet className="w-24 h-24 text-white drop-shadow-lg" strokeWidth={1.5} />
-            <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#c2a86a] rounded-full animate-pulse flex items-center justify-center">
-              <Sparkles className="w-3 h-3 text-white" />
+        <div className="relative z-10 flex h-48 w-48 items-center justify-center rounded-full border border-[#dfe4ff]/20 bg-[#dfe4ff]/15 p-7 shadow-2xl backdrop-blur-md animate-bounce-slow">
+          <div className="relative flex h-full w-full items-center justify-center rounded-full bg-[#dfe4ff]/10 p-3">
+            <img src="/arthora-logo.png" alt="Arthora logo" className="h-full w-full object-contain drop-shadow-lg" />
+            <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#e7dcae] shadow-lg">
+              <Sparkles className="h-3.5 w-3.5 text-[#222d4b]" />
             </div>
           </div>
         </div>
@@ -81,14 +81,11 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
 
       {/* App Name with enhanced styling */}
       <div className="mt-10 text-center space-y-4">
-        <h1 className="text-5xl font-black text-white drop-shadow-lg animate-fade-in">
+        <h1 className="text-5xl font-black uppercase tracking-[0.02em] text-white drop-shadow-lg animate-fade-in">
           <span className="bg-gradient-to-r from-white to-[#dfe4ff] bg-clip-text text-transparent">
-            Smart
+            ARTHORA
           </span>
-          <span className="bg-gradient-to-r from-[#e7dcae] to-[#dfe4ff] bg-clip-text text-transparent">
-            Budget
-          </span>
-          <span className="bg-gradient-to-r from-[#dfe4ff] to-white bg-clip-text text-transparent">
+          <span className="ml-3 bg-gradient-to-r from-[#dfe4ff] to-white bg-clip-text text-transparent">
             AI
           </span>
         </h1>
