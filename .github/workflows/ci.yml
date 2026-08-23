@@ -63,6 +63,10 @@ jobs:
           node --check backend/backend/scripts/smoke-test.js
           node --check backend/backend/test-server.js
 
+      - name: Run Jest integration tests
+        working-directory: backend/backend
+        run: npm test -- --coverage=false
+
       - name: Start backend in demo mode
         working-directory: backend/backend
         run: |
@@ -88,6 +92,28 @@ jobs:
       - name: Print backend log on failure
         if: failure()
         run: cat /tmp/dhansetu-backend.log
+
+  docker:
+    name: Docker images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      JWT_SECRET: ci-jwt-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      FRONTEND_URL: http://localhost:8080
+      PRODUCTION_URL: http://localhost:8080
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+
+      - name: Build production backend image
+        run: docker build --file backend/backend/Dockerfile --tag dhansetu-backend:ci ./backend/backend
+
+      - name: Build production frontend image
+        run: docker build --file Dockerfile --tag dhansetu-frontend:ci --build-arg VITE_API_URL=/api --build-arg VITE_SOCKET_URL= .
 
   repository:
     name: Repository checks

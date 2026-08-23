@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
+import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 import { Server as SocketIOServer } from 'socket.io';
 
 // Import routes
@@ -221,6 +223,11 @@ const startServer = async () => {
   });
 };
 
-startServer().catch(console.error);
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 
+if (isMainModule) {
+  startServer().catch(console.error);
+}
+
+export { app, server, startServer, connectDB };
 export default app;

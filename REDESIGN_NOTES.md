@@ -148,3 +148,14 @@ A 390 × 844 mobile viewport capture was performed. The compact DhanSetu header,
 ## DhanSetu AI rebrand verification
 
 The temporary Vite preview was opened successfully after the rebrand. The browser title rendered as `DhanSetu AI - Aapke Paiso Ka Smart Saathi`; the splash showed the new bridge-and-rupee mark, `DHANSETU AI`, and the bilingual-friendly tagline; the dashboard header showed the DhanSetu logo, wordmark, and `Aapke paiso ka smart saathi`; and the Command Center drawer repeated the same mark and identity while retaining its independent scrolling footer. The served `/dhansetu-logo.png` asset returned HTTP 200 and was verified locally as a 1920×1920 RGBA PNG.
+
+
+## Landing page verification
+
+The new public marketing route `/landing` was checked in the temporary preview after the splash transition. It rendered the DhanSetu AI logo and wordmark, top navigation, bridge-to-goals hero copy, rupee dashboard preview card, Why DhanSetu section, three feature cards, workflow steps, CTA, and footer. The layout remained within the viewport at the captured desktop size and exposed the expected CTA/navigation labels.
+
+
+The landing route remained stable after a refreshed browser snapshot, with the `Open workspace` CTA present alongside the hero and navigation. The first CTA click used a stale browser element index and was not executed; no application issue was observed in the refreshed state.
+
+
+The refreshed landing-page `Open workspace` CTA successfully navigated to `/`. The existing DhanSetu dashboard then rendered with its navbar, Command Center trigger, hero, transaction summary, AI Copilot, and shortcuts intact, confirming the landing route does not regress the dashboard entry point.

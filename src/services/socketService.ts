@@ -10,7 +10,7 @@ class SocketService {
     if (this.socket?.connected) return;
 
     const token = getAuthToken();
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
     this.socket = io(socketUrl, {
       auth: {

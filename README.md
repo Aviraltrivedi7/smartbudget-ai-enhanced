@@ -80,7 +80,23 @@ From the repository root:
 npm run dev
 ```
 
-Open `http://localhost:5173` in a browser. The app can be explored in guest/offline mode, or users can register and sign in through the Express backend.
+Open `http://localhost:5173` in a browser for the finance workspace, or visit `http://localhost:5173/landing` for the public DhanSetu AI marketing page. The app can be explored in guest/offline mode, or users can register and sign in through the Express backend.
+
+## Production Docker deployment
+
+The repository ships a multi-stage frontend [`Dockerfile`](Dockerfile), a production backend [`backend/backend/Dockerfile`](backend/backend/Dockerfile), an Nginx reverse-proxy configuration, and [`docker-compose.yml`](docker-compose.yml). The frontend container serves the Vite build and proxies `/api` plus `/socket.io` to the backend container. The backend container runs as a non-root user and exposes a healthcheck on `/health`.
+
+Set the required production values in the deployment environment before starting the stack:
+
+```bash
+export JWT_SECRET='replace-with-a-long-random-secret'
+export JWT_REFRESH_SECRET='replace-with-a-different-long-random-secret'
+export FRONTEND_URL='https://app.example.com'
+export PRODUCTION_URL='https://app.example.com'
+docker compose up --build -d
+```
+
+The default Compose stack starts MongoDB with a named `mongo-data` volume. For a managed MongoDB deployment, override `MONGODB_URI` with a secure `mongodb+srv://...` connection string. The frontend is available on port `8080` by default and the backend health endpoint is available on port `5000`. Override `FRONTEND_PORT`, `BACKEND_PORT`, `DB_NAME`, and provider environment variables through your deployment secret manager. Do not commit a production `.env` file.
 
 ## Verification commands
 
