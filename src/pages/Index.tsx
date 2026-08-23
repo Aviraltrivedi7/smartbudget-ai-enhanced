@@ -5,7 +5,9 @@ import { useTransactions } from '@/hooks/useTransactions';
 import AuthModal from '@/components/AuthModal';
 import Dashboard from '@/components/Dashboard';
 import AddExpense from '@/components/AddExpense';
+import AddTransactionDialog from '@/components/AddTransactionDialog';
 import AIFinanceCoach from '@/components/AIFinanceCoach';
+import CoachPromptDialog from '@/components/CoachPromptDialog';
 import SavingsGoals from '@/components/SavingsGoals';
 import SmartBudgetPlanner from '@/components/SmartBudgetPlanner';
 import FinancialVisualizer from '@/components/FinancialVisualizer';
@@ -52,6 +54,9 @@ const Index = () => {
     return !localStorage.getItem('hasSeenWelcomeGuide');
   });
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isCoachPromptOpen, setIsCoachPromptOpen] = useState(false);
+  const [coachInitialPrompt, setCoachInitialPrompt] = useState('');
 
   const handleAddTransaction = (newTransaction: {
     title: string;
@@ -104,8 +109,10 @@ const Index = () => {
       case 'coach':
         return (
           <AIFinanceCoach
-            onBack={() => setCurrentView('dashboard')}
+            key={coachInitialPrompt || 'coach'}
+            onBack={() => { setCoachInitialPrompt(''); setCurrentView('dashboard'); }}
             transactions={transactions}
+            initialPrompt={coachInitialPrompt}
           />
         );
       case 'budget-planner':
@@ -254,6 +261,8 @@ const Index = () => {
         <Navbar
           currentView={currentView}
           onNavigate={setCurrentView}
+          onOpenTransactionModal={() => setIsTransactionModalOpen(true)}
+          onOpenCoachOverlay={() => setIsCoachPromptOpen(true)}
         />
         <div className="min-h-screen">
           <main className="pb-24 lg:pb-12">
@@ -265,6 +274,20 @@ const Index = () => {
           isOpen={showWelcomeGuide}
           onClose={handleWelcomeGuideClose}
           onFeatureSelect={handleFeatureSelect}
+        />
+        <AddTransactionDialog
+          open={isTransactionModalOpen}
+          onOpenChange={setIsTransactionModalOpen}
+          onSave={handleAddTransaction}
+        />
+        <CoachPromptDialog
+          open={isCoachPromptOpen}
+          onOpenChange={setIsCoachPromptOpen}
+          onSubmitPrompt={(prompt) => {
+            setCoachInitialPrompt(prompt);
+            setIsCoachPromptOpen(false);
+            setCurrentView('coach');
+          }}
         />
       </div>
     </ThemeProvider>

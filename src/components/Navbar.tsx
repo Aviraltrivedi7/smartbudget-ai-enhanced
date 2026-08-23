@@ -14,6 +14,8 @@ import {
   Search,
   Command,
   ArrowUpRight,
+  History,
+  Trash2,
   Moon,
   Plus,
   ScanLine,
@@ -30,6 +32,8 @@ interface NavbarProps {
   currentView: string;
   onNavigate: (view: string) => void;
   onOpenAuth?: () => void;
+  onOpenTransactionModal?: () => void;
+  onOpenCoachOverlay?: () => void;
 }
 
 const primaryItems = [
@@ -39,6 +43,8 @@ const primaryItems = [
   { id: 'calendar-tracker', label: 'Transactions', icon: CalendarDays },
 ];
 
+const RECENT_SEARCHES_KEY = 'smartbudget_recent_searches';
+
 const toolItems = [
   { id: 'budget-planner', label: 'Budget planner', icon: Target },
   { id: 'savings-goals', label: 'Savings goals', icon: Trophy },
@@ -46,13 +52,22 @@ const toolItems = [
   { id: 'bill-scanner', label: 'Scan a bill', icon: ScanLine },
 ];
 
-export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenTransactionModal, onOpenCoachOverlay }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { currentLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = window.localStorage.getItem(RECENT_SEARCHES_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const isHindi = currentLanguage === 'hi';
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isHindi ? 'उपयोगकर्ता' : 'Guest user');
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -60,9 +75,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
   const filteredPrimaryItems = useMemo(() => primaryItems.filter((item) => `${item.label} ${item.id}`.toLowerCase().includes(normalizedQuery)), [normalizedQuery]);
   const filteredToolItems = useMemo(() => toolItems.filter((item) => `${item.label} ${item.id}`.toLowerCase().includes(normalizedQuery)), [normalizedQuery]);
   const utilityMatches = {
-    notifications: !normalizedQuery || 'notifications notification alerts'.includes(normalizedQuery),
-    settings: !normalizedQuery || 'settings preferences'.includes(normalizedQuery),
-    theme: !normalizedQuery || 'dark mode light mode appearance theme'.includes(normalizedQuery),
+    notifications: !normalizedQuery || ['notifications', 'notification', 'alerts'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
+    settings: !normalizedQuery || ['settings', 'preferences'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
+    theme: !normalizedQuery || ['dark mode', 'light mode', 'appearance', 'theme'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
   };
   const hasResults = filteredPrimaryItems.length > 0 || filteredToolItems.length > 0 || Object.values(utilityMatches).some(Boolean);
   const quickActions = [
@@ -70,10 +85,29 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
     { id: 'coach', label: 'Ask AI coach', description: 'Get a smarter next step', icon: Sparkles },
   ];
 
+  const recordSearch = (value: string) => {
+    const nextValue = value.trim();
+    if (!nextValue) return;
+    setRecentSearches((current) => {
+      const next = [nextValue, ...current.filter((item) => item.toLowerCase() !== nextValue.toLowerCase())].slice(0, 5);
+      window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const navigate = (view: string) => {
     onNavigate(view);
     setIsOpen(false);
     setSearchQuery('');
+  };
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter' || !normalizedQuery) return;
+    const firstMatch = [...filteredPrimaryItems, ...filteredToolItems][0];
+    if (firstMatch) {
+      recordSearch(normalizedQuery);
+      navigate(firstMatch.id);
+    }
   };
 
   useEffect(() => {
@@ -104,7 +138,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
     const Icon = item.icon;
     const active = currentView === item.id;
     return (
-      <button key={item.id} onClick={() => navigate(item.id)} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`}>
+      <button key={item.id} onClick={() => { if (normalizedQuery) recordSearch(normalizedQuery); navigate(item.id); }} className={`sidebar-link ${active ? 'sidebar-link-active' : ''}`}>
         <Icon className="h-[18px] w-[18px]" />
         <span>{isHindi && item.id === 'dashboard' ? 'डैशबोर्ड' : highlightLabel(item.label)}</span>
         {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#aeb8ed]" />}
@@ -134,7 +168,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="hidden items-center gap-2 rounded-full bg-[#eef0eb] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[#667080] md:flex"><span className="h-1.5 w-1.5 rounded-full bg-[#5867bb]" />Workspace ready</span>
-          <button onClick={() => navigate('add-expense')} className="inline-flex items-center gap-2 rounded-xl bg-[#222d4b] px-3.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(34,45,75,0.16)] transition hover:-translate-y-0.5 hover:bg-[#3e4c91]"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Add transaction</span></button>
+          <button onClick={() => onOpenTransactionModal ? onOpenTransactionModal() : navigate('add-expense')} className="inline-flex items-center gap-2 rounded-xl bg-[#222d4b] px-3.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(34,45,75,0.16)] transition hover:-translate-y-0.5 hover:bg-[#3e4c91]"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Add transaction</span></button>
         </div>
       </header>
 
@@ -159,6 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
                 ref={searchInputRef}
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search anything..."
                 aria-label="Search navigation"
                 autoComplete="off"
@@ -170,10 +205,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
           </div>
 
           <div className="drawer-scroll min-h-0 flex-1 overflow-y-scroll overscroll-contain px-5 pb-8 pt-6">
+            {!normalizedQuery && recentSearches.length > 0 && <div className="mb-7">
+              <div className="mb-3 flex items-center justify-between px-3"><span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50"><History className="h-3.5 w-3.5" /> Recent searches</span><button onClick={() => { setRecentSearches([]); window.localStorage.removeItem(RECENT_SEARCHES_KEY); }} className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/35 transition hover:text-white/70"><Trash2 className="h-3 w-3" /> Clear</button></div>
+              <div className="flex flex-wrap gap-2 px-1">{recentSearches.map((recent) => <button key={recent} onClick={() => { setSearchQuery(recent); window.setTimeout(() => searchInputRef.current?.focus(), 0); }} className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 transition hover:border-[#aeb8ed]/50 hover:bg-white/10 hover:text-white">{recent}</button>)}</div>
+            </div>}
             {!normalizedQuery && <div className="mb-7">
               <div className="mb-3 flex items-center justify-between px-3"><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Quick actions</span><span className="text-[10px] text-white/35">Suggested</span></div>
               <div className="space-y-2">
-                {quickActions.map((action) => { const Icon = action.icon; return <button key={action.id} onClick={() => navigate(action.id)} className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-[#aeb8ed]/50 hover:bg-white/10"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#aeb8ed]/15 text-[#dfe4ff]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-white/90">{action.label}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{action.description}</span></span><ArrowUpRight className="h-4 w-4 text-white/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#dfe4ff]" /></button>; })}
+                {quickActions.map((action) => { const Icon = action.icon; return <button key={action.id} onClick={() => { if (action.id === 'add-expense' && onOpenTransactionModal) { onOpenTransactionModal(); setIsOpen(false); setSearchQuery(''); return; } if (action.id === 'coach' && onOpenCoachOverlay) { onOpenCoachOverlay(); setIsOpen(false); setSearchQuery(''); return; } navigate(action.id); }} className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-[#aeb8ed]/50 hover:bg-white/10"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#aeb8ed]/15 text-[#dfe4ff]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-white/90">{action.label}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{action.description}</span></span><ArrowUpRight className="h-4 w-4 text-white/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#dfe4ff]" /></button>; })}
               </div>
             </div>}
             {filteredPrimaryItems.length > 0 && <><div className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Workspace</div><nav className="space-y-1">{filteredPrimaryItems.map(renderItem)}</nav></>}

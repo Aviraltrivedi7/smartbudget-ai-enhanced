@@ -5,18 +5,20 @@ import { cn } from '@/lib/utils';
 import { apiRequest } from '@/lib/api';
 
 interface Transaction { id: string; title: string; amount: number; category: string; date: string; type: 'income' | 'expense'; }
-interface AIFinanceCoachProps { onBack: () => void; transactions: Transaction[]; }
+interface AIFinanceCoachProps { onBack: () => void; transactions: Transaction[]; initialPrompt?: string; }
 interface Message { id: string; type: 'user' | 'ai'; content: string; timestamp: Date; suggestions?: string[]; }
 
 const money = (value: number) => `₹${Math.round(value).toLocaleString('en-IN')}`;
 
-const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions }) => {
+const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions, initialPrompt = '' }) => {
   const [language, setLanguage] = useState<'en' | 'hi'>('en');
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [providerStatus, setProviderStatus] = useState<'external' | 'local'>('local');
   const [messages, setMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialPromptRef = useRef('');
+  const sendMessageRef = useRef<(value?: string) => void>(() => undefined);
 
   const summary = useMemo(() => {
     const expenses = transactions.filter((item) => item.type === 'expense');
@@ -96,6 +98,15 @@ const AIFinanceCoach: React.FC<AIFinanceCoachProps> = ({ onBack, transactions })
       setIsTyping(false);
     }, 450);
   };
+
+  sendMessageRef.current = sendMessage;
+
+  useEffect(() => {
+    if (initialPrompt.trim() && initialPrompt !== initialPromptRef.current) {
+      initialPromptRef.current = initialPrompt;
+      sendMessageRef.current(initialPrompt);
+    }
+  }, [initialPrompt]);
 
   const toggleLanguage = () => { setLanguage((current) => current === 'hi' ? 'en' : 'hi'); toast.success(language === 'hi' ? 'Switched to English' : 'Hindi/Hinglish mode on'); };
 

@@ -96,3 +96,18 @@ The live sidebar search was tested with `reports`, filtering the drawer to `Repo
 ## Command-center sidebar upgrade
 
 The sidebar search is now presented as a command center with a `Command center` label, keyboard hint, `Search anything...` placeholder, quick action cards for Add transaction and Ask AI coach, grouped navigation, and match highlighting. Live preview verification confirmed the richer drawer layout and instant `ai` filtering to AI insights.
+
+
+## Command-center history and direct overlays
+
+The Command Center now keeps the five most recent unique search terms in `localStorage` under `smartbudget_recent_searches`. Submitting a query with Enter or selecting a filtered navigation result records it, and the empty-search state renders re-applicable history chips with a one-click Clear control. Utility aliases now match more reliably in either direction.
+
+The top-bar Add transaction CTA and the Command Center Add transaction quick action now open a controlled, centered transaction dialog with the existing validated save callback. The dialog supports type, title, amount, category, date, cancel, success toast, and immediate data refresh while keeping the midnight navy/cobalt/lavender palette readable. The Command Center Ask AI coach quick action now opens a prompt overlay with suggested questions, Enter-to-submit, and a full-coach handoff. Submitted prompts open the existing transaction-aware Copilot and retain the secure external-provider/local-fallback behavior.
+
+## Expanded live-preview verification
+
+Source: live preview at https://5173-iumfctn7j3tdqrg7f56iq-4c69fc26.sg1.manus.computer/
+
+The latest preview passed dashboard boot, three-dot drawer open, Ctrl/Cmd+K search focus, Reports search submission, persistent recent-history display, history reapplication, history clearing, Escape dismissal, no-results recovery, and bottom utility visibility. The Add transaction overlay accepted a valid test transaction (`Coffee test`, ₹250, Travel), showed the success toast, closed, and updated report totals from ₹35,000 / 8 transactions to ₹35,250 / 9 transactions. The AI Coach overlay accepted `Where am I spending the most?`, opened the full coach, and returned a transaction-aware local fallback answer because no provider key is configured in the preview environment.
+
+Targeted ESLint passes for all changed files, and `npm run build` passes with only the existing large-chunk and stale browser-data warnings. The connected browser session provided a desktop viewport; the responsive layout remains implemented through the existing mobile-first classes, but a separate mobile viewport driver was not available during this pass.
