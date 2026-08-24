@@ -59,6 +59,7 @@ const Index = () => {
   });
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [transactionPrefill, setTransactionPrefill] = useState<Partial<{ title: string; amount: number; category: string; type: 'expense' | 'income' }>>();
   const [isCoachPromptOpen, setIsCoachPromptOpen] = useState(false);
   const [isBudgetPlannerOpen, setIsBudgetPlannerOpen] = useState(false);
   const [coachInitialPrompt, setCoachInitialPrompt] = useState('');
@@ -261,6 +262,7 @@ const Index = () => {
             onNavigate={setCurrentView}
             onShowWelcomeGuide={() => setShowWelcomeGuide(true)}
             onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
+            onOpenTransactionModal={(prefill) => { setTransactionPrefill(prefill); setIsTransactionModalOpen(true); }}
             onTransactionSelect={setSelectedTransaction}
           />
         );
@@ -273,7 +275,7 @@ const Index = () => {
         <Navbar
           currentView={currentView}
           onNavigate={setCurrentView}
-          onOpenTransactionModal={() => setIsTransactionModalOpen(true)}
+          onOpenTransactionModal={() => { setTransactionPrefill(undefined); setIsTransactionModalOpen(true); }}
           onOpenCoachOverlay={() => setIsCoachPromptOpen(true)}
           onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
         />
@@ -288,11 +290,12 @@ const Index = () => {
           onFeatureSelect={handleFeatureSelect}
         />
         {currentView !== 'coach' && <FloatingCoachButton onClick={() => { setCoachInitialPrompt(''); setCurrentView('coach'); }} />}
-        {currentView !== 'add-expense' && <FloatingAddTransactionButton onClick={() => setIsTransactionModalOpen(true)} />}
+        {currentView !== 'add-expense' && <FloatingAddTransactionButton onClick={() => { setTransactionPrefill(undefined); setIsTransactionModalOpen(true); }} />}
         <AddTransactionDialog
           open={isTransactionModalOpen}
-          onOpenChange={setIsTransactionModalOpen}
+          onOpenChange={(open) => { setIsTransactionModalOpen(open); if (!open) setTransactionPrefill(undefined); }}
           onSave={handleAddTransaction}
+          initialValues={transactionPrefill}
         />
         <BudgetPlannerDialog
           open={isBudgetPlannerOpen}
@@ -331,9 +334,10 @@ const DashboardWithNavigation: React.FC<{
   onNavigate: (view: ViewType) => void;
   onShowWelcomeGuide: () => void;
   onOpenBudgetPlanner: () => void;
+  onOpenTransactionModal: (prefill?: { title?: string; amount?: number; category?: string; type?: 'expense' | 'income' }) => void;
   onTransactionSelect: (transaction: LocalTransaction) => void;
-}> = ({ transactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner, onTransactionSelect }) => {
-  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} onOpenBudgetPlanner={onOpenBudgetPlanner} onTransactionSelect={onTransactionSelect} />;
+}> = ({ transactions, onNavigate, onShowWelcomeGuide, onOpenBudgetPlanner, onOpenTransactionModal, onTransactionSelect }) => {
+  return <Dashboard onNavigate={onNavigate} transactions={transactions} onShowWelcomeGuide={onShowWelcomeGuide} onOpenBudgetPlanner={onOpenBudgetPlanner} onOpenTransactionModal={onOpenTransactionModal} onTransactionSelect={onTransactionSelect} />;
 };
 
 export default Index;

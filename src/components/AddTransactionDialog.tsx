@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CalendarIcon, ReceiptText, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,9 +22,15 @@ interface AddTransactionDialogProps {
     date: Date;
     type: 'expense' | 'income';
   }) => void;
+  initialValues?: Partial<{
+    title: string;
+    amount: number;
+    category: string;
+    type: 'expense' | 'income';
+  }>;
 }
 
-const AddTransactionDialog: React.FC<AddTransactionDialogProps> = ({ open, onOpenChange, onSave }) => {
+const AddTransactionDialog: React.FC<AddTransactionDialogProps> = ({ open, onOpenChange, onSave, initialValues }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
@@ -32,6 +38,14 @@ const AddTransactionDialog: React.FC<AddTransactionDialogProps> = ({ open, onOpe
   const [category, setCategory] = useState('');
   const [date, setDate] = useState<Date>(() => new Date());
   const [type, setType] = useState<'expense' | 'income'>('expense');
+
+  useEffect(() => {
+    if (!open || !initialValues) return;
+    setTitle(initialValues.title || '');
+    setAmount(initialValues.amount === undefined ? '' : String(initialValues.amount));
+    setCategory(initialValues.category || '');
+    setType(initialValues.type || 'expense');
+  }, [initialValues, open]);
 
   const categories = [
     { key: 'food', label: t('food') },
@@ -43,6 +57,7 @@ const AddTransactionDialog: React.FC<AddTransactionDialogProps> = ({ open, onOpe
     { key: 'education', label: t('education') },
     { key: 'utilities', label: t('utilities') },
     { key: 'income', label: t('income') },
+    { key: 'savings', label: 'Savings / Buffer' },
     { key: 'other', label: t('other') },
   ];
 
