@@ -195,6 +195,11 @@ transactionSchema.index({
   category: 1 
 });
 
+// Stable frontend identifier alongside Mongo's internal _id.
+transactionSchema.virtual('id').get(function() {
+  return this._id?.toString();
+});
+
 // Virtual for formatted amount
 transactionSchema.virtual('formattedAmount').get(function() {
   const formatter = new Intl.NumberFormat('en-IN', {
@@ -301,11 +306,17 @@ transactionSchema.methods.createRecurringTransaction = async function() {
   return recurringTransaction;
 };
 
+const asInclusiveEndDate = (value) => {
+  const date = new Date(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) date.setUTCHours(23, 59, 59, 999);
+  return date;
+};
+
 // Static method for advanced analytics
 transactionSchema.statics.getAnalytics = async function(userId, startDate, endDate, filters = {}) {
   const matchStage = {
     userId: new mongoose.Types.ObjectId(userId),
-    date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    date: { $gte: new Date(startDate), $lte: asInclusiveEndDate(endDate) },
     isDeleted: false,
     status: 'completed',
     ...filters
@@ -346,15 +357,16 @@ transactionSchema.statics.getAnalytics = async function(userId, startDate, endDa
 };
 
 // Static method for category-wise spending
-transactionSchema.statics.getCategoryAnalytics = async function(userId, startDate, endDate, type = 'expense') {
+transactionSchema.statics.getCategoryAnalytics = async function(userId, startDate, endDate, type = 'expense', filters = {}) {
   return await this.aggregate([
     {
       $match: {
         userId: new mongoose.Types.ObjectId(userId),
         type: type,
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        date: { $gte: new Date(startDate), $lte: asInclusiveEndDate(endDate) },
         isDeleted: false,
-        status: 'completed'
+        status: 'completed',
+        ...filters,
       }
     },
     {
@@ -386,40 +398,38 @@ transactionSchema.statics.getCategoryAnalytics = async function(userId, startDat
   ]);
 };
 
-// Static method to find transactions with filters
-transactionSchema.statics.findWithFilters = function(userId, filters = {}, options = {}) {
+// Build one canonical Mongo filter for both transaction reads and pagination counts.
+transactionSchema.statics.buildFilterQuery = function(userId, filters = {}) {
   const query = { userId, isDeleted: false };
-  
-  // Add filters
+
   if (filters.type) query.type = filters.type;
   if (filters.category) query.category = filters.category;
+  if (filters.categoryIds) query.category = { $in: filters.categoryIds };
   if (filters.paymentMethod) query.paymentMethod = filters.paymentMethod;
   if (filters.status) query.status = filters.status;
-  
-  // Date range
+
   if (filters.startDate || filters.endDate) {
     query.date = {};
     if (filters.startDate) query.date.$gte = new Date(filters.startDate);
-    if (filters.endDate) query.date.$lte = new Date(filters.endDate);
+    if (filters.endDate) query.date.$lte = asInclusiveEndDate(filters.endDate);
   }
-  
-  // Amount range
-  if (filters.minAmount || filters.maxAmount) {
+
+  if (filters.minAmount !== undefined || filters.maxAmount !== undefined) {
     query.baseAmount = {};
-    if (filters.minAmount) query.baseAmount.$gte = parseFloat(filters.minAmount);
-    if (filters.maxAmount) query.baseAmount.$lte = parseFloat(filters.maxAmount);
+    if (filters.minAmount !== undefined) query.baseAmount.$gte = parseFloat(filters.minAmount);
+    if (filters.maxAmount !== undefined) query.baseAmount.$lte = parseFloat(filters.maxAmount);
   }
-  
-  // Text search
-  if (filters.search) {
-    query.$text = { $search: filters.search };
-  }
-  
-  // Tags
-  if (filters.tags && filters.tags.length > 0) {
-    query.tags = { $in: filters.tags };
-  }
-  
+
+  if (filters.search) query.$text = { $search: filters.search };
+  if (filters.tags && filters.tags.length > 0) query.tags = { $in: filters.tags };
+
+  return query;
+};
+
+// Static method to find transactions with filters
+transactionSchema.statics.findWithFilters = function(userId, filters = {}, options = {}) {
+  const query = this.buildFilterQuery(userId, filters);
+
   return this.find(query, null, options)
     .populate('category', 'name icon color type')
     .populate('budget', 'name amount period')

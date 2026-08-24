@@ -22,11 +22,34 @@ interface GeoFinanceMapProps {
   transactions: Transaction[];
 }
 
+interface LocationData {
+  name: string;
+  spent: number;
+  transactions: number;
+  lat: number;
+  lng: number;
+  color: string;
+  icon: string;
+}
+
+const mockLocations: LocationData[] = [
+  { name: 'Mumbai, Maharashtra', spent: 15000, transactions: 25, lat: 19.0760, lng: 72.8777, color: '#ef4444', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' },
+  { name: 'Delhi NCR', spent: 12500, transactions: 20, lat: 28.7041, lng: 77.1025, color: '#f59e0b', icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' },
+  { name: 'Bangalore, Karnataka', spent: 11000, transactions: 18, lat: 12.9716, lng: 77.5946, color: '#f59e0b', icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' },
+  { name: 'Hyderabad, Telangana', spent: 8500, transactions: 15, lat: 17.3850, lng: 78.4867, color: '#eab308', icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' },
+  { name: 'Chennai, Tamil Nadu', spent: 7200, transactions: 12, lat: 13.0827, lng: 80.2707, color: '#eab308', icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' },
+  { name: 'Kolkata, West Bengal', spent: 6800, transactions: 11, lat: 22.5726, lng: 88.3639, color: '#84cc16', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
+  { name: 'Pune, Maharashtra', spent: 5500, transactions: 10, lat: 18.5204, lng: 73.8567, color: '#84cc16', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
+  { name: 'Ahmedabad, Gujarat', spent: 4200, transactions: 8, lat: 23.0225, lng: 72.5714, color: '#22c55e', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
+  { name: 'Jaipur, Rajasthan', spent: 3800, transactions: 7, lat: 26.9124, lng: 75.7873, color: '#22c55e', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
+  { name: 'Lucknow, Uttar Pradesh', spent: 3200, transactions: 6, lat: 26.8467, lng: 80.9462, color: '#10b981', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
+];
+
 const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) => {
-  const [locationData, setLocationData] = useState<any[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [locationData, setLocationData] = useState<LocationData[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [apiKey, setApiKey] = useState('AIzaSyC_itkbXDLtm5v_ZY9hJbfhu7cgHMJOf9M');
+  const [apiKey, setApiKey] = useState(import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '');
   const [showMapInput, setShowMapInput] = useState(false);
   const [mapError, setMapError] = useState(false);
   const { toast } = useToast();
@@ -46,20 +69,6 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
   const onMapLoad = useCallback(() => {
     setIsMapLoaded(true);
   }, []);
-
-  // Mock location data for demo - Major Indian Cities
-  const mockLocations = [
-    { name: 'Mumbai, Maharashtra', spent: 15000, transactions: 25, lat: 19.0760, lng: 72.8777, color: '#ef4444', icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' },
-    { name: 'Delhi NCR', spent: 12500, transactions: 20, lat: 28.7041, lng: 77.1025, color: '#f59e0b', icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' },
-    { name: 'Bangalore, Karnataka', spent: 11000, transactions: 18, lat: 12.9716, lng: 77.5946, color: '#f59e0b', icon: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' },
-    { name: 'Hyderabad, Telangana', spent: 8500, transactions: 15, lat: 17.3850, lng: 78.4867, color: '#eab308', icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' },
-    { name: 'Chennai, Tamil Nadu', spent: 7200, transactions: 12, lat: 13.0827, lng: 80.2707, color: '#eab308', icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' },
-    { name: 'Kolkata, West Bengal', spent: 6800, transactions: 11, lat: 22.5726, lng: 88.3639, color: '#84cc16', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
-    { name: 'Pune, Maharashtra', spent: 5500, transactions: 10, lat: 18.5204, lng: 73.8567, color: '#84cc16', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
-    { name: 'Ahmedabad, Gujarat', spent: 4200, transactions: 8, lat: 23.0225, lng: 72.5714, color: '#22c55e', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
-    { name: 'Jaipur, Rajasthan', spent: 3800, transactions: 7, lat: 26.9124, lng: 75.7873, color: '#22c55e', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' },
-    { name: 'Lucknow, Uttar Pradesh', spent: 3200, transactions: 6, lat: 26.8467, lng: 80.9462, color: '#10b981', icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }
-  ];
 
   useEffect(() => {
     setLocationData(mockLocations);
@@ -93,11 +102,11 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                 <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
                   🔑 Google Maps API Configuration
                   <Badge variant={mapError ? "destructive" : "outline"} className="text-xs">
-                    {mapError ? "API Error" : "Active"}
+                    {mapError ? "API Error" : apiKey ? "Active" : "Not configured"}
                   </Badge>
                 </h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  {mapError ? "The current API key has issues. Please enter a valid Google Maps API key." : "Map is using the configured API key."}
+                  {mapError ? "The current API key has issues. Please enter a valid Google Maps API key." : apiKey ? "Map is using the configured API key." : "Add a Google Maps API key to load the map, or use the location summary below."}
                 </p>
                 {showMapInput && (
                   <div className="flex gap-2 mt-3">
@@ -292,7 +301,7 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                     ))}
                   </div>
                 </div>
-              ) : (
+              ) : apiKey ? (
                 <LoadScript
                   googleMapsApiKey={apiKey}
                   onError={() => setMapError(true)}
@@ -362,6 +371,14 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                   )}
                 </GoogleMap>
               </LoadScript>
+              ) : (
+                <div className="flex h-[600px] items-center justify-center rounded-xl border border-dashed border-slate-600 bg-slate-900/80 p-8 text-center">
+                  <div className="max-w-sm">
+                    <MapPin className="mx-auto mb-3 h-9 w-9 text-blue-400" />
+                    <h3 className="font-semibold text-white">Map preview is not configured</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-400">Location summaries are available below. Add a key using “Change API Key” or set VITE_GOOGLE_MAPS_API_KEY during the frontend build to load Google Maps.</p>
+                  </div>
+                </div>
               )}
 
               {/* Map Stats Overlay */}

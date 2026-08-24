@@ -41,9 +41,22 @@ export interface User {
 export interface AuthResponse {
   user: User;
   token: string;
+  refreshToken?: string;
 }
 
+const REFRESH_TOKEN_KEY = 'dhansetuRefreshToken';
+const getRefreshToken = () => sessionStorage.getItem(REFRESH_TOKEN_KEY);
+const setRefreshToken = (token?: string) => {
+  if (token) sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
+  else sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+};
+const removeRefreshToken = () => sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+
 class AuthService {
+  private storeTokens(data: { token: string; refreshToken?: string }) {
+    setAuthToken(data.token);
+    setRefreshToken(data.refreshToken);
+  }
   // Login user
   async login(credentials: LoginCredentials) {
     try {
@@ -53,7 +66,7 @@ class AuthService {
       });
 
       if (response.success && response.data) {
-        setAuthToken(response.data.token);
+        this.storeTokens(response.data);
         return response;
       }
 
@@ -77,7 +90,7 @@ class AuthService {
       });
 
       if (response.success && response.data) {
-        setAuthToken(response.data.token);
+        this.storeTokens(response.data);
         return response;
       }
 
@@ -103,6 +116,7 @@ class AuthService {
       console.error('Logout error:', error);
     } finally {
       removeAuthToken();
+      removeRefreshToken();
     }
   }
 
@@ -196,13 +210,18 @@ class AuthService {
   // Refresh token
   async refreshToken() {
     try {
-      const response = await apiRequest<{ token: string }>('/auth/refresh', {
+      const refreshToken = getRefreshToken();
+      if (!refreshToken) {
+        return { success: false, message: 'No refresh token available' };
+      }
+      const response = await apiRequest<{ token: string; refreshToken?: string }>('/auth/refresh', {
         method: 'POST',
+        body: { refreshToken },
         requireAuth: true,
       });
 
       if (response.success && response.data) {
-        setAuthToken(response.data.token);
+        this.storeTokens(response.data);
         return response;
       }
 

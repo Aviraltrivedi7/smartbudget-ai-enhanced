@@ -65,7 +65,14 @@ jobs:
       - name: Check backend syntax
         run: |
           node --check backend/backend/server.js
+          node --check backend/backend/models/Transaction.js
           node --check backend/backend/routes/ai.js
+          node --check backend/backend/routes/auth.js
+          node --check backend/backend/routes/auth-demo.js
+          node --check backend/backend/routes/transactions.js
+          node --check backend/backend/routes/transactions-demo.js
+          node --check backend/backend/routes/user.js
+          node --check backend/backend/routes/user-demo.js
           node --check backend/backend/scripts/smoke-test.js
           node --check backend/backend/test-server.js
 

@@ -15,6 +15,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import authRoutes from './routes/auth.js';
 import authDemoRoutes from './routes/auth-demo.js';
 import userRoutes from './routes/user.js';
+import userDemoRoutes from './routes/user-demo.js';
 import transactionRoutes from './routes/transactions.js';
 import transactionDemoRoutes from './routes/transactions-demo.js';
 import categoryRoutes from './routes/categories.js';
@@ -150,19 +151,21 @@ app.use('/api/transactions', (req, res, next) => {
   });
 
 // Dynamic request-time routing for authenticated endpoints
-const dynamicRoute = (dbRouter, demoFallback = null) => {
+const dynamicRoute = (dbRouter, demoFallback = null, demoRouter = null) => {
   return (req, res, next) => {
     if (isDBConnected) {
       authenticateToken(req, res, () => {
         dbRouter(req, res, next);
       });
+    } else if (demoRouter) {
+      authenticateDemoToken(req, res, () => demoRouter(req, res, next));
     } else {
       res.json({ success: true, message: 'Demo mode - endpoint not available', data: demoFallback });
     }
   };
 };
 
-app.use('/api/user', dynamicRoute(userRoutes, null));
+app.use('/api/user', dynamicRoute(userRoutes, null, userDemoRoutes));
 app.use('/api/categories', dynamicRoute(categoryRoutes, []));
 app.use('/api/budgets', dynamicRoute(budgetRoutes, []));
 app.use('/api/goals', dynamicRoute(goalRoutes, []));

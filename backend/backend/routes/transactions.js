@@ -3,8 +3,89 @@ import { body, validationResult, query } from 'express-validator';
 import Transaction from '../models/Transaction.js';
 import Category from '../models/Category.js';
 import User from '../models/User.js';
+import multer from 'multer';
 
 const router = express.Router();
+const receiptUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) => {
+    callback(null, /^image\/(jpeg|png|webp|heic)$/i.test(file.mimetype));
+  },
+});
+
+const csvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+const transactionToExportRow = (transaction) => ({
+  title: transaction.title,
+  amount: transaction.amount,
+  type: transaction.type,
+  category: transaction.category?.name || 'Other',
+  date: transaction.date instanceof Date ? transaction.date.toISOString().slice(0, 10) : transaction.date,
+  description: transaction.description || '',
+  paymentMethod: transaction.paymentMethod || '',
+});
+
+const buildCsv = (transactions) => {
+  const headers = ['title', 'amount', 'type', 'category', 'date', 'description', 'paymentMethod'];
+  return [headers, ...transactions.map(transactionToExportRow).map((row) => headers.map((header) => row[header]))]
+    .map((row) => row.map(csvCell).join(','))
+    .join('\n');
+};
+
+const CATEGORY_ALIASES = {
+  food: ['Food', 'Food & Dining'],
+  rent: ['Rent', 'Housing', 'Rental'],
+  utilities: ['Utilities'],
+  travel: ['Travel', 'Transportation'],
+  savings: ['Savings', 'Savings / Buffer', 'Investments'],
+  other: ['Other', 'Other Income'],
+};
+
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\\]\\]/g, '\\$&');
+const categoryPatternFor = (label) => {
+  const normalized = String(label || '').trim().toLowerCase();
+  const candidates = [...new Set([String(label || '').trim(), ...(CATEGORY_ALIASES[normalized] || [])])].filter(Boolean);
+  return `^(?:${candidates.map(escapeRegex).join('|')})$`;
+};
+
+const findCategory = async (userId, type, label, { createFallback = false } = {}) => {
+  const normalizedLabel = String(label || '').trim();
+  const selector = /^[0-9a-fA-F]{24}$/.test(normalizedLabel)
+    ? { _id: normalizedLabel }
+    : { name: { $regex: categoryPatternFor(normalizedLabel), $options: 'i' } };
+  const category = await Category.findOne({
+    ...selector,
+    $or: [{ userId }, { isDefault: true, userId: null }],
+    type,
+    isActive: true,
+  });
+  if (category || !createFallback) return category;
+
+  const normalized = normalizedLabel;
+  if (!['other', 'savings', 'savings / buffer'].includes(normalized.toLowerCase())) return null;
+  return Category.create({
+    name: normalized,
+    icon: normalized.toLowerCase().startsWith('saving') ? '🎯' : '📦',
+    color: normalized.toLowerCase().startsWith('saving') ? '#5867bb' : '#8a94a6',
+    type,
+    userId,
+    isDefault: false,
+    metadata: { aliases: CATEGORY_ALIASES[normalized.toLowerCase()] || [] },
+  });
+};
+
+const findCategoryIds = async (userId, label) => {
+  const normalizedLabel = String(label || '').trim();
+  const selector = /^[0-9a-fA-F]{24}$/.test(normalizedLabel)
+    ? { _id: normalizedLabel }
+    : { name: { $regex: categoryPatternFor(normalizedLabel), $options: 'i' } };
+  const categories = await Category.find({
+    ...selector,
+    $or: [{ userId }, { isDefault: true, userId: null }],
+    isActive: true,
+  }).select('_id').lean();
+  return categories.map((category) => category._id);
+};
 
 // @desc    Get all transactions for user
 // @route   GET /api/transactions
@@ -15,6 +96,10 @@ router.get('/', [
   query('type').optional().isIn(['income', 'expense']).withMessage('Type must be income or expense'),
   query('startDate').optional().isISO8601().withMessage('Start date must be valid ISO date'),
   query('endDate').optional().isISO8601().withMessage('End date must be valid ISO date'),
+  query('dateFrom').optional().isISO8601().withMessage('Start date must be valid ISO date'),
+  query('dateTo').optional().isISO8601().withMessage('End date must be valid ISO date'),
+  query('minAmount').optional().isFloat({ min: 0 }).withMessage('Minimum amount must be valid'),
+  query('maxAmount').optional().isFloat({ min: 0 }).withMessage('Maximum amount must be valid'),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -33,6 +118,8 @@ router.get('/', [
       category,
       startDate,
       endDate,
+      dateFrom,
+      dateTo,
       search,
       minAmount,
       maxAmount,
@@ -41,17 +128,23 @@ router.get('/', [
       sort = '-date'
     } = req.query;
 
-    // Build filters
+    const normalizedStartDate = startDate || dateFrom;
+    const normalizedEndDate = endDate || dateTo;
+
+    // Build filters using the same names and semantics as the frontend service.
     const filters = {};
     if (type) filters.type = type;
-    if (category) filters.category = category;
-    if (startDate || endDate) {
-      if (startDate) filters.startDate = startDate;
-      if (endDate) filters.endDate = endDate;
+    if (category) {
+      filters.categoryIds = await findCategoryIds(req.userId, category);
+      if (filters.categoryIds.length === 0) filters.categoryIds = [null];
     }
-    if (minAmount || maxAmount) {
-      if (minAmount) filters.minAmount = parseFloat(minAmount);
-      if (maxAmount) filters.maxAmount = parseFloat(maxAmount);
+    if (normalizedStartDate || normalizedEndDate) {
+      if (normalizedStartDate) filters.startDate = normalizedStartDate;
+      if (normalizedEndDate) filters.endDate = normalizedEndDate;
+    }
+    if (minAmount !== undefined || maxAmount !== undefined) {
+      if (minAmount !== undefined) filters.minAmount = parseFloat(minAmount);
+      if (maxAmount !== undefined) filters.maxAmount = parseFloat(maxAmount);
     }
     if (paymentMethod) filters.paymentMethod = paymentMethod;
     if (search) filters.search = search;
@@ -65,23 +158,25 @@ router.get('/', [
     };
 
     const transactions = await Transaction.findWithFilters(req.userId, filters, options);
-    const totalTransactions = await Transaction.countDocuments({
-      userId: req.userId,
-      isDeleted: false
-    });
-
-    const totalPages = Math.ceil(totalTransactions / parseInt(limit));
+    const totalTransactions = await Transaction.countDocuments(Transaction.buildFilterQuery(req.userId, filters));
+    const pageNumber = parseInt(page, 10);
+    const pageSize = parseInt(limit, 10);
+    const totalPages = Math.ceil(totalTransactions / pageSize);
 
     res.json({
       success: true,
+      message: 'Transactions retrieved successfully',
       data: {
         transactions,
+        total: totalTransactions,
+        page: pageNumber,
+        totalPages,
         pagination: {
-          currentPage: parseInt(page),
+          currentPage: pageNumber,
           totalPages,
           totalTransactions,
-          hasNextPage: parseInt(page) < totalPages,
-          hasPrevPage: parseInt(page) > 1
+          hasNextPage: pageNumber < totalPages,
+          hasPrevPage: pageNumber > 1
         }
       }
     });
@@ -100,10 +195,21 @@ router.get('/', [
 // @access  Private
 router.get('/stats', async (req, res) => {
   try {
-    const startDate = req.query.startDate || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    const endDate = req.query.endDate || new Date();
-    const analytics = await Transaction.getAnalytics(req.userId, startDate, endDate);
-    const categoryAnalytics = await Transaction.getCategoryAnalytics(req.userId, startDate, endDate, 'expense');
+    const startDate = req.query.startDate || req.query.dateFrom || new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const endDate = req.query.endDate || req.query.dateTo || new Date();
+    const type = req.query.type;
+    if (type && !['income', 'expense'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Type must be income or expense' });
+    }
+    const analyticsFilters = type ? { type } : {};
+    let categoryIds;
+    if (req.query.category) {
+      categoryIds = await findCategoryIds(req.userId, req.query.category);
+      if (categoryIds.length === 0) categoryIds = [null];
+      analyticsFilters.category = { $in: categoryIds };
+    }
+    const analytics = await Transaction.getAnalytics(req.userId, startDate, endDate, analyticsFilters);
+    const categoryAnalytics = type === 'income' ? [] : await Transaction.getCategoryAnalytics(req.userId, startDate, endDate, 'expense', categoryIds ? { category: { $in: categoryIds } } : {});
     const totals = analytics.reduce((acc, item) => {
       if (item._id === 'income') {
         acc.totalIncome = item.totalAmount;
@@ -113,16 +219,31 @@ router.get('/stats', async (req, res) => {
       return acc;
     }, { totalIncome: 0, totalExpenses: 0 });
     const balance = totals.totalIncome - totals.totalExpenses;
+    const categoryBreakdown = categoryAnalytics.map((item) => ({
+      category: item.categoryName || 'Other',
+      amount: Number(item.totalAmount || 0),
+      percentage: totals.totalExpenses > 0 ? Number(((Number(item.totalAmount || 0) / totals.totalExpenses) * 100).toFixed(2)) : 0,
+    }));
+    const monthlyTrendMap = new Map();
+    analytics.forEach((item) => {
+      (item.monthlyData || []).forEach((month) => {
+        const monthKey = `${month.year}-${String(month.month).padStart(2, '0')}`;
+        const current = monthlyTrendMap.get(monthKey) || { month: monthKey, income: 0, expenses: 0 };
+        current[item._id === 'income' ? 'income' : 'expenses'] += Number(month.total || 0);
+        monthlyTrendMap.set(monthKey, current);
+      });
+    });
+    const monthlyTrend = [...monthlyTrendMap.values()].sort((a, b) => a.month.localeCompare(b.month));
     res.json({
       success: true,
       message: 'Transaction statistics retrieved successfully',
       data: {
-        totalIncome: totals.totalIncome,
-        totalExpenses: totals.totalExpenses,
-        balance,
+        totalIncome: Number(totals.totalIncome || 0),
+        totalExpenses: Number(totals.totalExpenses || 0),
+        balance: Number(balance || 0),
         transactionCount: analytics.reduce((sum, item) => sum + (item.totalCount || 0), 0),
-        categoryBreakdown: categoryAnalytics,
-        monthlyTrend: analytics,
+        categoryBreakdown,
+        monthlyTrend,
       },
     });
   } catch (error) {
@@ -131,10 +252,58 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// @desc    Export the user's transactions
+// @route   GET /api/transactions/export
+// @access  Private
+router.get('/export', async (req, res) => {
+  try {
+    const format = String(req.query.format || 'csv').toLowerCase();
+    if (format !== 'csv') {
+      return res.status(400).json({ success: false, message: 'Only CSV export is currently supported' });
+    }
+
+    const filters = {};
+    const type = req.query.type;
+    const category = req.query.category;
+    const startDate = req.query.dateFrom || req.query.startDate;
+    const endDate = req.query.dateTo || req.query.endDate;
+    if (type) filters.type = type;
+    if (category) {
+      filters.categoryIds = await findCategoryIds(req.userId, category);
+      if (filters.categoryIds.length === 0) filters.categoryIds = [null];
+    }
+    if (startDate) filters.startDate = startDate;
+    if (endDate) filters.endDate = endDate;
+    const transactions = await Transaction.findWithFilters(req.userId, filters, { limit: 10000, sort: '-date' });
+    const csv = buildCsv(transactions);
+    return res.json({
+      success: true,
+      message: 'Transactions exported successfully',
+      data: { downloadUrl: `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}` },
+    });
+  } catch (error) {
+    console.error('Export transactions error:', error);
+    return res.status(500).json({ success: false, message: 'Server error while exporting transactions' });
+  }
+});
+
+// @desc    Accept a receipt upload only when an OCR provider is configured
+// @route   POST /api/transactions/scan-receipt
+// @access  Private
+router.post('/scan-receipt', receiptUpload.single('receipt'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: false, message: 'A JPEG, PNG, WEBP, or HEIC receipt image is required' });
+  }
+  return res.status(503).json({
+    success: false,
+    message: 'Receipt OCR is not configured on this deployment. Add an approved OCR provider before scanning receipts.',
+  });
+});
+
 // @desc    Get transaction by ID
 // @route   GET /api/transactions/:id
 // @access  Private
-router.get('/:id', async (req, res) => {
+router.get('/:id([0-9a-fA-F]{24})', async (req, res) => {
   try {
     const transaction = await Transaction.findOne({
       _id: req.params.id,
@@ -154,7 +323,7 @@ router.get('/:id', async (req, res) => {
 
     res.json({
       success: true,
-      data: { transaction }
+      data: transaction
     });
 
   } catch (error) {
@@ -205,19 +374,8 @@ router.post('/', [
       recurring
     } = req.body;
 
-    // Accept either a Mongo category ID or the human-readable category name used by the frontend.
-    const categorySelector = /^[0-9a-fA-F]{24}$/.test(String(category))
-      ? { _id: category }
-      : { name: String(category).trim() };
-    const categoryDoc = await Category.findOne({
-      ...categorySelector,
-      $or: [
-        { userId: req.userId },
-        { isDefault: true, userId: null }
-      ],
-      type: type,
-      isActive: true
-    });
+    // Accept a Mongo category ID or a frontend display label/alias.
+    const categoryDoc = await findCategory(req.userId, type, category, { createFallback: true });
 
     if (!categoryDoc) {
       return res.status(400).json({
@@ -264,7 +422,7 @@ router.post('/', [
     res.status(201).json({
       success: true,
       message: 'Transaction created successfully',
-      data: { transaction }
+      data: transaction
     });
 
   } catch (error) {
@@ -279,7 +437,7 @@ router.post('/', [
 // @desc    Update transaction
 // @route   PUT /api/transactions/:id
 // @access  Private
-router.put('/:id', [
+router.put('/:id([0-9a-fA-F]{24})', [
   body('title').optional().trim().isLength({ min: 1, max: 200 }).withMessage('Title must be less than 200 characters'),
   body('amount').optional().isFloat({ min: 0.01 }).withMessage('Amount must be greater than 0'),
   body('type').optional().isIn(['income', 'expense']).withMessage('Type must be income or expense'),
@@ -317,18 +475,7 @@ router.put('/:id', [
     // If category is being updated, resolve either a category ID or its display name.
     if (updates.category) {
       const type = updates.type || transaction.type;
-      const categorySelector = /^[0-9a-fA-F]{24}$/.test(String(updates.category))
-        ? { _id: updates.category }
-        : { name: String(updates.category).trim() };
-      const categoryDoc = await Category.findOne({
-        ...categorySelector,
-        $or: [
-          { userId: req.userId },
-          { isDefault: true, userId: null }
-        ],
-        type: type,
-        isActive: true
-      });
+      const categoryDoc = await findCategory(req.userId, type, updates.category, { createFallback: true });
 
       if (!categoryDoc) {
         return res.status(400).json({
@@ -358,7 +505,7 @@ router.put('/:id', [
     res.json({
       success: true,
       message: 'Transaction updated successfully',
-      data: { transaction }
+      data: transaction
     });
 
   } catch (error) {
@@ -373,7 +520,7 @@ router.put('/:id', [
 // @desc    Delete transaction (soft delete)
 // @route   DELETE /api/transactions/:id
 // @access  Private
-router.delete('/:id', async (req, res) => {
+router.delete('/:id([0-9a-fA-F]{24})', async (req, res) => {
   try {
     const transaction = await Transaction.findOne({
       _id: req.params.id,
@@ -540,9 +687,6 @@ router.get('/analytics/trends', async (req, res) => {
 // @access  Private
 router.post('/bulk-import', [
   body('transactions').isArray({ min: 1 }).withMessage('Transactions array is required'),
-  body('transactions.*.title').trim().isLength({ min: 1 }).withMessage('Each transaction must have a title'),
-  body('transactions.*.amount').isFloat({ min: 0.01 }).withMessage('Each transaction must have a valid amount'),
-  body('transactions.*.type').isIn(['income', 'expense']).withMessage('Each transaction must have a valid type'),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -555,92 +699,60 @@ router.post('/bulk-import', [
     }
 
     const { transactions: importTransactions } = req.body;
-    const results = {
-      successful: [],
-      failed: [],
-      total: importTransactions.length
-    };
+    const created = [];
+    const failed = [];
 
-    for (let i = 0; i < importTransactions.length; i++) {
+    for (let i = 0; i < importTransactions.length; i += 1) {
+      const txn = importTransactions[i] || {};
       try {
-        const txn = importTransactions[i];
-        
-        // Find or suggest category
-        let categoryId = txn.category;
-        if (categoryId && !/^[0-9a-fA-F]{24}$/.test(String(categoryId))) {
-          const categoryDoc = await Category.findOne({
-            name: String(categoryId).trim(),
-            $or: [
-              { userId: req.userId },
-              { isDefault: true, userId: null }
-            ],
-            type: txn.type,
-            isActive: true
-          });
-          categoryId = categoryDoc?._id || null;
-        }
-        if (!categoryId) {
-          const suggestedCategories = await Category.suggestCategory(
-            txn.title, 
-            txn.description, 
-            txn.amount, 
-            txn.type
-          );
-          categoryId = suggestedCategories.length > 0 ? suggestedCategories[0]._id : null;
+        const amount = Number(txn.amount);
+        const title = String(txn.title || '').trim();
+        const type = txn.type;
+        const date = txn.date ? new Date(txn.date) : new Date();
+        if (!title || !Number.isFinite(amount) || amount <= 0 || !['income', 'expense'].includes(type) || Number.isNaN(date.getTime())) {
+          failed.push({ index: i, transaction: txn, error: 'Each row needs a title, positive amount, valid type, and valid date' });
+          continue;
         }
 
-        if (!categoryId) {
-          results.failed.push({
-            index: i,
-            transaction: txn,
-            error: 'No suitable category found'
-          });
+        let categoryDoc = txn.category ? await findCategory(req.userId, type, txn.category) : null;
+        if (!categoryDoc) {
+          const suggestedCategories = await Category.suggestCategory(title, txn.description, amount, type);
+          categoryDoc = suggestedCategories[0] || null;
+        }
+        if (!categoryDoc) {
+          failed.push({ index: i, transaction: txn, error: 'No suitable category found' });
           continue;
         }
 
         const transaction = new Transaction({
           userId: req.userId,
-          title: txn.title,
-          amount: parseFloat(txn.amount),
-          type: txn.type,
-          category: categoryId,
-          date: txn.date ? new Date(txn.date) : new Date(),
+          title,
+          amount,
+          type,
+          category: categoryDoc._id,
+          date,
           description: txn.description,
           paymentMethod: txn.paymentMethod || 'other',
-          metadata: {
-            source: 'import',
-            confidence: 0.8,
-            importDetails: {
-              importId: new Date().getTime().toString(),
-              originalData: txn
-            }
-          }
+          tags: Array.isArray(txn.tags) ? txn.tags : [],
+          metadata: { source: 'import', confidence: 0.8, importDetails: { importId: `${Date.now()}-${i}`, originalData: txn } },
         });
-
         await transaction.save();
-        results.successful.push(transaction._id);
-
+        await transaction.populate('category', 'name icon color type');
+        created.push(transaction);
       } catch (error) {
-        results.failed.push({
-          index: i,
-          transaction: importTransactions[i],
-          error: error.message
-        });
+        failed.push({ index: i, transaction: txn, error: error.message });
       }
     }
 
-    // Award points for bulk import
-    if (results.successful.length > 0) {
+    if (created.length > 0) {
       const user = await User.findById(req.userId);
-      if (user) {
-        await user.addPoints(results.successful.length * 2, 'Bulk import');
-      }
+      if (user) await user.addPoints(created.length * 2, 'Bulk import');
     }
 
-    res.json({
-      success: true,
-      message: `Import completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
-      data: results
+    return res.status(created.length ? 201 : 400).json({
+      success: created.length > 0,
+      message: `Import completed. ${created.length} created, ${failed.length} failed.`,
+      data: { created, failed },
     });
 
   } catch (error) {

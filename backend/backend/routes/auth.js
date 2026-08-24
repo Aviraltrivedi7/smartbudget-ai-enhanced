@@ -306,12 +306,9 @@ router.put('/preferences', authenticateToken, async (req, res) => {
 });
 
 // @desc    Change password
-// @route   PUT /api/auth/change-password
+// @route   POST|PUT /api/auth/change-password
 // @access  Private
-router.put('/change-password', authenticateToken, [
-  body('currentPassword').notEmpty().withMessage('Current password is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
-], async (req, res) => {
+const handleChangePassword = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -322,7 +319,11 @@ router.put('/change-password', authenticateToken, [
       });
     }
 
-    const { currentPassword, newPassword } = req.body;
+    const currentPassword = req.body.currentPassword || req.body.oldPassword;
+    const { newPassword } = req.body;
+    if (!currentPassword) {
+      return res.status(400).json({ success: false, message: 'Current password is required' });
+    }
     
     const user = await User.findById(req.userId).select('+password');
 
@@ -359,7 +360,15 @@ router.put('/change-password', authenticateToken, [
       message: 'Server error during password change'
     });
   }
-});
+};
+
+const passwordValidators = [
+  body('currentPassword').optional().notEmpty().withMessage('Current password is required'),
+  body('oldPassword').optional().notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
+];
+router.post('/change-password', authenticateToken, passwordValidators, handleChangePassword);
+router.put('/change-password', authenticateToken, passwordValidators, handleChangePassword);
 
 // @desc    Refresh token
 // @route   POST /api/auth/refresh

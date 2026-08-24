@@ -20,12 +20,16 @@ const buildSystemPrompt = (transactions, language) => {
     return result;
   }, {});
 
+  const balance = income - expenses;
+  const savingsRate = income > 0 ? ((balance / income) * 100).toFixed(1) : 'unavailable';
+
   return `You are DhanSetu AI Coach, a concise and practical personal finance assistant. Answer only from the supplied transaction context; never invent transactions or claim to access a bank account. Use Indian rupees and Indian number formatting when possible. Give one actionable next step when useful. This is general budgeting guidance, not regulated financial advice. Respond in ${language === 'hi' ? 'friendly Hindi/Hinglish' : 'clear, friendly English'}.
 
 Context summary:
 - Tracked income: ₹${income.toLocaleString('en-IN')}
 - Tracked expenses: ₹${expenses.toLocaleString('en-IN')}
-- Tracked balance: ₹${Math.max(0, income - expenses).toLocaleString('en-IN')}
+- Tracked balance: ₹${balance.toLocaleString('en-IN')}
+- Savings rate: ${savingsRate}%
 - Category totals: ${JSON.stringify(byCategory)}
 - Transactions: ${JSON.stringify(transactions)}`;
 };
@@ -65,6 +69,33 @@ const callGemini = async ({ apiKey, model, systemPrompt, history, message }) => 
 
 router.get('/', (_req, res) => {
   res.json({ success: true, message: 'AI service is ready', data: { provider: process.env.LLM_PROVIDER || 'openai' } });
+});
+
+router.post('/categorize-transaction', (req, res) => {
+  const description = clampText(req.body?.description, 240).toLowerCase();
+  const amount = Number(req.body?.amount) || 0;
+  if (!description || amount <= 0) {
+    return res.status(400).json({ success: false, message: 'Description and a positive amount are required' });
+  }
+
+  const rules = [
+    { category: 'Rent', keywords: ['rent', 'landlord', 'lease'] },
+    { category: 'Food', keywords: ['grocery', 'groceries', 'restaurant', 'food', 'dinner', 'lunch', 'breakfast', 'swiggy', 'zomato'] },
+    { category: 'Utilities', keywords: ['electricity', 'wifi', 'internet', 'water', 'recharge', 'utility'] },
+    { category: 'Travel', keywords: ['uber', 'ola', 'metro', 'flight', 'train', 'fuel', 'petrol', 'travel'] },
+    { category: 'Healthcare', keywords: ['doctor', 'hospital', 'medicine', 'pharmacy', 'health'] },
+    { category: 'Shopping', keywords: ['shopping', 'clothes', 'apparel', 'amazon', 'flipkart'] },
+    { category: 'Savings / Buffer', keywords: ['saving', 'savings', 'buffer', 'sip', 'investment'] },
+  ];
+  const match = rules.find((rule) => rule.keywords.some((keyword) => description.includes(keyword)));
+  const category = match?.category || 'Other';
+  const confidence = match ? 0.9 : 0.35;
+
+  return res.json({
+    success: true,
+    message: 'Transaction categorized',
+    data: { category, confidence, tags: match ? [match.category.toLowerCase()] : [] },
+  });
 });
 
 router.post('/chat', async (req, res) => {
