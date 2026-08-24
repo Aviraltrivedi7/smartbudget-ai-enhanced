@@ -186,10 +186,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
             <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
           </div>
           <div className="border-b border-white/10 bg-white/[0.03] px-6 py-5">
-            <div className="mb-2.5 flex items-center justify-between px-1">
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/45">Command center</span>
-              <kbd className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-white/45"><Command className="h-3 w-3" />K</kbd>
-            </div>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#dfe4ff]/60" />
               <input
@@ -204,19 +200,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
               />
               {searchQuery && <button onClick={() => { setSearchQuery(''); searchInputRef.current?.focus(); }} aria-label="Clear navigation search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>}
             </div>
-            {!normalizedQuery && <p className="mt-2 px-1 text-[11px] leading-5 text-white/40">Jump anywhere in your financial workspace. <span className="text-white/55">Swipe or scroll to explore.</span></p>}
           </div>
 
-          <div aria-label="Workspace and tools navigation" tabIndex={0} className="drawer-scroll min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto overscroll-contain px-5 pb-12 pt-6 outline-none [scrollbar-gutter:stable]">
-            {!normalizedQuery && recentSearches.length > 0 && <div className="mb-7">
-              <div className="mb-3 flex items-center justify-between px-3"><span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50"><History className="h-3.5 w-3.5" /> Recent searches</span><button onClick={() => { setRecentSearches([]); window.localStorage.removeItem(RECENT_SEARCHES_KEY); }} className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/35 transition hover:text-white/70"><Trash2 className="h-3 w-3" /> Clear</button></div>
-              <div className="flex flex-wrap gap-2 px-1">{recentSearches.map((recent) => <button key={recent} onClick={() => { setSearchQuery(recent); window.setTimeout(() => searchInputRef.current?.focus(), 0); }} className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 transition hover:border-[#aeb8ed]/50 hover:bg-white/10 hover:text-white">{recent}</button>)}</div>
-            </div>}
+          <div aria-label="Workspace and tools navigation" tabIndex={0} className="drawer-scroll min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto overscroll-contain px-5 pb-12 pt-5 outline-none [scrollbar-gutter:stable]">
             {!normalizedQuery && <div className="mb-7">
               <div className="mb-3 flex items-center justify-between px-2"><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Quick actions</span><span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">Suggested</span></div>
               <div className="space-y-2">
                 {quickActions.map((action) => { const Icon = action.icon; return <button key={action.id} onClick={() => { if (action.id === 'add-expense' && onOpenTransactionModal) { onOpenTransactionModal(); setIsOpen(false); setSearchQuery(''); return; } if (action.id === 'coach' && onOpenCoachOverlay) { onOpenCoachOverlay(); setIsOpen(false); setSearchQuery(''); return; } navigate(action.id); }} className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-[#aeb8ed]/50 hover:bg-white/10"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#aeb8ed]/15 text-[#dfe4ff]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-white/90">{action.label}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{action.description}</span></span><ArrowUpRight className="h-4 w-4 text-white/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#dfe4ff]" /></button>; })}
               </div>
+            </div>}
+            {!normalizedQuery && recentSearches.length > 0 && <div className="mb-7">
+              <div className="mb-3 flex items-center justify-between px-3"><span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50"><History className="h-3.5 w-3.5" /> Recent searches</span><button onClick={() => { setRecentSearches([]); window.localStorage.removeItem(RECENT_SEARCHES_KEY); }} className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/35 transition hover:text-white/70"><Trash2 className="h-3 w-3" /> Clear</button></div>
+              <div className="flex flex-wrap gap-2 px-1">{recentSearches.map((recent) => <button key={recent} onClick={() => { setSearchQuery(recent); window.setTimeout(() => searchInputRef.current?.focus(), 0); }} className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 transition hover:border-[#aeb8ed]/50 hover:bg-white/10 hover:text-white">{recent}</button>)}</div>
             </div>}
             {filteredPrimaryItems.length > 0 && <section className="mb-7"><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Workspace</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredPrimaryItems.map(renderItem)}</nav></section>}
             {filteredToolItems.length > 0 && <section><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Tools</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredToolItems.map(renderItem)}</nav></section>}
