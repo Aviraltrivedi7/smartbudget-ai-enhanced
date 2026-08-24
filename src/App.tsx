@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 // Lazy load components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -63,6 +64,7 @@ const App = memo(() => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <PWAInstallPrompt />
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
               <Routes>

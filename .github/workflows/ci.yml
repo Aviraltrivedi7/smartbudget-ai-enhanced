@@ -31,6 +31,9 @@ jobs:
       - name: Test demo-data migration
         run: npm run test:migration
 
+      - name: Test PWA install assets
+        run: npm run test:pwa
+
       - name: Lint production-facing app surfaces
         run: npm run lint:ci
 
