@@ -20,7 +20,6 @@ import Gamification from '@/components/Gamification';
 import MonthlyReport from '@/components/MonthlyReport';
 import SmartSuggestions from '@/components/SmartSuggestions';
 import LanguageSelector from '@/components/LanguageSelector';
-import Footer from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import SpendingCoach from '@/components/SpendingCoach';
 import GeoFinanceMap from '@/components/GeoFinanceMap';
@@ -282,7 +281,6 @@ const Index = () => {
           <main className="pb-24 lg:pb-12">
             {renderCurrentView()}
           </main>
-          <Footer />
         </div>
         <WelcomeGuide
           isOpen={showWelcomeGuide}
