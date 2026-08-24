@@ -163,11 +163,14 @@ const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactio
   }, [filteredTransactions]);
 
   const categoryData = useMemo(() => {
-    const byCategory = filteredTransactions.filter((item) => item.type === 'expense').reduce<Record<string, number>>((result, item) => {
-      result[item.category] = (result[item.category] || 0) + Number(item.amount || 0);
+    const byCategory = filteredTransactions.filter((item) => item.type === 'expense').reduce<Record<string, { name: string; amount: number }>>((result, item) => {
+      const label = item.category?.trim() || 'Other';
+      const key = label.toLowerCase();
+      result[key] ||= { name: label, amount: 0 };
+      result[key].amount += Number(item.amount || 0);
       return result;
     }, {});
-    return Object.entries(byCategory).filter(([, amount]) => amount > 0).map(([category, amount], index) => ({
+    return Object.values(byCategory).filter(({ amount }) => amount > 0).map(({ name: category, amount }, index) => ({
       rawName: category,
       name: getCategoryTranslation(category, currentLanguage),
       value: amount,
