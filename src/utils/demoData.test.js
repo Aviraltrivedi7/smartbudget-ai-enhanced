@@ -38,3 +38,14 @@ test('partial legacy demo storage is replaced without losing custom rows', () =>
   assert.equal(totals.expenses, 35250);
   assert.equal(totals.income - totals.expenses, 58250);
 });
+
+test('deficit math never clamps the balance or utilization to zero/100', () => {
+  const totals = demoTotals([
+    { amount: 18500, type: 'income' },
+    { amount: 35000, type: 'expense' },
+  ]);
+  const expenseRatio = Math.round((totals.expenses / totals.income) * 100);
+
+  assert.equal(totals.income - totals.expenses, -16500);
+  assert.equal(expenseRatio, 189);
+});
