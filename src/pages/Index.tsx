@@ -279,7 +279,7 @@ const Index = () => {
           onOpenCoachOverlay={() => setIsCoachPromptOpen(true)}
           onOpenBudgetPlanner={() => setIsBudgetPlannerOpen(true)}
         />
-        <div className="min-h-screen">
+        <div className="min-h-screen lg:pl-[288px]">
           <main className="pb-24 lg:pb-12">
             {renderCurrentView()}
           </main>

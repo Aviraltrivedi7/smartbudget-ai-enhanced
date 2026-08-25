@@ -11,9 +11,8 @@ import {
   FileDown,
   LayoutDashboard,
   LogOut,
-  MoreHorizontal,
+  Menu,
   Search,
-  Command,
   ArrowUpRight,
   History,
   Trash2,
@@ -149,41 +148,41 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-[72px] items-center border-b border-[#e7e8ee] bg-[#f8f7f4]/95 px-4 backdrop-blur-xl sm:px-6 lg:px-10">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsOpen(true)}
-            aria-label="Open navigation menu"
-            aria-expanded={isOpen}
-            className="group flex h-10 w-10 items-center justify-center rounded-xl border border-[#e7e8ee] bg-white text-[#5867bb] shadow-[0_4px_16px_rgba(31,43,72,0.05)] transition hover:-translate-y-0.5 hover:border-[#aeb8ed] hover:bg-[#eef0fb]"
-          >
-            <MoreHorizontal className="h-5 w-5 transition group-hover:scale-110" />
-          </button>
-          <button onClick={() => navigate('dashboard')} className="flex items-center gap-2.5 text-left">
-            <span className="brand-mark"><img src="/dhansetu-logo.png" alt="DhanSetu AI logo" className="h-7 w-7 object-contain" /></span>
-            <span>
-              <span className="block text-[16px] font-semibold tracking-[-0.03em] text-[#222d4b]">DhanSetu<span className="text-[#5867bb]">.</span> <span className="text-[13px] font-bold tracking-[-0.01em]">AI</span></span>
-              <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:block">Aapke paiso ka smart saathi</span>
-            </span>
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          {appConfig.isDemoMode && <span title="Demo data stays in this browser" className={`hidden items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] md:flex ${user ? 'bg-[#eef0eb] text-[#667080]' : 'border border-[#ead8bd] bg-[#fff7ed] text-[#9a6844]'}`}><span className={`h-1.5 w-1.5 rounded-full ${user ? 'bg-[#5867bb]' : 'bg-[#bf7864]'}`} />{user ? 'Workspace ready' : 'Demo mode · local data'}</span>}
-          <button onClick={() => onOpenTransactionModal ? onOpenTransactionModal() : navigate('add-expense')} className="inline-flex items-center gap-2 rounded-xl bg-[#222d4b] px-3.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(34,45,75,0.16)] transition hover:-translate-y-0.5 hover:bg-[#3e4c91]"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Add transaction</span></button>
-        </div>
+      <header className="sticky top-0 z-40 flex h-[72px] items-center border-b border-[#e7e8ee] bg-[#f8f7f4]/95 backdrop-blur-xl lg:pl-[288px]">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-10">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsOpen(true)}
+              aria-label="Open navigation menu"
+              aria-expanded={isOpen}
+              className="group flex h-10 w-10 items-center justify-center rounded-xl border border-[#e7e8ee] bg-white text-[#5867bb] shadow-[0_4px_16px_rgba(31,43,72,0.05)] transition hover:-translate-y-0.5 hover:border-[#aeb8ed] hover:bg-[#eef0fb] lg:hidden"
+            >
+              <Menu className="h-5 w-5 transition group-hover:scale-110" />
+            </button>
+            <button onClick={() => navigate('dashboard')} className="flex items-center gap-2.5 text-left lg:hidden">
+              <span className="brand-mark"><img src="/dhansetu-logo.png" alt="DhanSetu AI logo" className="h-7 w-7 object-contain" /></span>
+              <span>
+                <span className="block text-[16px] font-semibold tracking-[-0.03em] text-[#222d4b]">DhanSetu<span className="text-[#5867bb]">.</span> <span className="text-[13px] font-bold tracking-[-0.01em]">AI</span></span>
+                <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 sm:block">Aapke paiso ka smart saathi</span>
+              </span>
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            {appConfig.isDemoMode && <span title="Demo data stays in this browser" className={`hidden items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] md:flex ${user ? 'bg-[#eef0eb] text-[#667080]' : 'border border-[#ead8bd] bg-[#fff7ed] text-[#9a6844]'}`}><span className={`h-1.5 w-1.5 rounded-full ${user ? 'bg-[#5867bb]' : 'bg-[#bf7864]'}`} />{user ? 'Workspace ready' : 'Demo mode · local data'}</span>}
+            <button onClick={() => onOpenTransactionModal ? onOpenTransactionModal() : navigate('add-expense')} className="inline-flex items-center gap-2 rounded-xl bg-[#222d4b] px-3.5 py-2.5 text-xs font-bold text-white shadow-[0_8px_20px_rgba(34,45,75,0.16)] transition hover:-translate-y-0.5 hover:bg-[#3e4c91]"><Plus className="h-4 w-4" /><span className="hidden sm:inline">Add transaction</span></button>
+          </div>
         </div>
       </header>
 
-      <div className={`fixed inset-0 z-[60] overflow-hidden transition-opacity duration-200 ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!isOpen}>
-        <div className="absolute inset-0 bg-[#18213a]/35 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-        <aside role="dialog" aria-modal="true" aria-label="DhanSetu AI navigation" className={`absolute inset-y-0 left-0 flex h-dvh max-h-dvh min-h-0 w-[min(360px,92vw)] flex-col overflow-hidden bg-gradient-to-b from-[#273661] via-[#222d4b] to-[#1b243f] text-white shadow-[24px_0_70px_rgba(24,33,58,0.3)] transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
+        <div className={`absolute inset-0 bg-[#18213a]/35 backdrop-blur-sm transition-opacity duration-200 lg:hidden ${isOpen ? 'pointer-events-auto opacity-100' : 'opacity-0'}`} onClick={() => setIsOpen(false)} />
+        <aside role="navigation" aria-label="DhanSetu AI navigation" className={`pointer-events-none absolute inset-y-0 left-0 flex h-dvh max-h-dvh min-h-0 w-[min(360px,92vw)] flex-col overflow-hidden bg-gradient-to-b from-[#273661] via-[#222d4b] to-[#1b243f] text-white shadow-[24px_0_70px_rgba(24,33,58,0.3)] transition-transform duration-300 ease-out lg:pointer-events-auto lg:w-[288px] ${isOpen ? 'pointer-events-auto translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
           <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
             <button onClick={() => navigate('dashboard')} className="flex items-center gap-3 text-left">
               <span className="brand-mark flex h-10 w-10 items-center justify-center rounded-2xl border border-white/15 bg-white/10 shadow-inner shadow-white/10"><img src="/dhansetu-logo.png" alt="DhanSetu AI logo" className="h-7 w-7 object-contain" /></span>
               <span><span className="block text-[17px] font-semibold tracking-[-0.03em]">DhanSetu<span className="text-[#dfe4ff]">.</span> <span className="text-[13px] font-bold tracking-[-0.01em] text-white/75">AI</span></span><span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.18em] text-white/50">Aapke paiso ka smart saathi</span></span>
             </button>
-            <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white"><X className="h-5 w-5" /></button>
+            <button onClick={() => setIsOpen(false)} aria-label="Close navigation menu" className="rounded-xl p-2 text-white/70 transition hover:bg-white/10 hover:text-white lg:hidden"><X className="h-5 w-5" /></button>
           </div>
           <div className="border-b border-white/10 bg-white/[0.03] px-6 py-5">
             <div className="relative">
