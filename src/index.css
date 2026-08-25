@@ -65,6 +65,7 @@
 @layer components {
   .premium-card { @apply rounded-[1.2rem] border border-[#e7e8ee] bg-white shadow-[0_8px_30px_rgba(31,43,72,0.045)]; background: linear-gradient(180deg, #ffffff 0%, #fcfbf9 100%); box-shadow: 0 14px 36px rgba(31, 43, 72, 0.055), inset 0 1px 0 rgba(255, 255, 255, 0.8); }
   .eyebrow { @apply text-[10px] font-bold uppercase tracking-[0.2em] text-[#5867bb]; }
+  .handwritten-note { font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive; letter-spacing: -0.02em; }
   .metric-card { @apply rounded-[1.2rem] p-5 text-slate-950 shadow-[0_10px_28px_rgba(31,43,72,0.06)] transition duration-200 hover:-translate-y-0.5; }
   .metric-card-dark { @apply bg-[#222d4b] text-white; }
   .metric-card-mint { @apply bg-[#e8eefc] text-[#29365f]; }

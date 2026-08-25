@@ -62,6 +62,10 @@ export default function LandingPage() {
                 <button type="button" onClick={() => navigate('/')} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#dfe4ff] px-5 py-3.5 text-sm font-bold text-[#222d4b] shadow-[0_12px_28px_rgba(15,23,42,0.2)] transition hover:-translate-y-0.5 hover:bg-white">Start your money workspace <ArrowRight className="h-4 w-4" /></button>
                 <a href="#how-it-works" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 px-5 py-3.5 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white">See how it works <ChevronRight className="h-4 w-4" /></a>
               </div>
+              <div className="mt-6 flex items-start gap-2 pl-1 text-[#e7dcae] sm:ml-2">
+                <span className="mt-1 text-lg leading-none">↗</span>
+                <p className="handwritten-note max-w-[230px] -rotate-2 text-sm leading-5">No perfect budgets here — just better next steps.</p>
+              </div>
               <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-semibold text-white/50"><span className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[#aeb8ed]" /> Private by design</span><span className="inline-flex items-center gap-2"><IndianRupee className="h-4 w-4 text-[#e7dcae]" /> India-ready money context</span><span className="inline-flex items-center gap-2"><Command className="h-4 w-4 text-[#aeb8ed]" /> Command Center</span></div>
             </div>
 
