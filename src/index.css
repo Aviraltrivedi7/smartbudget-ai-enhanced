@@ -38,23 +38,6 @@
     --income: 230 55% 52%;
   }
 
-  .dark {
-    --background: 224 29% 10%;
-    --foreground: 42 24% 96%;
-    --card: 224 24% 14%;
-    --card-foreground: 42 24% 96%;
-    --popover: 224 24% 14%;
-    --popover-foreground: 42 24% 96%;
-    --secondary: 224 22% 20%;
-    --secondary-foreground: 42 24% 96%;
-    --muted: 224 22% 20%;
-    --muted-foreground: 220 10% 70%;
-    --accent: 224 22% 20%;
-    --accent-foreground: 42 24% 96%;
-    --border: 224 18% 28%;
-    --input: 224 18% 28%;
-    --ring: 228 100% 86%;
-  }
 
   * { @apply border-border; }
   html { min-width: 320px; background: #f8f7f4; }
@@ -161,23 +144,3 @@
 .drawer-scroll::-webkit-scrollbar-track { border-radius: 999px; background: #f4f6fb; }
 .drawer-scroll::-webkit-scrollbar-thumb { border: 2px solid #ffffff; border-radius: 999px; background: #c5cce5; }
 .drawer-scroll::-webkit-scrollbar-thumb:hover { background: #aeb8ed; }
-
-
-/* Keep the navigation rail intentionally white in both themes for stable wayfinding. */
-.dark aside[aria-label="DhanSetu AI navigation"] { background-color: #ffffff !important; color: #222d4b; }
-.dark aside[aria-label="DhanSetu AI navigation"] .bg-white { background-color: #ffffff !important; }
-
-/* Accessible dark workspace overrides used by the Command Center theme toggle. */
-.dark body { background: #11182d; color: #f8f7f4; }
-  .dark .premium-card { border-color: #2e3a5e; background: #1b2541; color: #f8f7f4; background-image: linear-gradient(180deg, #202b4b 0%, #1b2541 100%); }
-.dark .metric-card-mint { background: #26345d; color: #eef0fb; }
-.dark .metric-card-sand { background: #4b3340; color: #fff4ef; }
-.dark .bg-white { background-color: #1b2541 !important; }
-.dark .bg-\[\#f8f7f4\] { background-color: #161f38 !important; }
-.dark .bg-\[\#fbfaf8\] { background-color: #161f38 !important; }
-.dark .text-slate-950, .dark .text-slate-900, .dark .text-slate-800 { color: #f8f7f4 !important; }
-.dark .text-slate-700, .dark .text-slate-600, .dark .text-slate-500 { color: #c9d0e6 !important; }
-.dark .text-slate-400 { color: #9ea9c5 !important; }
-.dark .border-\[\#e7e8ee\], .dark .border-\[\#ececf1\], .dark .border-slate-100 { border-color: #2e3a5e !important; }
-.dark header { border-color: #2e3a5e; background: rgba(17, 24, 45, 0.94); }
-.dark .metric-card-dark { background: #222d4b; }

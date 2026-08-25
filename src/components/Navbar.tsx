@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { appConfig } from '@/config/appConfig';
 import { toast } from 'sonner';
@@ -17,12 +16,10 @@ import {
   ArrowUpRight,
   History,
   Trash2,
-  Moon,
   Plus,
   ScanLine,
   Settings,
   Sparkles,
-  Sun,
   Target,
   Trophy,
   X,
@@ -55,7 +52,6 @@ const toolItems = [
 
 export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenTransactionModal, onOpenCoachOverlay, onOpenBudgetPlanner }) => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const { currentLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,7 +75,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
   const utilityMatches = {
     notifications: !normalizedQuery || ['notifications', 'notification', 'alerts'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
     settings: !normalizedQuery || ['settings', 'preferences'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
-    theme: !normalizedQuery || ['dark mode', 'light mode', 'appearance', 'theme'].some((alias) => alias.includes(normalizedQuery) || normalizedQuery.includes(alias)),
   };
   const hasResults = filteredPrimaryItems.length > 0 || filteredToolItems.length > 0 || Object.values(utilityMatches).some(Boolean);
   const quickActions = [
@@ -157,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
     if (!normalizedQuery) return label;
     const start = label.toLowerCase().indexOf(normalizedQuery);
     if (start < 0) return label;
-    return <>{label.slice(0, start)}<mark className="rounded bg-[#aeb8ed]/25 px-0.5 text-[#f5f6ff]">{label.slice(start, start + normalizedQuery.length)}</mark>{label.slice(start + normalizedQuery.length)}</>;
+    return <>{label.slice(0, start)}<mark className="rounded bg-[#aeb8ed]/25 px-0.5 text-[#5867bb]">{label.slice(start, start + normalizedQuery.length)}</mark>{label.slice(start + normalizedQuery.length)}</>;
   };
 
   const renderItem = (item: typeof primaryItems[number]) => {
@@ -243,10 +238,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
             {!hasResults && <div className="rounded-2xl border border-[#e7e8ee] bg-[#fbfcfe] px-4 py-5 text-center"><Search className="mx-auto h-5 w-5 text-[#9aa4b8]" /><p className="mt-3 text-sm font-semibold text-[#344052]">No navigation found</p><p className="mt-1 text-xs leading-5 text-[#8993aa]">Try a different keyword or clear your search.</p><button onClick={() => setSearchQuery('')} className="mt-4 rounded-lg bg-[#eef0fb] px-3 py-2 text-xs font-bold text-[#5867bb]">Clear search</button></div>}
           </div>
           <div className="shrink-0 border-t border-[#e7e8ee] bg-white px-5 py-4 shadow-[0_-14px_30px_rgba(31,43,72,0.06)]">
-            {(utilityMatches.notifications || utilityMatches.settings || utilityMatches.theme) && <div className="space-y-1">
+            {(utilityMatches.notifications || utilityMatches.settings) && <div className="space-y-1">
               {utilityMatches.notifications && <button onClick={handleNotifications} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-[#e1e5f0] hover:bg-[#f4f6fb]"><Bell className="h-4 w-4" /><span>Notifications</span>{unreadAlerts > 0 ? <span className="ml-auto min-w-5 rounded-full bg-[#bf7864] px-1.5 py-0.5 text-center text-[10px] font-extrabold text-white">{unreadAlerts > 9 ? '9+' : unreadAlerts}</span> : <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#c5cce5]" />}</button>}
               {utilityMatches.settings && <button onClick={() => toast.info('Settings are coming soon')} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-[#e1e5f0] hover:bg-[#f4f6fb]"><Settings className="h-4 w-4" /><span>Settings</span></button>}
-              {utilityMatches.theme && <button onClick={toggleTheme} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-[#e1e5f0] hover:bg-[#f4f6fb]"><span className="flex h-4 w-4 items-center justify-center">{theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}</span><span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span></button>}
             </div>}
             <div className="mt-2 border-t border-[#e7e8ee] pt-2">
               <div className="flex items-center gap-2.5 rounded-xl border border-[#e7e8ee] bg-[#fbfcfe] p-2.5"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#dfe4ff] text-[11px] font-extrabold text-[#222d4b]">{initials}</div><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-[#344052]">{displayName}</p><p className="mt-0.5 text-[10px] text-[#8993aa]">Personal workspace</p></div><button onClick={async () => { await logout(); setIsOpen(false); toast.success(isHindi ? 'साइन आउट हो गया' : 'Signed out successfully'); }} className="rounded-lg p-1 text-[#8993aa] transition hover:bg-[#f4f6fb] hover:text-[#222d4b]" aria-label="Sign out"><LogOut className="h-4 w-4" /></button></div>

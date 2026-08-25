@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,22 +12,15 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const THEME_KEY = 'dhansetu_theme';
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'light';
-    const saved = window.localStorage.getItem(THEME_KEY);
-    return saved === 'dark' ? 'dark' : 'light';
-  });
-
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle('dark', theme === 'dark');
-    window.localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
+    document.documentElement.classList.remove('dark');
+    window.localStorage.setItem(THEME_KEY, 'light');
+  }, []);
 
-  const setTheme = (nextTheme: Theme) => setThemeState(nextTheme);
-  const toggleTheme = () => setThemeState((current) => current === 'dark' ? 'light' : 'dark');
+  const setTheme = (_nextTheme: Theme) => undefined;
+  const toggleTheme = () => undefined;
 
-  return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={{ theme: 'light', setTheme, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = (): ThemeContextType => {

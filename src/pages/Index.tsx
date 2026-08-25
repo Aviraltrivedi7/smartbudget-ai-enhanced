@@ -29,7 +29,6 @@ import AdvancedAnalytics from '@/components/AdvancedAnalytics';
 import BudgetProgress from '@/components/BudgetProgress';
 import MoneyMonster from '@/components/MoneyMonster';
 import CalendarExpenseTracker from '@/components/CalendarExpenseTracker';
-import { ThemeProvider } from '@/contexts/ThemeContext';
 import Navbar from '@/components/Navbar';
 import WelcomeGuide from '@/components/WelcomeGuide';
 import FloatingCoachButton from '@/components/FloatingCoachButton';
@@ -270,8 +269,7 @@ const Index = () => {
   };
 
   return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-background text-slate-900 smooth-load">
+    <div className="min-h-screen bg-background text-slate-900 smooth-load">
         <Navbar
           currentView={currentView}
           onNavigate={setCurrentView}
@@ -323,8 +321,7 @@ const Index = () => {
             setCurrentView('coach');
           }}
         />
-      </div>
-    </ThemeProvider>
+    </div>
   );
 };
 
