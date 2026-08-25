@@ -305,7 +305,7 @@ const GeoFinanceMap: React.FC<GeoFinanceMapProps> = ({ onBack, transactions }) =
                 <LoadScript
                   googleMapsApiKey={apiKey}
                   onError={() => setMapError(true)}
-                  loadingElement={<div className="flex items-center justify-center h-[600px] bg-gray-100 dark:bg-gray-800"><p className="text-gray-600 dark:text-gray-300">Loading Google Maps...</p></div>}
+                  loadingElement={<div className="flex items-center justify-center h-[600px] bg-gray-100 "><p className="text-gray-600 ">Loading Google Maps...</p></div>}
                 >
                 <GoogleMap
                   mapContainerStyle={mapContainerStyle}
