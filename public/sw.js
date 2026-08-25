@@ -1,5 +1,15 @@
-const CACHE_NAME = 'dhansetu-shell-v1';
-const APP_SHELL = ['/', '/manifest.json', '/favicon.svg', '/dhansetu-logo.png'];
+const CACHE_NAME = 'dhansetu-shell-v2';
+const APP_SHELL = ['/','/manifest.json','/favicon.svg','/dhansetu-logo.png'];
+
+const isNavigationRequest = (request) =>
+  request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html');
+
+const cacheShellResponse = async (response) => {
+  if (!response.ok) return response;
+  const cache = await caches.open(CACHE_NAME);
+  await cache.put('/', response.clone());
+  return response;
+};
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -8,7 +18,9 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+    )
   );
   self.clients.claim();
 });
@@ -19,6 +31,15 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
   if (requestUrl.pathname.startsWith('/api') || requestUrl.pathname.startsWith('/socket.io')) return;
+
+  if (isNavigationRequest(event.request)) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then(cacheShellResponse)
+        .catch(() => caches.match(event.request).then((cachedResponse) => cachedResponse || caches.match('/')))
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
