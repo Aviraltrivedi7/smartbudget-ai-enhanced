@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { appConfig } from '@/config/appConfig';
 import { toast } from 'sonner';
+import { markBudgetAlertsRead, readBudgetAlerts, requestBudgetNotificationPermission, unreadBudgetAlertCount } from '@/utils/budgetAlerts.js';
 import {
   BarChart3,
   Bell,
@@ -59,6 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [unreadAlerts, setUnreadAlerts] = useState(() => unreadBudgetAlertCount());
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     if (typeof window === 'undefined') return [];
     try {
@@ -111,6 +113,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
   };
 
   useEffect(() => {
+    const syncBudgetAlerts = () => setUnreadAlerts(unreadBudgetAlertCount());
+    window.addEventListener('dhansetu:budget-alerts', syncBudgetAlerts);
+    window.addEventListener('storage', syncBudgetAlerts);
+    return () => {
+      window.removeEventListener('dhansetu:budget-alerts', syncBudgetAlerts);
+      window.removeEventListener('storage', syncBudgetAlerts);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
@@ -126,6 +138,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
       document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  const handleNotifications = async () => {
+    const alerts = readBudgetAlerts().filter((alert) => !alert.read);
+    if (!alerts.length) {
+      toast.info('Notifications are all caught up');
+      return;
+    }
+    const permission = await requestBudgetNotificationPermission();
+    const latest = alerts[0];
+    toast.warning(`${alerts.length} budget alert${alerts.length > 1 ? 's' : ''}`, { description: `${latest.category} is ${latest.overagePercent}% over its limit. Review Budget watch on the dashboard.` });
+    if (permission === 'granted') toast.success('Browser alerts enabled for future budget limits');
+    markBudgetAlertsRead();
+    setUnreadAlerts(0);
+  };
 
   const highlightLabel = (label: string) => {
     if (!normalizedQuery) return label;
@@ -218,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
           </div>
           <div className="shrink-0 border-t border-white/10 bg-[#1b243f]/90 px-5 py-4 shadow-[0_-14px_30px_rgba(15,23,42,0.12)]">
             {(utilityMatches.notifications || utilityMatches.settings || utilityMatches.theme) && <div className="space-y-1">
-              {utilityMatches.notifications && <button onClick={() => toast.info('Notifications are all caught up')} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-white/10 hover:bg-white/10"><Bell className="h-4 w-4" /><span>Notifications</span><span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#bf7864]" /></button>}
+              {utilityMatches.notifications && <button onClick={handleNotifications} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-white/10 hover:bg-white/10"><Bell className="h-4 w-4" /><span>Notifications</span>{unreadAlerts > 0 ? <span className="ml-auto min-w-5 rounded-full bg-[#bf7864] px-1.5 py-0.5 text-center text-[10px] font-extrabold text-white">{unreadAlerts > 9 ? '9+' : unreadAlerts}</span> : <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/25" />}</button>}
               {utilityMatches.settings && <button onClick={() => toast.info('Settings are coming soon')} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-white/10 hover:bg-white/10"><Settings className="h-4 w-4" /><span>Settings</span></button>}
               {utilityMatches.theme && <button onClick={toggleTheme} className="sidebar-link rounded-xl border border-transparent !gap-3 !px-3 !py-2 !text-[13px] !leading-5 hover:border-white/10 hover:bg-white/10"><span className="flex h-4 w-4 items-center justify-center">{theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}</span><span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span></button>}
             </div>}

@@ -45,6 +45,7 @@ import { socketService } from '@/services/socketService';
 import MonthYearPicker from './MonthYearPicker';
 import { cn } from '@/lib/utils';
 import { appConfig } from '@/config/appConfig';
+import { notifyBudgetAlert, readBudgetAlerts, upsertBudgetAlerts } from '@/utils/budgetAlerts.js';
 
 interface DashboardProps {
   transactions?: Transaction[];
@@ -195,7 +196,27 @@ const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactio
   const savingsRate = totals.income ? Math.round(((totals.income - totals.expenses) / totals.income) * 100) : 0;
   const loggingDays = new Set(filteredTransactions.map((transaction) => transaction.date)).size;
   const leadingCategory = [...categoryData].sort((a, b) => b.value - a.value)[0];
-  const overBudgetCategories = categoryData.filter((category) => category.value > getBudgetLimit(category.rawName)).map((category) => ({ ...category, budget: getBudgetLimit(category.rawName), overagePercent: Math.round(((category.value - getBudgetLimit(category.rawName)) / getBudgetLimit(category.rawName)) * 100) }));
+  const overBudgetCategories = useMemo(() => categoryData.filter((category) => category.value > getBudgetLimit(category.rawName)).map((category) => ({ ...category, budget: getBudgetLimit(category.rawName), overagePercent: Math.round(((category.value - getBudgetLimit(category.rawName)) / getBudgetLimit(category.rawName)) * 100) })), [categoryData]);
+  useEffect(() => {
+    if (!filteredTransactions.length || !overBudgetCategories.length) return;
+    const alertMonth = selectedMonth;
+    const newAlerts = overBudgetCategories.map((category) => ({
+      id: `${alertMonth}:${category.rawName.toLowerCase()}:${category.budget}`,
+      month: alertMonth,
+      category: category.rawName,
+      spent: category.value,
+      budget: category.budget,
+      overagePercent: category.overagePercent,
+    }));
+    const beforeIds = new Set(readBudgetAlerts().map((alert) => alert.id));
+    const persisted = upsertBudgetAlerts(newAlerts);
+    const created = persisted.filter((alert) => !beforeIds.has(alert.id));
+    created.forEach((alert) => {
+      toast.warning(`${alert.category} budget crossed`, { description: `Spent ${currency(alert.spent)} against a ${currency(alert.budget)} limit (${alert.overagePercent}% over).` });
+      notifyBudgetAlert(alert);
+    });
+    if (created.length) window.dispatchEvent(new Event('dhansetu:budget-alerts'));
+  }, [filteredTransactions.length, overBudgetCategories, selectedMonth]);
   const quietCategory = categoryData.length ? ['Travel', 'Food', 'Rent', 'Utilities'].find((category) => !categoryData.some((entry) => entry.rawName.toLowerCase() === category.toLowerCase())) : undefined;
   const financialHealth = filteredTransactions.length ? Math.min(100, Math.round((Math.max(0, savingsRate) * 0.6) + (Math.min(loggingDays, 7) * 4) + (leadingCategory ? 10 : 0))) : 0;
   const isStreakComplete = loggingDays >= 7;

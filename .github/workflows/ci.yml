@@ -34,6 +34,9 @@ jobs:
       - name: Test PWA install assets
         run: npm run test:pwa
 
+      - name: Test budget alert persistence
+        run: npm run test:alerts
+
       - name: Lint production-facing app surfaces
         run: npm run lint:ci
 
