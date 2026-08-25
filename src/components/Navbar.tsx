@@ -39,17 +39,17 @@ interface NavbarProps {
 
 const primaryItems = [
   { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-  { id: 'insights', label: 'AI insights', icon: Sparkles },
-  { id: 'visualizer', label: 'Analytics', icon: BarChart3 },
+  { id: 'insights', label: 'Money notes', icon: Sparkles },
+  { id: 'visualizer', label: 'Trends', icon: BarChart3 },
   { id: 'calendar-tracker', label: 'Transactions', icon: CalendarDays },
 ];
 
 const RECENT_SEARCHES_KEY = 'smartbudget_recent_searches';
 
 const toolItems = [
-  { id: 'budget-planner', label: 'Budget planner', icon: Target },
-  { id: 'savings-goals', label: 'Savings goals', icon: Trophy },
-  { id: 'monthly-report', label: 'Reports & exports', icon: FileDown },
+  { id: 'budget-planner', label: 'Plan my month', icon: Target },
+  { id: 'savings-goals', label: 'Goals', icon: Trophy },
+  { id: 'monthly-report', label: 'Reports', icon: FileDown },
   { id: 'bill-scanner', label: 'Scan a bill', icon: ScanLine },
 ];
 
@@ -83,8 +83,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
   };
   const hasResults = filteredPrimaryItems.length > 0 || filteredToolItems.length > 0 || Object.values(utilityMatches).some(Boolean);
   const quickActions = [
-    { id: 'add-expense', label: 'Add transaction', description: 'Log income or an expense', icon: Plus },
-    { id: 'coach', label: 'Ask AI coach', description: 'Get a smarter next step', icon: Sparkles },
+    { id: 'add-expense', label: 'Add a transaction', description: 'Log income or an expense', icon: Plus },
+    { id: 'coach', label: 'Ask DhanSetu', description: 'Talk through a money decision', icon: Sparkles },
   ];
 
   const recordSearch = (value: string) => {
@@ -218,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                placeholder="Search anything..."
+                placeholder="Find a page..."
                 aria-label="Search navigation"
                 autoComplete="off"
                 className="w-full rounded-2xl border border-white/10 bg-white/10 py-3 pl-11 pr-10 text-sm text-white outline-none placeholder:text-white/50 shadow-inner shadow-black/5 transition focus:border-[#aeb8ed]/70 focus:bg-white/15"
@@ -229,7 +229,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
 
           <div aria-label="Workspace and tools navigation" tabIndex={0} className="drawer-scroll min-h-0 flex-1 touch-pan-y overflow-x-hidden overflow-y-auto overscroll-contain px-5 pb-12 pt-5 outline-none [scrollbar-gutter:stable]">
             {!normalizedQuery && <div className="mb-7">
-              <div className="mb-3 flex items-center justify-between px-2"><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Quick actions</span><span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">Suggested</span></div>
+              <div className="mb-3 flex items-center justify-between px-2"><span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Start here</span><span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">Quick picks</span></div>
               <div className="space-y-2">
                 {quickActions.map((action) => { const Icon = action.icon; return <button key={action.id} onClick={() => { if (action.id === 'add-expense' && onOpenTransactionModal) { onOpenTransactionModal(); setIsOpen(false); setSearchQuery(''); return; } if (action.id === 'coach' && onOpenCoachOverlay) { onOpenCoachOverlay(); setIsOpen(false); setSearchQuery(''); return; } navigate(action.id); }} className="group flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3.5 py-3 text-left transition hover:-translate-y-0.5 hover:border-[#aeb8ed]/50 hover:bg-white/10"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#aeb8ed]/15 text-[#dfe4ff]"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-white/90">{action.label}</span><span className="mt-0.5 block truncate text-[10px] text-white/45">{action.description}</span></span><ArrowUpRight className="h-4 w-4 text-white/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#dfe4ff]" /></button>; })}
               </div>
@@ -238,8 +238,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onOpenT
               <div className="mb-3 flex items-center justify-between px-3"><span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/50"><History className="h-3.5 w-3.5" /> Recent searches</span><button onClick={() => { setRecentSearches([]); window.localStorage.removeItem(RECENT_SEARCHES_KEY); }} className="inline-flex items-center gap-1 text-[10px] font-semibold text-white/35 transition hover:text-white/70"><Trash2 className="h-3 w-3" /> Clear</button></div>
               <div className="flex flex-wrap gap-2 px-1">{recentSearches.map((recent) => <button key={recent} onClick={() => { setSearchQuery(recent); window.setTimeout(() => searchInputRef.current?.focus(), 0); }} className="max-w-full truncate rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/65 transition hover:border-[#aeb8ed]/50 hover:bg-white/10 hover:text-white">{recent}</button>)}</div>
             </div>}
-            {filteredPrimaryItems.length > 0 && <section className="mb-7"><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Workspace</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredPrimaryItems.map(renderItem)}</nav></section>}
-            {filteredToolItems.length > 0 && <section><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Tools</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredToolItems.map(renderItem)}</nav></section>}
+            {filteredPrimaryItems.length > 0 && <section className="mb-7"><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Your money</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredPrimaryItems.map(renderItem)}</nav></section>}
+            {filteredToolItems.length > 0 && <section><div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#dfe4ff]/60">Tools for the month</div><nav className="space-y-1 rounded-3xl border border-white/10 bg-black/10 p-2">{filteredToolItems.map(renderItem)}</nav></section>}
             {!hasResults && <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-5 text-center"><Search className="mx-auto h-5 w-5 text-white/50" /><p className="mt-3 text-sm font-semibold text-white/85">No navigation found</p><p className="mt-1 text-xs leading-5 text-white/55">Try a different keyword or clear your search.</p><button onClick={() => setSearchQuery('')} className="mt-4 rounded-lg bg-[#dfe4ff] px-3 py-2 text-xs font-bold text-[#222d4b]">Clear search</button></div>}
           </div>
           <div className="shrink-0 border-t border-white/10 bg-[#1b243f]/90 px-5 py-4 shadow-[0_-14px_30px_rgba(15,23,42,0.12)]">
