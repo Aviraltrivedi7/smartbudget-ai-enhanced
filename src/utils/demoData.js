@@ -30,6 +30,19 @@ export const normalizeLegacyDemoSeed = (parsed) => {
   return [...defaultTransactions, ...userCreatedRows];
 };
 
+export const resolveGuestTransactions = (parsedTransactions, { isLiveMode = false } = {}) => {
+  if (isLiveMode) return [];
+  if (!Array.isArray(parsedTransactions) || parsedTransactions.length === 0) return defaultTransactions;
+
+  const totalAmount = parsedTransactions.reduce(
+    (sum, item) => sum + (Number(item?.amount) || 0),
+    0,
+  );
+  const normalized = normalizeLegacyDemoSeed(parsedTransactions);
+  if (normalized !== parsedTransactions) return normalized;
+  return totalAmount > 0 ? parsedTransactions : defaultTransactions;
+};
+
 export const demoTotals = (transactions) => transactions.reduce((totals, transaction) => {
   if (transaction.type === 'income') totals.income += Number(transaction.amount) || 0;
   if (transaction.type === 'expense') totals.expenses += Number(transaction.amount) || 0;

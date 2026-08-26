@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { defaultTransactions, demoTotals, normalizeLegacyDemoSeed } from './demoData.js';
+import { defaultTransactions, demoTotals, normalizeLegacyDemoSeed, resolveGuestTransactions } from './demoData.js';
 
 test('default demo fixture reconciles August dates, categories, and totals', () => {
   const totals = demoTotals(defaultTransactions);
@@ -37,6 +37,12 @@ test('partial legacy demo storage is replaced without losing custom rows', () =>
   assert.equal(totals.income, 93500);
   assert.equal(totals.expenses, 35250);
   assert.equal(totals.income - totals.expenses, 58250);
+});
+
+test('live-mode guests never inherit the local August demo fixture', () => {
+  assert.deepEqual(resolveGuestTransactions(defaultTransactions, { isLiveMode: true }), []);
+  assert.deepEqual(resolveGuestTransactions([], { isLiveMode: false }), defaultTransactions);
+  assert.deepEqual(resolveGuestTransactions(defaultTransactions, { isLiveMode: false }), defaultTransactions);
 });
 
 test('deficit math never clamps the balance or utilization to zero/100', () => {

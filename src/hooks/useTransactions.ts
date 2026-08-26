@@ -2,7 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { transactionService, Transaction as ApiTransaction } from '@/services/transactionService';
-import { defaultTransactions, normalizeLegacyDemoSeed } from '@/utils/demoData';
+import { appConfig } from '@/config/appConfig';
+import { resolveGuestTransactions } from '@/utils/demoData';
 
 export interface LocalTransaction {
   id: string;
@@ -24,21 +25,14 @@ interface ApiTransactionRecord extends Omit<ApiTransaction, 'category'> {
 
 
 const readLocalTransactions = (): LocalTransaction[] => {
+  let parsed: LocalTransaction[] | null = null;
   try {
     const stored = localStorage.getItem('pocket_pal_transactions');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const totalAmount = parsed.reduce((sum: number, item: { amount?: number | string }) => sum + (Number(item.amount) || 0), 0);
-        const normalized = normalizeLegacyDemoSeed(parsed as LocalTransaction[]);
-        if (normalized !== parsed) return normalized;
-        if (totalAmount > 0) return parsed as LocalTransaction[];
-      }
-    }
+    if (stored) parsed = JSON.parse(stored) as LocalTransaction[];
   } catch (error) {
     console.error('Error parsing cached transactions:', error);
   }
-  return defaultTransactions;
+  return resolveGuestTransactions(parsed, { isLiveMode: appConfig.isLiveMode }) as LocalTransaction[];
 };
 
 const saveLocalTransactions = (transactions: LocalTransaction[]) => {

@@ -2,9 +2,11 @@ import { io, Socket } from 'socket.io-client';
 import { getAuthToken } from '@/lib/api';
 import { isInsForgeConfigured } from '@/lib/insforge';
 
+type SocketListener = (data: unknown) => void;
+
 class SocketService {
   private socket: Socket | null = null;
-  private listeners: Map<string, Function[]> = new Map();
+  private listeners: Map<string, SocketListener[]> = new Map();
 
   // Initialize socket connection
   connect() {
@@ -100,7 +102,7 @@ class SocketService {
   }
 
   // Add event listener
-  on(event: string, callback: Function) {
+  on(event: string, callback: SocketListener) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
@@ -108,7 +110,7 @@ class SocketService {
   }
 
   // Remove event listener
-  off(event: string, callback: Function) {
+  off(event: string, callback: SocketListener) {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
       const index = eventListeners.indexOf(callback);
@@ -119,7 +121,7 @@ class SocketService {
   }
 
   // Emit to all listeners of an event
-  private emitToListeners(event: string, data: any) {
+  private emitToListeners(event: string, data: unknown) {
     const eventListeners = this.listeners.get(event);
     if (eventListeners) {
       eventListeners.forEach(callback => {
@@ -133,7 +135,7 @@ class SocketService {
   }
 
   // Emit event to server
-  emit(event: string, data?: any) {
+  emit(event: string, data?: unknown) {
     if (this.socket?.connected) {
       this.socket.emit(event, data);
     } else {
