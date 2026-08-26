@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { getAuthToken } from '@/lib/api';
+import { isInsForgeConfigured } from '@/lib/insforge';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -7,7 +8,7 @@ class SocketService {
 
   // Initialize socket connection
   connect() {
-    if (this.socket?.connected) return;
+    if (isInsForgeConfigured || this.socket?.connected) return;
 
     const token = getAuthToken();
     const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
@@ -174,6 +175,7 @@ class SocketService {
 
   // Auto-reconnect with authentication
   reconnectWithAuth() {
+    if (isInsForgeConfigured) return;
     if (!this.isConnected()) {
       this.disconnect();
       this.connect();

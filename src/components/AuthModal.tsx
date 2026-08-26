@@ -16,7 +16,7 @@ interface AuthModalProps {
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { login, signup } = useAuth();
+  const { login, signup, resetPassword } = useAuth();
   const { t, currentLanguage } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -70,9 +70,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     e.preventDefault();
     setLoading(true);
     
-    // Password reset functionality will be added later
-    toast.info('Password reset feature will be available soon!');
-    setResetEmail('');
+    const success = await resetPassword(resetEmail);
+    if (success) {
+      setResetEmail('');
+      setActiveTab('signin');
+    }
     
     setLoading(false);
   };

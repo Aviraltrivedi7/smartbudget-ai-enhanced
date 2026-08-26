@@ -45,6 +45,7 @@ import { socketService } from '@/services/socketService';
 import MonthYearPicker from './MonthYearPicker';
 import { cn } from '@/lib/utils';
 import { appConfig } from '@/config/appConfig';
+import { insforgeHealthUrl } from '@/lib/insforge';
 import { notifyBudgetAlert, readBudgetAlerts, upsertBudgetAlerts } from '@/utils/budgetAlerts.js';
 
 interface DashboardProps {
@@ -95,7 +96,8 @@ const Dashboard: React.FC<DashboardProps> = memo(({ transactions: propTransactio
 
   const checkBackendConnection = async () => {
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL?.replace('/api', '/health') || 'http://localhost:5000/health', {
+      const healthUrl = insforgeHealthUrl || import.meta.env.VITE_API_URL?.replace('/api', '/health') || 'http://localhost:5000/health';
+      const response = await fetch(healthUrl, {
         method: 'GET',
         signal: AbortSignal.timeout(3000),
       });

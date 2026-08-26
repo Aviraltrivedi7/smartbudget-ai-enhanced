@@ -1,5 +1,9 @@
+import { isInsForgeConfigured } from '@/lib/insforge';
+
 const envDemoMode = import.meta.env.VITE_DEMO_MODE;
 
 export const appConfig = {
-  isDemoMode: envDemoMode === undefined ? true : envDemoMode.toLowerCase() === 'true',
+  isInsForgeConfigured,
+  isDemoMode: !isInsForgeConfigured && (envDemoMode === undefined || envDemoMode.toLowerCase() === 'true'),
+  isLiveMode: isInsForgeConfigured,
 };

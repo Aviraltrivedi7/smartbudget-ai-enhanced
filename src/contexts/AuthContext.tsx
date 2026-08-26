@@ -9,6 +9,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<boolean>;
   signup: (userData: SignupData) => Promise<boolean>;
+  resetPassword: (email: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<boolean>;
   refreshUser: () => Promise<void>;
@@ -92,10 +93,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await authService.signup(userData);
 
-      if (response.success && response.data) {
+      if (response.success && response.data?.user && response.data.token) {
         setUser(response.data.user);
         toast.success('Account created successfully! Welcome to DhanSetu AI 🎉');
         return true;
+      } else if (response.success && response.data?.user && !response.data.token) {
+        toast.info(response.message || 'Please verify your email, then sign in.');
+        return false;
       } else {
         toast.error(response.message || 'Signup failed. Please try again.');
         return false;
@@ -105,6 +109,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const resetPassword = async (email: string): Promise<boolean> => {
+    try {
+      const response = await authService.resetPassword(email);
+      if (response.success) {
+        toast.success(response.message || 'Password reset email sent.');
+        return true;
+      }
+      toast.error(response.error || response.message || 'Unable to send reset email.');
+      return false;
+    } catch (error) {
+      console.error('Reset password error:', error);
+      toast.error('Unable to send reset email. Please try again.');
+      return false;
     }
   };
 
@@ -167,6 +187,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: !!user,
     login,
     signup,
+    resetPassword,
     logout,
     updateUser,
     refreshUser,
