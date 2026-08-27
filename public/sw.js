@@ -1,5 +1,16 @@
-const CACHE_NAME = 'dhansetu-shell-v2';
-const APP_SHELL = ['/','/manifest.json','/favicon.svg','/dhansetu-logo.png'];
+const CACHE_NAME = 'dhansetu-shell-v3';
+const APP_SHELL = [
+  '/',
+  '/manifest.json',
+  '/favicon.svg',
+  '/favicon-32.png',
+  '/favicon-48.png',
+  '/dhansetu-logo.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/pwa-assets/dhansetu-splash.png',
+];
 
 const isNavigationRequest = (request) =>
   request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html');

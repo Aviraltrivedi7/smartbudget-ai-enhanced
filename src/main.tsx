@@ -10,14 +10,11 @@ const registerServiceWorker = () => {
     navigator.serviceWorker.getRegistrations().then((registrations) => registrations.forEach((registration) => registration.unregister())).catch(() => undefined);
     return;
   }
-  navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => undefined);
 };
 
-if (document.readyState === 'loading') {
-  window.addEventListener('load', registerServiceWorker, { once: true });
-} else {
-  registerServiceWorker();
-}
+// Start registration immediately so PWA eligibility can be established while the branded splash is visible.
+registerServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
   <LanguageProvider>
